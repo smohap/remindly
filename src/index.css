@@ -1,0 +1,118 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --violet: #7c6fff;
+  --magenta: #ff6fb0;
+  --cyan: #4fd1ff;
+  --indigo: #241b4e;
+  --glass: rgba(255, 255, 255, 0.1);
+  --glass-strong: rgba(255, 255, 255, 0.16);
+  --glass-border: rgba(255, 255, 255, 0.28);
+  --ink: #ffffff;
+  --ink-dim: rgba(255, 255, 255, 0.68);
+  --ink-faint: rgba(255, 255, 255, 0.44);
+  --red: #ff6b6b;
+  --teal: #2dd4bf;
+  --gold: #fbbf24;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  background:
+    radial-gradient(circle at 12% 8%, #8a7cff 0%, transparent 42%),
+    radial-gradient(circle at 88% 12%, #ff80c4 0%, transparent 40%),
+    radial-gradient(circle at 20% 92%, #4fd1ff 0%, transparent 38%),
+    radial-gradient(circle at 85% 88%, #6c5ce7 0%, transparent 45%),
+    linear-gradient(135deg, #2a2166 0%, #372a73 45%, #4a2e6b 100%);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+@layer components {
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    box-shadow:
+      0 8px 32px rgba(20, 10, 50, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+}
+
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes float1 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(30px, 40px);
+  }
+}
+
+@keyframes float2 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-25px, -35px);
+  }
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 5px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none !important;
+  }
+}
