@@ -111,6 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return error ? { error: error.message } : {}
       },
       signInAsDemo() {
+        // Never bypass a real backend: when Supabase is configured the only
+        // ways in are email/password and Google.
+        if (isSupabaseConfigured) return
         setDemoUser('Priya Nair', 'demo@remindly.app')
       },
       async signOut() {
