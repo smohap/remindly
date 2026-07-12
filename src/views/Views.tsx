@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, LogOut, Search, User, Users } from 'lucide-react'
+import { ChevronRight, LogOut, Search, Sparkles, User, Users } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { Avatar } from '../components/Avatar'
 import { GreetingHero } from '../components/GreetingHero'
@@ -13,6 +13,7 @@ import { cn } from '../lib/cn'
 import { timeMinutes, useStore } from '../store'
 import type { Reminder } from '../types'
 import { GroupsView } from './GroupsView'
+import { PremiumView } from './PremiumView'
 import { ProfileView } from './ProfileView'
 
 function sortByDayAndTime(a: Reminder, b: Reminder) {
@@ -175,9 +176,10 @@ function SettingsView() {
   const { user, isDemo, signOut } = useAuth()
   const { actions } = useStore()
   const navigate = useNavigate()
-  const links: { tab: 'profile' | 'groups'; label: string; sub: string; icon: typeof User }[] = [
+  const links: { tab: 'profile' | 'groups' | 'premium'; label: string; sub: string; icon: typeof User }[] = [
     { tab: 'profile', label: 'Profile', sub: 'Name, timezone, location', icon: User },
     { tab: 'groups', label: 'Groups', sub: 'Create groups and add members', icon: Users },
+    { tab: 'premium', label: 'Premium', sub: 'Renewals, subscriptions, gifting', icon: Sparkles },
   ]
   return (
     <div className="flex flex-col gap-5">
@@ -265,6 +267,7 @@ export function ViewSwitch() {
         {state.tab === 'calendar' && <CalendarView />}
         {state.tab === 'discover' && <DiscoverView />}
         {state.tab === 'groups' && <GroupsView />}
+        {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}
         {state.tab === 'notifications' && (
