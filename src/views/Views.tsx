@@ -167,6 +167,10 @@ function DiscoverView() {
   )
 }
 
+function SectionLabel({ children }: { children: string }) {
+  return <div className="px-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[color:var(--ink-faint)]">{children}</div>
+}
+
 function SettingsView() {
   const { user, isDemo, signOut } = useAuth()
   const { actions } = useStore()
@@ -176,48 +180,60 @@ function SettingsView() {
     { tab: 'groups', label: 'Groups', sub: 'Create groups and add members', icon: Users },
   ]
   return (
-    <>
-      <button onClick={() => actions.setTab('profile')} className="glass flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[0.13]">
-        <Avatar />
-        <div className="min-w-0 flex-1 leading-tight">
-          <div className="truncate text-[0.82rem] font-bold">{user?.name ?? 'Priya Nair'}</div>
-          <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">{user?.email ?? 'demo@remindly.app'}</div>
-        </div>
-        <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
-      </button>
+    <div className="flex flex-col gap-5">
+      <div>
+        <h2 className="font-display text-[1.05rem] font-bold">Settings</h2>
+        <p className="text-[0.78rem] text-[color:var(--ink-dim)]">Manage your account, groups, and how you're notified.</p>
+      </div>
 
-      {links.map(l => (
-        <button key={l.tab} onClick={() => actions.setTab(l.tab)} className="glass flex w-full items-center gap-3 px-[18px] py-3.5 text-left transition hover:bg-white/[0.13]">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-white/[0.1]">
-            <l.icon size={17} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-[0.85rem] font-semibold">{l.label}</div>
-            <div className="text-[0.72rem] text-[color:var(--ink-faint)]">{l.sub}</div>
-          </div>
-          <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
-        </button>
-      ))}
-
-      {isDemo && (
-        <div className="glass px-[18px] py-3 text-[0.75rem] text-[color:var(--ink-faint)]">
-          Running in demo mode — connect Supabase (see README) to enable real accounts and saved data.
+      <div className="grid items-start gap-5 xl:grid-cols-2">
+        <div className="flex flex-col gap-3">
+          <SectionLabel>Account</SectionLabel>
+          <button onClick={() => actions.setTab('profile')} className="glass flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[0.13]">
+            <Avatar />
+            <div className="min-w-0 flex-1 leading-tight">
+              <div className="truncate text-[0.85rem] font-bold">{user?.name ?? 'Priya Nair'}</div>
+              <div className="truncate text-[0.72rem] text-[color:var(--ink-faint)]">{user?.email ?? 'demo@remindly.app'}</div>
+            </div>
+            <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
+          </button>
+          {links.map(l => (
+            <button key={l.tab} onClick={() => actions.setTab(l.tab)} className="glass flex w-full items-center gap-3 px-[18px] py-3.5 text-left transition hover:bg-white/[0.13]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-white/[0.1]">
+                <l.icon size={17} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[0.85rem] font-semibold">{l.label}</div>
+                <div className="text-[0.72rem] text-[color:var(--ink-faint)]">{l.sub}</div>
+              </div>
+              <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
+            </button>
+          ))}
+          {isDemo && (
+            <div className="glass px-[18px] py-3 text-[0.75rem] leading-relaxed text-[color:var(--ink-faint)]">
+              Running in demo mode — connect Supabase (see README) to enable real accounts and saved data.
+            </div>
+          )}
         </div>
-      )}
-      <PersonalAlarmCard />
-      <ChannelsCard />
-      <QuietHoursCard />
+
+        <div className="flex flex-col gap-3">
+          <SectionLabel>Preferences</SectionLabel>
+          <PersonalAlarmCard />
+          <ChannelsCard />
+          <QuietHoursCard />
+        </div>
+      </div>
 
       <button
         onClick={async () => {
           await signOut()
           navigate('/')
         }}
-        className="glass flex cursor-pointer items-center justify-center gap-2 px-[18px] py-3.5 text-[0.85rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
+        className="flex cursor-pointer items-center justify-center gap-2 self-start rounded-full border border-[color:var(--glass-border)] bg-white/[0.06] px-5 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)] transition hover:border-[rgba(255,107,107,0.4)] hover:text-[color:var(--red)]"
       >
-        <LogOut size={16} /> Sign out
+        <LogOut size={15} /> Sign out
       </button>
-    </>
+    </div>
   )
 }
 

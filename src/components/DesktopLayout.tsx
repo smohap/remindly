@@ -10,12 +10,12 @@ export function DesktopLayout() {
       <Sidebar />
       <main className="flex min-h-0 flex-col gap-[18px]">
         <TopBar />
-        <div className="scroll-thin flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto pr-0.5">
+        <div className="scrollbar-hidden flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto">
           <ViewSwitch />
           <AppFooter />
         </div>
       </main>
-      <aside className="scroll-thin hidden min-h-0 flex-col gap-[18px] overflow-y-auto xl:flex" aria-label="Preferences and calendar">
+      <aside className="scrollbar-hidden hidden min-h-0 flex-col gap-[18px] overflow-y-auto xl:flex" aria-label="Preferences and calendar">
         <WeekStripCard />
         <PersonalAlarmCard />
         <ChannelsCard />
