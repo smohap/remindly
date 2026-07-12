@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react'
 import { seedReminders } from './data'
+import { parseReminder } from './lib/nlParse'
 import type { Filter, Reminder, Tab, ToggleKey } from './types'
 
 interface State {
@@ -62,18 +63,22 @@ function reducer(state: State, action: Action): State {
       }
     }
     case 'add': {
-      const title = action.title.trim()
-      if (!title) return state
+      if (!action.title.trim()) return state
+      // Killer feature: parse natural language into a scheduled, categorised reminder.
+      const parsed = parseReminder(action.title)
+      if (!parsed.title) return state
       const reminder: Reminder = {
         id: `r-${Date.now()}`,
-        title,
-        meta: 'Personal · Today · added via quick add',
-        category: 'personal',
-        icon: '✨',
-        dayOffset: 0,
+        title: parsed.title,
+        meta: parsed.meta,
+        category: parsed.category,
+        tag: parsed.tag,
+        icon: parsed.icon,
+        dayOffset: parsed.dayOffset,
+        time: parsed.time,
         acknowledged: false,
       }
-      return { ...state, reminders: [reminder, ...state.reminders], quickAddOpen: false, announcement: `Reminder added: ${title}` }
+      return { ...state, reminders: [reminder, ...state.reminders], quickAddOpen: false, announcement: `Reminder added: ${parsed.title}` }
     }
     case 'setFilter':
       return { ...state, filter: action.filter }

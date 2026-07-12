@@ -1,4 +1,5 @@
 import { ViewSwitch } from '../views/Views'
+import { AppFooter } from './AppFooter'
 import { ChannelsCard, PersonalAlarmCard, QuietHoursCard, WeekStripCard } from './RailCards'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
@@ -11,6 +12,7 @@ export function DesktopLayout() {
         <TopBar />
         <div className="scroll-thin flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto pr-0.5">
           <ViewSwitch />
+          <AppFooter />
         </div>
       </main>
       <aside className="scroll-thin hidden min-h-0 flex-col gap-[18px] overflow-y-auto xl:flex" aria-label="Preferences and calendar">

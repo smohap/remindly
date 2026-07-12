@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
-import { LogOut, Search } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronRight, LogOut, Search, User, Users } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { Avatar } from '../components/Avatar'
 import { GreetingHero } from '../components/GreetingHero'
@@ -12,6 +12,8 @@ import { discoverEvents } from '../data'
 import { cn } from '../lib/cn'
 import { timeMinutes, useStore } from '../store'
 import type { Reminder } from '../types'
+import { GroupsView } from './GroupsView'
+import { ProfileView } from './ProfileView'
 
 function sortByDayAndTime(a: Reminder, b: Reminder) {
   return a.dayOffset - b.dayOffset || timeMinutes(a.time) - timeMinutes(b.time)
@@ -167,25 +169,36 @@ function DiscoverView() {
 
 function SettingsView() {
   const { user, isDemo, signOut } = useAuth()
+  const { actions } = useStore()
   const navigate = useNavigate()
+  const links: { tab: 'profile' | 'groups'; label: string; sub: string; icon: typeof User }[] = [
+    { tab: 'profile', label: 'Profile', sub: 'Name, timezone, location', icon: User },
+    { tab: 'groups', label: 'Groups', sub: 'Create groups and add members', icon: Users },
+  ]
   return (
     <>
-      <div className="glass flex items-center gap-3 p-4">
+      <button onClick={() => actions.setTab('profile')} className="glass flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[0.13]">
         <Avatar />
-        <div className="min-w-0 leading-tight">
+        <div className="min-w-0 flex-1 leading-tight">
           <div className="truncate text-[0.82rem] font-bold">{user?.name ?? 'Priya Nair'}</div>
           <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">{user?.email ?? 'demo@remindly.app'}</div>
         </div>
-        <button
-          onClick={async () => {
-            await signOut()
-            navigate('/')
-          }}
-          className="ml-auto flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
-        >
-          <LogOut size={14} /> Sign out
+        <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
+      </button>
+
+      {links.map(l => (
+        <button key={l.tab} onClick={() => actions.setTab(l.tab)} className="glass flex w-full items-center gap-3 px-[18px] py-3.5 text-left transition hover:bg-white/[0.13]">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-white/[0.1]">
+            <l.icon size={17} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[0.85rem] font-semibold">{l.label}</div>
+            <div className="text-[0.72rem] text-[color:var(--ink-faint)]">{l.sub}</div>
+          </div>
+          <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
         </button>
-      </div>
+      ))}
+
       {isDemo && (
         <div className="glass px-[18px] py-3 text-[0.75rem] text-[color:var(--ink-faint)]">
           Running in demo mode — connect Supabase (see README) to enable real accounts and saved data.
@@ -194,6 +207,16 @@ function SettingsView() {
       <PersonalAlarmCard />
       <ChannelsCard />
       <QuietHoursCard />
+
+      <button
+        onClick={async () => {
+          await signOut()
+          navigate('/')
+        }}
+        className="glass flex cursor-pointer items-center justify-center gap-2 px-[18px] py-3.5 text-[0.85rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
+      >
+        <LogOut size={16} /> Sign out
+      </button>
     </>
   )
 }
@@ -225,6 +248,8 @@ export function ViewSwitch() {
         {state.tab === 'today' && <TodayView />}
         {state.tab === 'calendar' && <CalendarView />}
         {state.tab === 'discover' && <DiscoverView />}
+        {state.tab === 'groups' && <GroupsView />}
+        {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}
         {state.tab === 'notifications' && (
           <StubView
