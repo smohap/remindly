@@ -54,7 +54,7 @@ export function Sidebar() {
           )
         })}
       </nav>
-      <div className="hidden min-h-0 flex-1 overflow-y-auto xl:block">
+      <div className="scrollbar-hidden hidden min-h-0 flex-1 overflow-y-auto xl:block">
         <button
           onClick={() => actions.setTab('groups')}
           className="mb-1 flex w-full items-center justify-between px-3.5 pb-2 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-[color:var(--ink-faint)] transition hover:text-white"

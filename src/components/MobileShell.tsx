@@ -107,7 +107,7 @@ export function MobileLayout() {
   return (
     <div className="relative z-10 flex h-dvh flex-col">
       <MobileHeader compact={compact} />
-      <div className="flex-1 overflow-y-auto px-4 pb-32 pt-4" onScroll={e => setCompact(e.currentTarget.scrollTop > 24)}>
+      <div className="scrollbar-hidden flex-1 overflow-y-auto px-4 pb-32 pt-4" onScroll={e => setCompact(e.currentTarget.scrollTop > 24)}>
         <ViewSwitch />
         <AppFooter />
       </div>
