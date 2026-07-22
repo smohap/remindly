@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarClock, Gift, Plus, ShieldCheck, Sparkles, Trash2, Wallet, X } from 'lucide-react'
+import { CalendarClock, CalendarDays, Gift, Plus, ShieldCheck, Sparkles, Trash2, Wallet, X } from 'lucide-react'
 import { cn } from '../lib/cn'
+import { CalendarSync } from '../components/CalendarSync'
 import { PremiumGate } from '../components/PremiumGate'
 import {
   VAULT_TYPES,
@@ -17,11 +18,12 @@ import {
   type VaultType,
 } from '../lib/usePremium'
 
-type Segment = 'vault' | 'subscriptions' | 'concierge' | 'business'
+type Segment = 'vault' | 'subscriptions' | 'calendar' | 'concierge' | 'business'
 
 const SEGMENTS: { key: Segment; label: string; icon: typeof Wallet; locked?: boolean }[] = [
   { key: 'vault', label: 'Renewal Vault', icon: ShieldCheck },
   { key: 'subscriptions', label: 'Subscriptions', icon: Wallet },
+  { key: 'calendar', label: 'Calendar sync', icon: CalendarDays },
   { key: 'concierge', label: 'Gift Concierge', icon: Gift, locked: true },
   { key: 'business', label: 'Business', icon: CalendarClock, locked: true },
 ]
@@ -319,6 +321,7 @@ export function PremiumView() {
         <motion.div key={segment} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.18 }}>
           {segment === 'vault' && <VaultSection />}
           {segment === 'subscriptions' && <SubscriptionsSection />}
+          {segment === 'calendar' && <CalendarSync />}
           {segment === 'concierge' && <ConciergeLocked />}
           {segment === 'business' && <BusinessLocked />}
         </motion.div>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Plus, Trash2, UserPlus, X } from 'lucide-react'
+import { MessageSquare, Plus, Trash2, UserPlus, X } from 'lucide-react'
 import { cn } from '../lib/cn'
+import { GroupChat } from '../components/GroupChat'
 import { GROUP_COLORS, useGroups } from '../lib/useGroups'
 
 export function GroupsView() {
@@ -149,6 +150,17 @@ export function GroupsView() {
                       <UserPlus size={15} /> Add
                     </button>
                   </form>
+
+                  <div className="mt-3 border-t border-white/10 pt-3">
+                    <div className="mb-2.5 flex items-center gap-2">
+                      <MessageSquare size={14} className="text-[color:var(--ink-dim)]" />
+                      <span className="text-[0.8rem] font-bold">Group chat</span>
+                      <span className="rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-2 py-[1px] text-[0.55rem] font-extrabold uppercase tracking-[0.06em] text-[#1a1240]">
+                        Premium
+                      </span>
+                    </div>
+                    <GroupChat groupId={g.id} groupColor={g.color} />
+                  </div>
 
                   {g.role === 'admin' && g.name !== 'Personal' && (
                     <button
