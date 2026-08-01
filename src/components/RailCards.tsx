@@ -29,7 +29,7 @@ export function WeekStripCard() {
     }
   })
   return (
-    <div className="glass p-5">
+    <div className="glass shrink-0 p-5">
       <h3 className="font-display mb-3.5 flex items-center gap-2 text-[0.82rem] font-bold">🗓️ This week</h3>
       <div className="mb-3.5 flex justify-between">
         {days.map((d, i) => (
@@ -58,15 +58,15 @@ export function WeekStripCard() {
 export function PersonalAlarmCard() {
   const { state, actions } = useStore()
   return (
-    <div className="glass relative overflow-hidden p-[18px]">
-      <span className="absolute right-3 top-2 text-[2.6rem] opacity-[0.12]" aria-hidden>
+    <div className="glass relative shrink-0 overflow-hidden p-5">
+      <span className="pointer-events-none absolute right-3 top-2 text-[2.6rem] opacity-[0.12]" aria-hidden>
         ⏰
       </span>
-      <div className="mb-1.5 flex items-center justify-between">
+      <div className="relative mb-2 flex items-center justify-between gap-3">
         <h3 className="font-display text-[0.82rem] font-bold">⏰ Personal alarm</h3>
         <ToggleSwitch on={state.toggles.personalAlarm} onChange={() => actions.toggle('personalAlarm')} label="Personal alarm" />
       </div>
-      <p className="max-w-[80%] text-[0.72rem] leading-relaxed text-[color:var(--ink-dim)]">
+      <p className="relative max-w-[92%] text-[0.72rem] leading-relaxed text-[color:var(--ink-dim)]">
         Bypasses silent &amp; DND for reminders you mark critical. Loops until dismissed.
       </p>
     </div>
@@ -83,7 +83,7 @@ const CHANNELS = [
 export function ChannelsCard() {
   const { state, actions } = useStore()
   return (
-    <div className="glass p-5">
+    <div className="glass shrink-0 p-5">
       <h3 className="font-display mb-2 text-[0.82rem] font-bold">Notification channels</h3>
       {CHANNELS.map(channel => (
         <div key={channel.key} className="flex items-center justify-between border-b border-white/10 py-[9px] last:border-0 last:pb-0">
@@ -101,7 +101,7 @@ export function ChannelsCard() {
 export function QuietHoursCard() {
   const { state, actions } = useStore()
   return (
-    <div className="glass p-5">
+    <div className="glass shrink-0 p-5">
       <h3 className="font-display mb-2 text-[0.82rem] font-bold">🌙 Quiet hours</h3>
       <div className="flex items-center justify-between py-1">
         <div className="text-[0.8rem] font-semibold">10:00 PM – 7:00 AM</div>

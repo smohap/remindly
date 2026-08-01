@@ -1,4 +1,4 @@
-import { Bell, CalendarDays, LogOut, ScrollText, Search, Settings, Sparkles, Sun, Users } from 'lucide-react'
+import { Bell, CalendarDays, LayoutGrid, LogOut, ScrollText, Search, Settings, Sparkles, Sun, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
@@ -11,6 +11,7 @@ const NAV: { key: Tab; label: string; icon: typeof Sun }[] = [
   { key: 'today', label: 'Today', icon: Sun },
   { key: 'calendar', label: 'Calendar', icon: CalendarDays },
   { key: 'discover', label: 'Discover', icon: Search },
+  { key: 'workspace', label: 'Workspace', icon: LayoutGrid },
   { key: 'groups', label: 'Groups', icon: Users },
   { key: 'premium', label: 'Premium', icon: Sparkles },
   { key: 'notifications', label: 'Notifications', icon: Bell },
@@ -25,7 +26,7 @@ export function Sidebar() {
   const navigate = useNavigate()
 
   return (
-    <aside className="glass flex min-h-0 flex-col gap-6 px-3 py-[26px] xl:px-[18px]">
+    <aside className="glass flex h-full min-h-0 flex-col gap-6 px-3 py-[26px] xl:px-[18px]">
       <div className="font-display flex items-center justify-center gap-[9px] px-1.5 text-[1.3rem] font-extrabold xl:justify-start">
         <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] shadow-[0_0_14px_var(--cyan)]" />
         <span className="hidden xl:inline">Remindly</span>

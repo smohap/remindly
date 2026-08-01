@@ -17,7 +17,17 @@ export interface Reminder {
 
 export type Filter = 'today' | 'tomorrow' | 'week' | 'overdue'
 
-export type Tab = 'today' | 'calendar' | 'discover' | 'notifications' | 'history' | 'settings' | 'groups' | 'profile' | 'premium'
+export type Tab =
+  | 'today'
+  | 'calendar'
+  | 'discover'
+  | 'notifications'
+  | 'history'
+  | 'settings'
+  | 'groups'
+  | 'profile'
+  | 'premium'
+  | 'workspace'
 
 export type ToggleKey = 'personalAlarm' | 'push' | 'email' | 'sms' | 'slack' | 'quietHours'
 

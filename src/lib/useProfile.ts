@@ -5,6 +5,15 @@ export interface ProfileFields {
   timezone: string
   location: string
   role: string
+  /** Extended details */
+  bio: string
+  phone: string
+  jobTitle: string
+  company: string
+  website: string
+  birthday: string
+  language: string
+  weekStart: 'monday' | 'sunday'
 }
 
 const KEY = 'remindly.profile.v1'
@@ -14,7 +23,17 @@ const defaults: ProfileFields = {
   timezone: 'Pacific/Auckland',
   location: 'Auckland, NZ',
   role: 'User',
+  bio: '',
+  phone: '',
+  jobTitle: '',
+  company: '',
+  website: '',
+  birthday: '',
+  language: 'English (NZ)',
+  weekStart: 'monday',
 }
+
+export const LANGUAGES = ['English (NZ)', 'English (AU)', 'English (UK)', 'English (US)', 'Te Reo Māori', 'Hindi', 'Odia', 'Mandarin', 'Samoan']
 
 let fields: ProfileFields = load()
 const listeners = new Set<() => void>()

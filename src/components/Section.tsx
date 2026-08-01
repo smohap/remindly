@@ -34,9 +34,11 @@ export function Section({ title, items, actionLabel, onAction, emptyText }: Sect
               layout
               exit={{ opacity: 0, x: 48, height: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="-mx-1 overflow-hidden px-1"
+              /* Generous inset padding so the hover lift and the glass shadow
+                 aren't clipped by the overflow-hidden needed for exit collapse. */
+              className="-mx-3 -mt-3 overflow-hidden px-3 pt-3"
             >
-              <div className="-mt-1 pb-3 pt-1">
+              <div className="pb-3">
                 <ReminderCard reminder={reminder} />
               </div>
             </motion.div>

@@ -15,6 +15,7 @@ import type { Reminder } from '../types'
 import { GroupsView } from './GroupsView'
 import { PremiumView } from './PremiumView'
 import { ProfileView } from './ProfileView'
+import { WorkspaceView } from './WorkspaceView'
 
 function sortByDayAndTime(a: Reminder, b: Reminder) {
   return a.dayOffset - b.dayOffset || timeMinutes(a.time) - timeMinutes(b.time)
@@ -267,6 +268,7 @@ export function ViewSwitch() {
         {state.tab === 'calendar' && <CalendarView />}
         {state.tab === 'discover' && <DiscoverView />}
         {state.tab === 'groups' && <GroupsView />}
+        {state.tab === 'workspace' && <WorkspaceView />}
         {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}

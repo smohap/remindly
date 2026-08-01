@@ -24,7 +24,7 @@
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -43,16 +43,8 @@ body {
   background-attachment: fixed;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 26px 26px;
-  pointer-events: none;
-  opacity: 0.5;
-  z-index: 1;
-}
+/* The dot-grid overlay was banding into visible lines behind the glass
+   panels on some displays, so the background is now a clean gradient. */
 
 @layer components {
   .glass {
