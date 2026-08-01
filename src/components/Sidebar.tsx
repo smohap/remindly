@@ -26,7 +26,7 @@ export function Sidebar() {
   const navigate = useNavigate()
 
   return (
-    <aside className="glass flex h-full min-h-0 flex-col gap-6 px-3 py-[26px] xl:px-[18px]">
+    <aside className="glass flex flex-col gap-6 px-3 py-[26px] xl:px-[18px]">
       <div className="font-display flex items-center justify-center gap-[9px] px-1.5 text-[1.3rem] font-extrabold xl:justify-start">
         <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] shadow-[0_0_14px_var(--cyan)]" />
         <span className="hidden xl:inline">Remindly</span>
@@ -56,7 +56,7 @@ export function Sidebar() {
           )
         })}
       </nav>
-      <div className="scrollbar-hidden hidden min-h-0 flex-1 overflow-y-auto xl:block">
+      <div className="hidden xl:block">
         <button
           onClick={() => actions.setTab('groups')}
           className="mb-1 flex w-full items-center justify-between px-3.5 pb-2 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-[color:var(--ink-faint)] transition hover:text-white"
