@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeft, Ban, Check, FileText, Lock, Plus, Send, Trash2, X } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
@@ -38,13 +38,11 @@ function fmtStamp(iso: string) {
 // ===========================================================================
 function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
   const { groups } = useGroups()
-  const { createInvoice, dbMode, directory: dbDirectory } = useInvoices()
+  const { createInvoice, dbMode, searchRecipients } = useInvoices()
   const { user } = useAuth()
 
-  // In DB mode the directory is real profiles the user shares a group with;
-  // otherwise it's derived from the local group store.
-  const directory = useMemo(() => {
-    if (dbMode) return dbDirectory.map(d => ({ id: d.id, name: d.name }))
+  // Local fallback directory (demo mode) — real accounts are searched instead.
+  const localDirectory = useMemo(() => {
     const seen = new Map<string, string>()
     groups.forEach(g =>
       g.members.forEach(m => {
@@ -52,10 +50,36 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
         if (m.name !== (user?.name ?? 'Priya Nair')) seen.set(id, m.name)
       }),
     )
-    return [...seen.entries()].map(([id, name]) => ({ id, name }))
-  }, [groups, user, dbMode, dbDirectory])
+    return [...seen.entries()].map(([id, name]) => ({ id, name, email: '' }))
+  }, [groups, user])
 
-  const [recipientId, setRecipientId] = useState('')
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<{ id: string; name: string; email: string }[]>([])
+  const [picked, setPicked] = useState<{ id: string; name: string; email: string } | null>(null)
+  const [searching, setSearching] = useState(false)
+
+  // Debounced lookup by name, email or user ID
+  useEffect(() => {
+    if (picked) return
+    const q = query.trim()
+    if (!dbMode) {
+      setResults(localDirectory.filter(d => !q || d.name.toLowerCase().includes(q.toLowerCase())))
+      return
+    }
+    if (q.length < 3) {
+      setResults([])
+      return
+    }
+    setSearching(true)
+    const t = setTimeout(async () => {
+      const found = await searchRecipients(q)
+      setResults(found)
+      setSearching(false)
+    }, 250)
+    return () => clearTimeout(t)
+  }, [query, picked, dbMode, localDirectory, searchRecipients])
+
+  const recipientId = picked?.id ?? ''
   const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState('NZD')
   const [description, setDescription] = useState('')
@@ -68,20 +92,18 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    const recipient = directory.find(d => d.id === recipientId)
+    if (!picked) return setError('Search for and choose who this invoice is for.')
     const input = {
       recipientId,
-      recipientName: recipient?.name ?? '',
+      recipientName: picked.name,
       amountCents,
       currency,
       description,
       dueDate,
       lineItems: items,
     }
-    const err = validateInvoice(
-      input,
-      directory.map(d => d.id),
-    )
+    // The picked user came from the directory/search, so it exists by construction.
+    const err = validateInvoice(input, [picked.id])
     if (err) return setError(err)
     const saveErr = await createInvoice(input, user?.name ?? 'You')
     if (saveErr) return setError(saveErr)
@@ -93,15 +115,65 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
       <h3 className="font-display text-[1rem] font-bold">New invoice</h3>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label>
+        <div className="relative">
           <span className={labelCls}>Send to</span>
-          <select value={recipientId} onChange={e => setRecipientId(e.target.value)} className={field}>
-            <option value="" className="bg-[color:var(--indigo)]">Choose a recipient…</option>
-            {directory.map(d => (
-              <option key={d.id} value={d.id} className="bg-[color:var(--indigo)]">{d.name} · {d.id}</option>
-            ))}
-          </select>
-        </label>
+          {picked ? (
+            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3 py-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.6rem] font-bold">
+                {picked.name.slice(0, 2).toUpperCase()}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[0.82rem] font-semibold">{picked.name}</div>
+                {picked.email && <div className="truncate text-[0.68rem] text-[color:var(--ink-faint)]">{picked.email}</div>}
+              </div>
+              <button type="button" aria-label="Clear recipient" onClick={() => { setPicked(null); setQuery('') }}
+                className="shrink-0 cursor-pointer text-[color:var(--ink-faint)] transition hover:text-white">
+                <X size={15} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder={dbMode ? 'Search by name, email or user ID…' : 'Search a contact…'}
+                aria-label="Search for a recipient"
+                autoComplete="off"
+                className={field}
+              />
+              {dbMode && query.trim().length > 0 && query.trim().length < 3 && (
+                <p className="mt-1 text-[0.68rem] text-[color:var(--ink-faint)]">Keep typing — at least 3 characters.</p>
+              )}
+              {(results.length > 0 || searching) && (
+                <ul className="glass absolute z-30 mt-1 max-h-56 w-full overflow-y-auto p-1" role="listbox">
+                  {searching && <li className="px-3 py-2 text-[0.75rem] text-[color:var(--ink-faint)]">Searching…</li>}
+                  {results.map(r => (
+                    <li key={r.id}>
+                      <button
+                        type="button"
+                        onClick={() => { setPicked(r); setResults([]); setError(null) }}
+                        className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-3 py-2 text-left transition hover:bg-white/[0.12]"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.6rem] font-bold">
+                          {r.name.slice(0, 2).toUpperCase()}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-[0.82rem] font-semibold">{r.name}</span>
+                          <span className="block truncate text-[0.68rem] text-[color:var(--ink-faint)]">{r.email || r.id}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {dbMode && !searching && query.trim().length >= 3 && results.length === 0 && (
+                <p className="mt-1 text-[0.7rem] text-[color:var(--ink-faint)]">
+                  No one found. They need a Remindly account before you can invoice them.
+                </p>
+              )}
+            </>
+          )}
+        </div>
         <label>
           <span className={labelCls}>Due date</span>
           <input type="date" value={dueDate} min={new Date().toISOString().slice(0, 10)} onChange={e => setDueDate(e.target.value)} className={field} />

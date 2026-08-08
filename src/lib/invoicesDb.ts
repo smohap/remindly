@@ -124,6 +124,31 @@ export async function fetchDirectory(myId: string): Promise<DirectoryUser[]> {
   return [...seen.values()]
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * Look up anyone with a Remindly account by name, email or user ID.
+ * Requires at least 3 characters so the whole user base can't be enumerated
+ * from a single keystroke, and caps results.
+ */
+export async function searchUsers(query: string, myId: string): Promise<DirectoryUser[]> {
+  if (!supabase) return []
+  const q = query.trim()
+  if (q.length < 3) return []
+
+  const req = supabase.from('profiles').select('id, full_name, email').neq('id', myId).limit(8)
+  const { data, error } = UUID_RE.test(q)
+    ? await req.eq('id', q)
+    : await req.or(`email.ilike.%${q}%,full_name.ilike.%${q}%`)
+
+  if (error) return []
+  return ((data ?? []) as { id: string; full_name: string | null; email: string | null }[]).map(p => ({
+    id: p.id,
+    name: p.full_name ?? p.email ?? 'Unknown',
+    email: p.email ?? '',
+  }))
+}
+
 export async function fetchInvoices(myId: string): Promise<Invoice[]> {
   if (!supabase) return []
   const { data, error } = await supabase

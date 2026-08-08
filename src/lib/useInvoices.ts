@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { makeStore } from './localStore'
 import {
   addCommentDb, cancelDb, createInvoiceDb, currentUserId, fetchDirectory, fetchInvoices,
-  markPaidDb, rejectDb, type DirectoryUser,
+  markPaidDb, rejectDb, searchUsers, type DirectoryUser,
 } from './invoicesDb'
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'rejected' | 'cancelled'
@@ -358,10 +358,28 @@ export function useInvoices() {
   const outstandingCents = received.filter(i => i.status === 'sent').reduce((s, i) => s + i.amountCents, 0)
   const awaitingCents = sent.filter(i => i.status === 'sent').reduce((s, i) => s + i.amountCents, 0)
 
+  /**
+   * Find someone to invoice. In DB mode this searches every Remindly account
+   * by name, email or user ID; locally it filters the seeded directory.
+   */
+  const searchRecipients = async (query: string): Promise<DirectoryUser[]> => {
+    if (dbMode && myId) return searchUsers(query, myId)
+    const q = query.trim().toLowerCase()
+    const local = store
+      .get()
+      .flatMap(i => [
+        { id: i.senderId, name: i.senderName, email: '' },
+        { id: i.recipientId, name: i.recipientName, email: '' },
+      ])
+      .filter(u => u.id !== ME)
+    const seen = new Map(local.map(u => [u.id, u]))
+    return [...seen.values()].filter(u => !q || u.name.toLowerCase().includes(q) || u.id.toLowerCase().includes(q))
+  }
+
   return {
     invoices, sent, received,
     createInvoice, markPaid, reject, cancel, addComment, deleteInvoice,
     outstandingCents, awaitingCents,
-    dbMode, loading, directory,
+    dbMode, loading, directory, searchRecipients,
   }
 }
