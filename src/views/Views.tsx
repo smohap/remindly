@@ -13,6 +13,7 @@ import { cn } from '../lib/cn'
 import { timeMinutes, useStore } from '../store'
 import type { Reminder } from '../types'
 import { GroupsView } from './GroupsView'
+import { InvoicesView } from './InvoicesView'
 import { PremiumView } from './PremiumView'
 import { ProfileView } from './ProfileView'
 import { WorkspaceView } from './WorkspaceView'
@@ -269,6 +270,7 @@ export function ViewSwitch() {
         {state.tab === 'discover' && <DiscoverView />}
         {state.tab === 'groups' && <GroupsView />}
         {state.tab === 'workspace' && <WorkspaceView />}
+        {state.tab === 'invoices' && <InvoicesView />}
         {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}

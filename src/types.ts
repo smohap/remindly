@@ -28,6 +28,7 @@ export type Tab =
   | 'profile'
   | 'premium'
   | 'workspace'
+  | 'invoices'
 
 export type ToggleKey = 'personalAlarm' | 'push' | 'email' | 'sms' | 'slack' | 'quietHours'
 

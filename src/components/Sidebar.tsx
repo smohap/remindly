@@ -1,4 +1,4 @@
-import { Bell, CalendarDays, LayoutGrid, LogOut, ScrollText, Search, Settings, Sparkles, Sun, Users } from 'lucide-react'
+import { Bell, CalendarDays, FileText, LayoutGrid, LogOut, ScrollText, Search, Settings, Sparkles, Sun, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
@@ -12,6 +12,7 @@ const NAV: { key: Tab; label: string; icon: typeof Sun }[] = [
   { key: 'calendar', label: 'Calendar', icon: CalendarDays },
   { key: 'discover', label: 'Discover', icon: Search },
   { key: 'workspace', label: 'Workspace', icon: LayoutGrid },
+  { key: 'invoices', label: 'Invoices', icon: FileText },
   { key: 'groups', label: 'Groups', icon: Users },
   { key: 'premium', label: 'Premium', icon: Sparkles },
   { key: 'notifications', label: 'Notifications', icon: Bell },
