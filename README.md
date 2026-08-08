@@ -29,6 +29,7 @@ The app runs out of the box in **demo mode** (simulated auth, no backend). To en
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL editor, run the schema then the seed:
    - `supabase/migrations/0001_initial_schema.sql`
+   - `supabase/migrations/0002_premium_features.sql`  *(invoices, workspace, chat, calendar, entitlements)*
    - `supabase/seed.sql`  *(creates demo user `demo@remindly.app` / `Password123!`)*
 3. Enable **Google** as an auth provider: Supabase Dashboard → Authentication → Providers → Google (add your Google OAuth client ID & secret, and set the authorised redirect to your Supabase callback URL).
 4. Add the redirect URLs for your app (e.g. `http://localhost:5173/app` and your Vercel domain `/app`) under Authentication → URL Configuration.

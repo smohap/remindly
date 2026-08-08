@@ -1,5 +1,9 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { makeStore } from './localStore'
+import {
+  addCommentDb, cancelDb, createInvoiceDb, currentUserId, fetchDirectory, fetchInvoices,
+  markPaidDb, rejectDb, type DirectoryUser,
+} from './invoicesDb'
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'rejected' | 'cancelled'
 export type InvoiceAction = 'created' | 'sent' | 'viewed' | 'paid' | 'rejected' | 'cancelled' | 'commented'
@@ -186,8 +190,42 @@ export function validateInvoice(input: CreateInvoiceInput, knownIds: string[]): 
 }
 
 export function useInvoices() {
-  const invoices = useSyncExternalStore(store.subscribe, store.get, store.get)
+  const localInvoices = useSyncExternalStore(store.subscribe, store.get, store.get)
 
+  // --- Supabase mode -------------------------------------------------------
+  // When a user is signed in against a configured Supabase project, invoices
+  // live in Postgres (real cross-user delivery). Otherwise we fall back to the
+  // on-device store so the app still works in demo mode.
+  const [myId, setMyId] = useState<string | null>(null)
+  const [remote, setRemote] = useState<Invoice[] | null>(null)
+  const [directory, setDirectory] = useState<DirectoryUser[]>([])
+  const [loading, setLoading] = useState(true)
+  const dbMode = myId !== null
+
+  const reload = useCallback(async (uid: string) => {
+    try {
+      const [inv, dir] = await Promise.all([fetchInvoices(uid), fetchDirectory(uid)])
+      setRemote(inv)
+      setDirectory(dir)
+    } catch {
+      setRemote(null) // fall back to local rather than showing an empty screen
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    currentUserId().then(async uid => {
+      if (cancelled) return
+      setMyId(uid)
+      if (uid) await reload(uid)
+      if (!cancelled) setLoading(false)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [reload])
+
+  const invoices = dbMode && remote ? remote : localInvoices
   const sent = invoices.filter(i => i.senderId === ME)
   const received = invoices.filter(i => i.recipientId === ME)
 
@@ -195,7 +233,7 @@ export function useInvoices() {
     store.set(store.get().map(i => (i.id === id ? fn(i) : i)))
   }
 
-  const createInvoice = useCallback((input: CreateInvoiceInput, senderName: string) => {
+  const createInvoiceLocal = useCallback((input: CreateInvoiceInput, senderName: string) => {
     const cur = store.get()
     const nextNum = 1005 + cur.filter(i => i.senderId === ME).length
     const inv: Invoice = {
@@ -220,7 +258,7 @@ export function useInvoices() {
   }, [])
 
   /** Recipient only, and only from a non-terminal state (atomic guard). */
-  const markPaid = useCallback((id: string, comment: string, actor: string): string | null => {
+  const markPaidLocal = useCallback((id: string, comment: string, actor: string): string | null => {
     const inv = store.get().find(i => i.id === id)
     if (!inv) return 'Invoice not found.'
     if (inv.recipientId !== ME) return 'Only the recipient can settle this invoice.'
@@ -235,7 +273,7 @@ export function useInvoices() {
     return null
   }, [])
 
-  const reject = useCallback((id: string, comment: string, actor: string): string | null => {
+  const rejectLocal = useCallback((id: string, comment: string, actor: string): string | null => {
     const inv = store.get().find(i => i.id === id)
     if (!inv) return 'Invoice not found.'
     if (inv.recipientId !== ME) return 'Only the recipient can reject this invoice.'
@@ -253,7 +291,7 @@ export function useInvoices() {
     return null
   }, [])
 
-  const cancel = useCallback((id: string, actor: string): string | null => {
+  const cancelLocal = useCallback((id: string, actor: string): string | null => {
     const inv = store.get().find(i => i.id === id)
     if (!inv) return 'Invoice not found.'
     if (inv.senderId !== ME) return 'Only the sender can cancel this invoice.'
@@ -262,7 +300,7 @@ export function useInvoices() {
     return null
   }, [])
 
-  const addComment = useCallback((id: string, comment: string, actor: string) => {
+  const addCommentLocal = useCallback((id: string, comment: string, actor: string) => {
     const c = comment.trim()
     if (!c) return
     patch(id, i => ({ ...i, events: [...i.events, ev(actor, 'commented', c)] }))
@@ -272,8 +310,58 @@ export function useInvoices() {
     store.set(store.get().filter(i => i.id !== id))
   }, [])
 
+  // --- Public API: routes to Postgres when signed in, else the local store ---
+  const after = async (err: string | null) => {
+    if (!err && myId) await reload(myId)
+    return err
+  }
+
+  const createInvoice = async (input: CreateInvoiceInput, senderName: string): Promise<string | null> => {
+    if (dbMode && myId) {
+      return after(
+        await createInvoiceDb(myId, {
+          recipientId: input.recipientId,
+          amountCents: input.amountCents,
+          currency: input.currency,
+          description: input.description.trim(),
+          dueDate: input.dueDate,
+          lineItems: input.lineItems,
+        }),
+      )
+    }
+    createInvoiceLocal(input, senderName)
+    return null
+  }
+
+  const markPaid = async (id: string, comment: string, actor: string): Promise<string | null> =>
+    dbMode && myId ? after(await markPaidDb(myId, id, comment)) : markPaidLocal(id, comment, actor)
+
+  const reject = async (id: string, comment: string, actor: string): Promise<string | null> => {
+    const reason = comment.trim()
+    if (!reason) return 'A reason is required to reject an invoice.'
+    if (reason.length > REJECT_COMMENT_MAX) return `Keep the reason under ${REJECT_COMMENT_MAX} characters.`
+    return dbMode && myId ? after(await rejectDb(myId, id, reason)) : rejectLocal(id, reason, actor)
+  }
+
+  const cancel = async (id: string, actor: string): Promise<string | null> =>
+    dbMode && myId ? after(await cancelDb(myId, id)) : cancelLocal(id, actor)
+
+  const addComment = async (id: string, comment: string, actor: string): Promise<void> => {
+    if (dbMode && myId) {
+      await addCommentDb(myId, id, comment)
+      await reload(myId)
+      return
+    }
+    addCommentLocal(id, comment, actor)
+  }
+
   const outstandingCents = received.filter(i => i.status === 'sent').reduce((s, i) => s + i.amountCents, 0)
   const awaitingCents = sent.filter(i => i.status === 'sent').reduce((s, i) => s + i.amountCents, 0)
 
-  return { invoices, sent, received, createInvoice, markPaid, reject, cancel, addComment, deleteInvoice, outstandingCents, awaitingCents }
+  return {
+    invoices, sent, received,
+    createInvoice, markPaid, reject, cancel, addComment, deleteInvoice,
+    outstandingCents, awaitingCents,
+    dbMode, loading, directory,
+  }
 }

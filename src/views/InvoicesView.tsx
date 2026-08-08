@@ -38,11 +38,13 @@ function fmtStamp(iso: string) {
 // ===========================================================================
 function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
   const { groups } = useGroups()
-  const { createInvoice } = useInvoices()
+  const { createInvoice, dbMode, directory: dbDirectory } = useInvoices()
   const { user } = useAuth()
 
-  // Directory of invoiceable users, derived from group membership
+  // In DB mode the directory is real profiles the user shares a group with;
+  // otherwise it's derived from the local group store.
   const directory = useMemo(() => {
+    if (dbMode) return dbDirectory.map(d => ({ id: d.id, name: d.name }))
     const seen = new Map<string, string>()
     groups.forEach(g =>
       g.members.forEach(m => {
@@ -51,7 +53,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
       }),
     )
     return [...seen.entries()].map(([id, name]) => ({ id, name }))
-  }, [groups, user])
+  }, [groups, user, dbMode, dbDirectory])
 
   const [recipientId, setRecipientId] = useState('')
   const [amount, setAmount] = useState('')
@@ -64,7 +66,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
   const itemsTotal = lineItemsTotal(items)
   const amountCents = items.length > 0 ? itemsTotal : Math.round(parseFloat(amount || '0') * 100)
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault()
     const recipient = directory.find(d => d.id === recipientId)
     const input = {
@@ -81,7 +83,8 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
       directory.map(d => d.id),
     )
     if (err) return setError(err)
-    createInvoice(input, user?.name ?? 'You')
+    const saveErr = await createInvoice(input, user?.name ?? 'You')
+    if (saveErr) return setError(saveErr)
     onDone()
   }
 
@@ -196,8 +199,8 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
   const amISender = invoice.senderId === ME
   const open = invoice.status === 'sent'
 
-  function run(fn: () => string | null) {
-    const err = fn()
+  async function run(fn: () => Promise<string | null>) {
+    const err = await fn()
     if (err) return setError(err)
     setError(null)
     setMode('none')
