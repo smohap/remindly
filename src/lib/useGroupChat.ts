@@ -1,5 +1,6 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { makeStore } from './localStore'
+import { supabase } from './supabase'
 
 export interface ChatMessage {
   id: string
@@ -14,6 +15,12 @@ type State = Record<string, ChatMessage[]>
 
 function ago(mins: number) {
   return new Date(Date.now() - mins * 60000).toISOString()
+}
+
+function initialsOf(name: string) {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return name.slice(0, 2).toUpperCase()
 }
 
 const seed: State = {
@@ -37,14 +44,95 @@ export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat('en-NZ', { day: 'numeric', month: 'short' }).format(d)
 }
 
+interface MessageRow {
+  id: string
+  author_id: string
+  body: string
+  created_at: string
+  author?: { full_name: string | null } | null
+}
+
+/**
+ * Group chat is multi-writer, so it can't use the whole-collection sync the
+ * personal workspace uses — that would overwrite other people's messages.
+ * Instead we append rows and re-fetch, subscribing to Postgres changes so other
+ * members' messages arrive live when Supabase is configured.
+ */
 export function useGroupChat(groupId: string) {
   const all = useSyncExternalStore(store.subscribe, store.get, store.get)
-  const messages = all[groupId] ?? []
+  const [remote, setRemote] = useState<ChatMessage[] | null>(null)
+  const myId = useRef<string | null>(null)
+
+  // Locally-created groups have ids like "g-1699…", which aren't real rows.
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId)
+  const dbMode = Boolean(supabase) && isUuid
+
+  const load = useCallback(async () => {
+    if (!supabase || !isUuid) return
+    const { data: userData } = await supabase.auth.getUser()
+    myId.current = userData.user?.id ?? null
+
+    const { data, error } = await supabase
+      .from('group_messages')
+      .select('id, author_id, body, created_at, author:profiles ( full_name )')
+      .eq('group_id', groupId)
+      .order('created_at', { ascending: true })
+      .limit(200)
+    if (error) return
+
+    setRemote(
+      ((data ?? []) as unknown as MessageRow[]).map(r => {
+        const self = r.author_id === myId.current
+        const name = self ? 'You' : (r.author?.full_name ?? 'Someone')
+        return {
+          id: r.id,
+          authorName: name,
+          authorInitials: initialsOf(self ? 'ME' : name),
+          body: r.body,
+          at: r.created_at,
+          self,
+        }
+      }),
+    )
+  }, [groupId, isUuid])
+
+  useEffect(() => {
+    if (!dbMode || !supabase) return
+    void load()
+    const client = supabase
+    const channel = client
+      .channel(`group_messages:${groupId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` },
+        () => {
+          void load()
+        },
+      )
+      .subscribe()
+    return () => {
+      void client.removeChannel(channel)
+    }
+  }, [dbMode, groupId, load])
+
+  const messages = dbMode && remote ? remote : (all[groupId] ?? [])
 
   const send = useCallback(
-    (body: string, authorName: string, authorInitials: string) => {
+    async (body: string, authorName: string, authorInitials: string) => {
       const text = body.trim()
       if (!text) return
+
+      if (dbMode && supabase) {
+        const { data: userData } = await supabase.auth.getUser()
+        const uid = userData.user?.id
+        if (!uid) return
+        const { error } = await supabase
+          .from('group_messages')
+          .insert({ group_id: groupId, author_id: uid, body: text.slice(0, 4000) })
+        if (!error) await load()
+        return
+      }
+
       const msg: ChatMessage = {
         id: `m-${Date.now()}`,
         authorName,
@@ -56,13 +144,13 @@ export function useGroupChat(groupId: string) {
       const cur = store.get()
       store.set({ ...cur, [groupId]: [...(cur[groupId] ?? []), msg] })
     },
-    [groupId],
+    [dbMode, groupId, load],
   )
 
-  return { messages, send }
+  return { messages, send, dbMode }
 }
 
-/** Unread-ish count for a group badge (messages from others). */
+/** Message count for a group badge. */
 export function useGroupChatCount(groupId: string) {
   const all = useSyncExternalStore(store.subscribe, store.get, store.get)
   return (all[groupId] ?? []).length

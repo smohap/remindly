@@ -529,9 +529,19 @@ function CreativeSection() {
 }
 
 // ===========================================================================
+const SYNC_LABEL: Record<string, { text: string; cls: string }> = {
+  local: { text: 'Saved on this device', cls: 'text-[color:var(--ink-faint)]' },
+  loading: { text: 'Loading your workspace…', cls: 'text-[color:var(--ink-faint)]' },
+  saving: { text: 'Saving…', cls: 'text-[color:var(--ink-dim)]' },
+  synced: { text: 'Synced to your account', cls: 'text-[#7BE9D8]' },
+  error: { text: "Couldn't sync — saved on this device", cls: 'text-[#FCD770]' },
+}
+
 export function WorkspaceView() {
   const [segment, setSegment] = useState<Segment>('lists')
   const { isPremium, setPremium } = usePremium()
+  const { syncState } = useLists()
+  const sync = SYNC_LABEL[syncState] ?? SYNC_LABEL.local
 
   return (
     <div className="flex flex-col gap-5">
@@ -539,6 +549,7 @@ export function WorkspaceView() {
         <div>
           <h2 className="font-display text-[1.05rem] font-bold">Workspace</h2>
           <p className="text-[0.78rem] text-[color:var(--ink-dim)]">Lists, notes, bookmarks, your diary and creative writing — all in one place.</p>
+          <p className={cn('mt-1 text-[0.68rem]', sync.cls)}>{sync.text}</p>
         </div>
         <button
           onClick={() => setPremium(!isPremium)}

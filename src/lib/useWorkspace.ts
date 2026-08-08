@@ -1,5 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { makeStore } from './localStore'
+import { makeSyncedStore, useSyncState } from './syncedStore'
 
 // ---------------------------------------------------------------------------
 // Premium status. No billing is wired yet, so this is a local preview switch
@@ -82,7 +83,20 @@ const today = () => new Date().toISOString().slice(0, 10)
 // ---------------------------------------------------------------------------
 // Lists
 // ---------------------------------------------------------------------------
-const listsStore = makeStore<UserList[]>('remindly.lists.v1', [
+const listsStore = makeSyncedStore<UserList>({
+  key: 'remindly.lists.v1',
+  table: 'lists',
+  orderBy: { column: 'created_at' },
+  toRow: l => ({ name: l.name, color: l.color, shared: l.shared, items: l.items, created_at: l.createdAt }),
+  fromRow: r => ({
+    id: String(r.id),
+    name: String(r.name ?? ''),
+    color: String(r.color ?? '#7C6FFF'),
+    shared: Boolean(r.shared),
+    items: Array.isArray(r.items) ? (r.items as ListItem[]) : [],
+    createdAt: String(r.created_at ?? new Date().toISOString()),
+  }),
+  seed: [
   {
     id: 'l1',
     name: 'Groceries',
@@ -103,10 +117,12 @@ const listsStore = makeStore<UserList[]>('remindly.lists.v1', [
     createdAt: now(),
     items: [{ id: 'li4', text: 'Passport', done: false }],
   },
-])
+  ],
+})
 
 export function useLists() {
   const lists = useSyncExternalStore(listsStore.subscribe, listsStore.get, listsStore.get)
+  const syncState = useSyncState(listsStore)
   const { isPremium } = usePremium()
   const atLimit = !isPremium && lists.length >= FREE_LIMITS.lists
 
@@ -148,15 +164,28 @@ export function useLists() {
     listsStore.set(listsStore.get().map(l => (l.id === listId ? { ...l, items: l.items.filter(i => i.id !== itemId) } : l)))
   }, [])
 
-  return { lists, atLimit, createList, renameList, deleteList, toggleShared, addItem, toggleItem, deleteItem }
+  return { lists, atLimit, syncState, createList, renameList, deleteList, toggleShared, addItem, toggleItem, deleteItem }
 }
 
 // ---------------------------------------------------------------------------
 // Notes
 // ---------------------------------------------------------------------------
-const notesStore = makeStore<Note[]>('remindly.notes.v1', [
-  { id: 'n1', title: 'Site A induction notes', body: 'Gate code 4417. Ask for Tama on arrival.', updatedAt: now(), sharedWith: [] },
-])
+const notesStore = makeSyncedStore<Note>({
+  key: 'remindly.notes.v1',
+  table: 'notes',
+  orderBy: { column: 'updated_at' },
+  toRow: n => ({ title: n.title, body: n.body, updated_at: n.updatedAt }),
+  fromRow: r => ({
+    id: String(r.id),
+    title: String(r.title ?? 'Untitled note'),
+    body: String(r.body ?? ''),
+    updatedAt: String(r.updated_at ?? new Date().toISOString()),
+    sharedWith: [], // note_shares rows are loaded separately; not synced here yet
+  }),
+  seed: [
+    { id: 'n1', title: 'Site A induction notes', body: 'Gate code 4417. Ask for Tama on arrival.', updatedAt: now(), sharedWith: [] },
+  ],
+})
 
 export function useNotes() {
   const notes = useSyncExternalStore(notesStore.subscribe, notesStore.get, notesStore.get)
@@ -188,10 +217,23 @@ export function useNotes() {
 // ---------------------------------------------------------------------------
 // Bookmarks
 // ---------------------------------------------------------------------------
-const bookmarksStore = makeStore<Bookmark[]>('remindly.bookmarks.v1', [
-  { id: 'b1', title: 'IRD — GST filing dates', url: 'https://www.ird.govt.nz', tag: 'Work', createdAt: now() },
-  { id: 'b2', title: 'NZTA — rego renewal', url: 'https://www.nzta.govt.nz', tag: 'Vehicle', createdAt: now() },
-])
+const bookmarksStore = makeSyncedStore<Bookmark>({
+  key: 'remindly.bookmarks.v1',
+  table: 'bookmarks',
+  orderBy: { column: 'created_at' },
+  toRow: b => ({ title: b.title, url: b.url, tag: b.tag, created_at: b.createdAt }),
+  fromRow: r => ({
+    id: String(r.id),
+    title: String(r.title ?? ''),
+    url: String(r.url ?? ''),
+    tag: String(r.tag ?? 'General'),
+    createdAt: String(r.created_at ?? new Date().toISOString()),
+  }),
+  seed: [
+    { id: 'b1', title: 'IRD — GST filing dates', url: 'https://www.ird.govt.nz', tag: 'Work', createdAt: now() },
+    { id: 'b2', title: 'NZTA — rego renewal', url: 'https://www.nzta.govt.nz', tag: 'Vehicle', createdAt: now() },
+  ],
+})
 
 export function useBookmarks() {
   const bookmarks = useSyncExternalStore(bookmarksStore.subscribe, bookmarksStore.get, bookmarksStore.get)
@@ -219,7 +261,20 @@ export function useBookmarks() {
 // ---------------------------------------------------------------------------
 // Diary (premium)
 // ---------------------------------------------------------------------------
-const diaryStore = makeStore<DiaryEntry[]>('remindly.diary.v1', [])
+const diaryStore = makeSyncedStore<DiaryEntry>({
+  key: 'remindly.diary.v1',
+  table: 'diary_entries',
+  orderBy: { column: 'entry_date' },
+  toRow: e => ({ entry_date: e.date, mood: e.mood, body: e.body, updated_at: e.updatedAt }),
+  fromRow: r => ({
+    id: String(r.id),
+    date: String(r.entry_date ?? new Date().toISOString().slice(0, 10)),
+    mood: String(r.mood ?? '🙂'),
+    body: String(r.body ?? ''),
+    updatedAt: String(r.updated_at ?? new Date().toISOString()),
+  }),
+  seed: [],
+})
 
 export function useDiary() {
   const entries = useSyncExternalStore(diaryStore.subscribe, diaryStore.get, diaryStore.get)
@@ -240,7 +295,31 @@ export function useDiary() {
 // ---------------------------------------------------------------------------
 // Creative writing (premium)
 // ---------------------------------------------------------------------------
-const creativeStore = makeStore<CreativePiece[]>('remindly.creative.v1', [])
+const creativeStore = makeSyncedStore<CreativePiece>({
+  key: 'remindly.creative.v1',
+  table: 'creative_pieces',
+  orderBy: { column: 'updated_at' },
+  toRow: p => ({ title: p.title, piece_type: p.type, body: p.body, updated_at: p.updatedAt }),
+  fromRow: r => ({
+    id: String(r.id),
+    title: String(r.title ?? 'Untitled'),
+    type: (r.piece_type as PieceType) ?? 'story',
+    body: String(r.body ?? ''),
+    updatedAt: String(r.updated_at ?? new Date().toISOString()),
+  }),
+  seed: [],
+})
+
+/** Hydrate every workspace collection for a signed-in user. */
+export async function hydrateWorkspace(uid: string) {
+  await Promise.all([
+    listsStore.hydrate(uid),
+    notesStore.hydrate(uid),
+    bookmarksStore.hydrate(uid),
+    diaryStore.hydrate(uid),
+    creativeStore.hydrate(uid),
+  ])
+}
 
 export function useCreative() {
   const pieces = useSyncExternalStore(creativeStore.subscribe, creativeStore.get, creativeStore.get)
