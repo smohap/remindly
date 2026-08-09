@@ -540,7 +540,7 @@ const SYNC_LABEL: Record<string, { text: string; cls: string }> = {
 export function WorkspaceView() {
   const [segment, setSegment] = useState<Segment>('lists')
   const { isPremium, setPremium } = usePremium()
-  const { syncState } = useLists()
+  const { syncState, syncError } = useLists()
   const sync = SYNC_LABEL[syncState] ?? SYNC_LABEL.local
 
   return (
@@ -549,7 +549,12 @@ export function WorkspaceView() {
         <div>
           <h2 className="font-display text-[1.05rem] font-bold">Workspace</h2>
           <p className="text-[0.78rem] text-[color:var(--ink-dim)]">Lists, notes, bookmarks, your diary and creative writing — all in one place.</p>
-          <p className={cn('mt-1 text-[0.68rem]', sync.cls)}>{sync.text}</p>
+          <p className={cn('mt-1 text-[0.68rem]', sync.cls)}>
+            {sync.text}
+            {syncState === 'error' && syncError && (
+              <span className="block text-[color:var(--ink-faint)]">{syncError}</span>
+            )}
+          </p>
         </div>
         <button
           onClick={() => setPremium(!isPremium)}

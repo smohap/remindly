@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, CalendarDays, LogOut, Plus, Search, Settings, Sun } from 'lucide-react'
+import {
+  Bell, CalendarDays, ChevronRight, FileText, LayoutGrid, LogOut, MoreHorizontal,
+  Plus, ScrollText, Search, Settings, Sparkles, Sun, User, Users,
+} from 'lucide-react'
+import { BottomSheet } from './BottomSheet'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
 import { useStore } from '../store'
@@ -13,8 +17,19 @@ import { Avatar } from './Avatar'
 const TABS: { key: Tab; label: string; icon: typeof Sun }[] = [
   { key: 'today', label: 'Today', icon: Sun },
   { key: 'calendar', label: 'Calendar', icon: CalendarDays },
-  { key: 'discover', label: 'Discover', icon: Search },
-  { key: 'settings', label: 'Settings', icon: Settings },
+  { key: 'workspace', label: 'Workspace', icon: LayoutGrid },
+]
+
+/** Everything that doesn't fit in the tab bar, reachable from "More". */
+const MORE_ITEMS: { key: Tab; label: string; sub: string; icon: typeof Sun }[] = [
+  { key: 'invoices', label: 'Invoices', sub: 'Send, settle and track invoices', icon: FileText },
+  { key: 'groups', label: 'Groups', sub: 'Members and group chat', icon: Users },
+  { key: 'premium', label: 'Premium', sub: 'Vault, subscriptions, calendar sync', icon: Sparkles },
+  { key: 'discover', label: 'Discover', sub: 'Subscribe to events', icon: Search },
+  { key: 'notifications', label: 'Notifications', sub: 'Your inbox', icon: Bell },
+  { key: 'history', label: 'History', sub: 'Past reminders', icon: ScrollText },
+  { key: 'profile', label: 'Profile', sub: 'Your details', icon: User },
+  { key: 'settings', label: 'Settings', sub: 'Preferences and sign out', icon: Settings },
 ]
 
 function MobileHeader({ compact }: { compact: boolean }) {
@@ -60,7 +75,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
   )
 }
 
-function MobileTabBar() {
+function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: boolean }) {
   const { state, actions } = useStore()
   const renderTab = (t: (typeof TABS)[number]) => {
     const active = state.tab === t.key
@@ -98,12 +113,30 @@ function MobileTabBar() {
         <Plus size={26} strokeWidth={2.5} />
       </motion.button>
       {TABS.slice(2).map(renderTab)}
+      <button
+        onClick={onMore}
+        aria-label="More sections"
+        className={cn(
+          'flex min-h-11 min-w-14 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 transition-colors',
+          moreActive ? 'text-white' : 'text-[color:var(--ink-faint)]',
+        )}
+      >
+        <MoreHorizontal size={20} />
+        <span className="text-[0.6rem] font-semibold">More</span>
+        <span className="relative h-1 w-1">
+          {moreActive && <motion.span layoutId="tab-dot" className="absolute inset-0 rounded-full bg-[color:var(--cyan)]" />}
+        </span>
+      </button>
     </nav>
   )
 }
 
 export function MobileLayout() {
   const [compact, setCompact] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const { state, actions } = useStore()
+  const moreActive = MORE_ITEMS.some(i => i.key === state.tab)
+
   return (
     <div className="relative z-10 flex h-dvh flex-col">
       <MobileHeader compact={compact} />
@@ -111,7 +144,39 @@ export function MobileLayout() {
         <ViewSwitch />
         <AppFooter />
       </div>
-      <MobileTabBar />
+      <MobileTabBar onMore={() => setMoreOpen(true)} moreActive={moreActive} />
+
+      <BottomSheet open={moreOpen} onClose={() => setMoreOpen(false)} label="All sections">
+        <h3 className="font-display mb-3 text-base font-bold">All sections</h3>
+        <div className="flex flex-col gap-1.5">
+          {MORE_ITEMS.map(item => {
+            const active = state.tab === item.key
+            return (
+              <button
+                key={item.key}
+                onClick={() => {
+                  actions.setTab(item.key)
+                  setMoreOpen(false)
+                }}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'flex items-center gap-3 rounded-2xl px-3 py-3 text-left transition',
+                  active ? 'bg-[color:var(--glass-strong)]' : 'bg-white/[0.06] hover:bg-white/[0.12]',
+                )}
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10">
+                  <item.icon size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[0.88rem] font-semibold">{item.label}</span>
+                  <span className="block truncate text-[0.72rem] text-[color:var(--ink-faint)]">{item.sub}</span>
+                </span>
+                <ChevronRight size={16} className="shrink-0 text-[color:var(--ink-faint)]" />
+              </button>
+            )
+          })}
+        </div>
+      </BottomSheet>
     </div>
   )
 }

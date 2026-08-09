@@ -123,6 +123,7 @@ const listsStore = makeSyncedStore<UserList>({
 export function useLists() {
   const lists = useSyncExternalStore(listsStore.subscribe, listsStore.get, listsStore.get)
   const syncState = useSyncState(listsStore)
+  const syncError = listsStore.getError()
   const { isPremium } = usePremium()
   const atLimit = !isPremium && lists.length >= FREE_LIMITS.lists
 
@@ -164,7 +165,7 @@ export function useLists() {
     listsStore.set(listsStore.get().map(l => (l.id === listId ? { ...l, items: l.items.filter(i => i.id !== itemId) } : l)))
   }, [])
 
-  return { lists, atLimit, syncState, createList, renameList, deleteList, toggleShared, addItem, toggleItem, deleteItem }
+  return { lists, atLimit, syncState, syncError, createList, renameList, deleteList, toggleShared, addItem, toggleItem, deleteItem }
 }
 
 // ---------------------------------------------------------------------------

@@ -32,8 +32,34 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
   let items: T[] = load()
   let ownerId: string | null = null
   let state: SyncState = 'local'
+  let lastError: string | null = null
   let pushTimer: ReturnType<typeof setTimeout> | null = null
   let hydrated = false
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+  function newId(): string {
+    return typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now().toString(16).padStart(8, '0').slice(0, 8)}-0000-4000-8000-${Math.random().toString(16).slice(2, 14).padEnd(12, '0')}`
+  }
+
+  /**
+   * Seeded and legacy rows use short ids like "l1", but these tables key on
+   * uuid — re-key anything that isn't a UUID before it reaches Postgres.
+   */
+  function ensureUuids() {
+    let changed = false
+    items = items.map(i => {
+      if (UUID_RE.test(i.id)) return i
+      changed = true
+      return { ...i, id: newId() }
+    })
+    if (changed) {
+      persistLocal()
+      listeners.forEach(l => l())
+    }
+  }
 
   const listeners = new Set<() => void>()
   const stateListeners = new Set<() => void>()
@@ -63,6 +89,7 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
   /** Push the full collection: upsert everything present, delete what's gone. */
   async function push() {
     if (!supabase || !ownerId) return
+    ensureUuids()
     setState('saving')
     try {
       const rows = items.map(i => ({ ...opts.toRow(i), id: i.id, [ownerCol]: ownerId }))
@@ -75,8 +102,12 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
       if (keep.length > 0) del = del.not('id', 'in', `(${keep.join(',')})`)
       const { error: delError } = await del
       if (delError) throw delError
+      lastError = null
       setState('synced')
-    } catch {
+    } catch (e) {
+      // Keep the real reason — a generic failure message is impossible to debug.
+      lastError = e instanceof Error ? e.message : String(e)
+      console.error(`[remindly] sync failed for ${opts.table}:`, lastError)
       setState('error')
     }
   }
@@ -110,8 +141,11 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
       persistLocal()
       listeners.forEach(l => l())
       hydrated = true
+      lastError = null
       setState('synced')
-    } catch {
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e)
+      console.error(`[remindly] load failed for ${opts.table}:`, lastError)
       setState('error')
     }
   }
@@ -129,6 +163,7 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
       return () => listeners.delete(l)
     },
     getState: () => state,
+    getError: () => lastError,
     subscribeState: (l: () => void) => {
       stateListeners.add(l)
       return () => stateListeners.delete(l)
