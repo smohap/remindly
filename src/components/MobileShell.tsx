@@ -38,7 +38,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
   const navigate = useNavigate()
   return (
     <motion.header
-      className="glass relative z-40 mx-3 flex items-center justify-between px-4"
+      className="glass-solid relative z-40 mx-3 flex items-center justify-between px-4"
       style={{ marginTop: 'calc(env(safe-area-inset-top) + 8px)' }}
       animate={{ paddingTop: compact ? 8 : 13, paddingBottom: compact ? 8 : 13 }}
     >
@@ -100,7 +100,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
   return (
     <nav
       aria-label="Primary"
-      className="glass fixed inset-x-0 bottom-0 z-50 flex items-end justify-around rounded-none rounded-t-[26px] border-x-0 border-b-0 px-2 pt-2"
+      className="glass-solid fixed inset-x-0 bottom-0 z-50 flex items-end justify-around rounded-none rounded-t-[26px] border-x-0 border-b-0 px-2 pt-2"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 10px)' }}
     >
       {TABS.slice(0, 2).map(renderTab)}

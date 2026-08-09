@@ -1,36 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
-
-// ---------------------------------------------------------------------------
-// Tiny localStorage-backed external store (same pattern as useGroups/useProfile)
-// ---------------------------------------------------------------------------
-function makeStore<T>(key: string, seed: T) {
-  let value: T = load()
-  const listeners = new Set<() => void>()
-  function load(): T {
-    try {
-      const raw = localStorage.getItem(key)
-      return raw ? (JSON.parse(raw) as T) : seed
-    } catch {
-      return seed
-    }
-  }
-  return {
-    get: () => value,
-    set: (next: T) => {
-      value = next
-      try {
-        localStorage.setItem(key, JSON.stringify(next))
-      } catch {
-        /* ignore */
-      }
-      listeners.forEach(l => l())
-    },
-    subscribe: (l: () => void) => {
-      listeners.add(l)
-      return () => listeners.delete(l)
-    },
-  }
-}
+import { makeSyncedStore } from './syncedStore'
 
 function daysFromNow(days: number): string {
   const d = new Date()
@@ -81,7 +50,20 @@ const vaultSeed: VaultItem[] = [
   { id: 'v3', itemType: 'insurance_policy', label: 'Contents insurance', expiryDate: daysFromNow(64), leadTimeDays: 30 },
 ]
 
-const vaultStore = makeStore<VaultItem[]>('remindly.vault.v1', vaultSeed)
+const vaultStore = makeSyncedStore<VaultItem>({
+  key: 'remindly.vault.v1',
+  table: 'renewal_items',
+  orderBy: { column: 'expiry_date', ascending: true },
+  toRow: v => ({ item_type: v.itemType, label: v.label, expiry_date: v.expiryDate, lead_time_days: v.leadTimeDays }),
+  fromRow: r => ({
+    id: String(r.id),
+    itemType: (r.item_type as VaultType) ?? 'other',
+    label: String(r.label ?? ''),
+    expiryDate: String(r.expiry_date ?? new Date().toISOString().slice(0, 10)),
+    leadTimeDays: Number(r.lead_time_days ?? 30),
+  }),
+  seed: vaultSeed,
+})
 
 export function useVault() {
   const items = useSyncExternalStore(vaultStore.subscribe, vaultStore.get, vaultStore.get)
@@ -142,7 +124,34 @@ const subSeed: Subscription[] = [
   { id: 's3', merchantName: 'Les Mills gym', amountCents: 89900, currency: 'NZD', cycle: 'yearly', nextChargeDate: daysFromNow(120), leadTimeDays: 3 },
 ]
 
-const subStore = makeStore<Subscription[]>('remindly.subs.v1', subSeed)
+const subStore = makeSyncedStore<Subscription>({
+  key: 'remindly.subs.v1',
+  table: 'tracked_subscriptions',
+  orderBy: { column: 'next_charge_date', ascending: true },
+  toRow: s => ({
+    merchant_name: s.merchantName,
+    amount_cents: s.amountCents,
+    currency: s.currency,
+    cycle: s.cycle,
+    next_charge_date: s.nextChargeDate,
+    lead_time_days: s.leadTimeDays,
+  }),
+  fromRow: r => ({
+    id: String(r.id),
+    merchantName: String(r.merchant_name ?? ''),
+    amountCents: Number(r.amount_cents ?? 0),
+    currency: String(r.currency ?? 'NZD'),
+    cycle: (r.cycle as Cycle) ?? 'monthly',
+    nextChargeDate: String(r.next_charge_date ?? new Date().toISOString().slice(0, 10)),
+    leadTimeDays: Number(r.lead_time_days ?? 3),
+  }),
+  seed: subSeed,
+})
+
+/** Hydrate the vault and subscription collections for a signed-in user. */
+export async function hydratePremium(uid: string) {
+  await Promise.all([vaultStore.hydrate(uid), subStore.hydrate(uid)])
+}
 
 export function useSubscriptions() {
   const subs = useSyncExternalStore(subStore.subscribe, subStore.get, subStore.get)

@@ -23,7 +23,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
       {open && (
         <>
           <motion.div
-            className="fixed inset-0 z-[60] bg-black/40"
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -33,7 +33,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
             role="dialog"
             aria-modal="true"
             aria-label={label}
-            className="glass fixed inset-x-0 bottom-0 z-[61] rounded-b-none rounded-t-[28px] border-b-0 px-5 pt-3"
+            className="glass-solid fixed inset-x-0 bottom-0 z-[61] max-h-[85dvh] overflow-y-auto rounded-b-none rounded-t-[28px] border-b-0 px-5 pt-3"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}

@@ -5,6 +5,7 @@ import { MobileLayout } from '../components/MobileShell'
 import { GlobalSheets } from '../components/Sheets'
 import { currentUserId } from '../lib/invoicesDb'
 import { useIsMobile } from '../lib/useIsMobile'
+import { hydratePremium } from '../lib/usePremium'
 import { hydrateWorkspace } from '../lib/useWorkspace'
 import { StoreProvider, useStore } from '../store'
 
@@ -28,7 +29,10 @@ export default function Dashboard() {
   useEffect(() => {
     let cancelled = false
     currentUserId().then(uid => {
-      if (uid && !cancelled) void hydrateWorkspace(uid)
+      if (uid && !cancelled) {
+        void hydrateWorkspace(uid)
+        void hydratePremium(uid)
+      }
     })
     return () => {
       cancelled = true
