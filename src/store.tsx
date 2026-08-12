@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react'
-import { seedReminders } from './data'
+import { createContext, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { parseReminder } from './lib/nlParse'
+import { remindersStore } from './lib/remindersStore'
+import { currentUserId } from './lib/invoicesDb'
 import type { Filter, Reminder, Tab, ToggleKey } from './types'
 
 interface State {
@@ -29,9 +30,12 @@ type Action =
   | { type: 'edit'; id: string; patch: Partial<Reminder> }
   | { type: 'remove'; id: string }
   | { type: 'openEdit'; id: string | null }
+  | { type: 'hydrate'; reminders: Reminder[] }
 
 const initialState: State = {
-  reminders: seedReminders,
+  // Start from whatever is already on this device; the server copy replaces it
+  // once the user is known (see StoreProvider).
+  reminders: remindersStore.get(),
   filter: 'today',
   tab: 'today',
   toggles: { personalAlarm: true, push: true, email: true, sms: false, slack: true, quietHours: true },
@@ -120,6 +124,8 @@ function reducer(state: State, action: Action): State {
     }
     case 'openEdit':
       return { ...state, editTargetId: action.id }
+    case 'hydrate':
+      return { ...state, reminders: action.reminders }
   }
 }
 
@@ -167,6 +173,32 @@ const StoreContext = createContext<StoreValue | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const hydrated = useRef(false)
+
+  // Load: adopt the on-device copy immediately, then the server copy once we
+  // know who is signed in.
+  useEffect(() => {
+    let cancelled = false
+    const unsubscribe = remindersStore.subscribe(() => {
+      if (!cancelled) dispatch({ type: 'hydrate', reminders: remindersStore.get() })
+    })
+    currentUserId().then(async uid => {
+      if (uid && !cancelled) await remindersStore.hydrate(uid)
+      if (!cancelled) hydrated.current = true
+    })
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
+  }, [])
+
+  // Save: every change to the list is written through, on-device straight away
+  // and to Postgres in the background.
+  useEffect(() => {
+    if (!hydrated.current) return
+    if (state.reminders === remindersStore.get()) return
+    remindersStore.set(state.reminders)
+  }, [state.reminders])
 
   const derived = useMemo<Derived>(() => {
     const active = state.reminders.filter(r => !r.acknowledged && !r.snoozedUntil)
