@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '../store'
 import { BottomSheet } from './BottomSheet'
+import { DatePicker } from './DatePicker'
 import { SnoozeOptions } from './SnoozeOptions'
 
 function QuickAddForm() {
@@ -50,9 +51,21 @@ function EditReminderForm({ id }: { id: string }) {
   const reminder = state.reminders.find(r => r.id === id)
   const [title, setTitle] = useState(reminder?.title ?? '')
   const [time, setTime] = useState(reminder?.time ?? '')
-  const [dayOffset, setDayOffset] = useState(String(reminder?.dayOffset ?? 0))
+  const [date, setDate] = useState(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    d.setDate(d.getDate() + (reminder?.dayOffset ?? 0))
+    return d
+  })
   const [confirmDelete, setConfirmDelete] = useState(false)
   if (!reminder) return null
+
+  /** Whole days between today and the picked date. */
+  const offsetOf = (d: Date) => {
+    const t = new Date()
+    t.setHours(0, 0, 0, 0)
+    return Math.round((d.getTime() - t.getTime()) / 86400000)
+  }
 
   const field =
     'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
@@ -65,7 +78,7 @@ function EditReminderForm({ id }: { id: string }) {
         actions.edit(id, {
           title: title.trim() || reminder.title,
           time: time.trim() || undefined,
-          dayOffset: Number(dayOffset),
+          dayOffset: offsetOf(date),
         })
       }}
     >
@@ -74,21 +87,16 @@ function EditReminderForm({ id }: { id: string }) {
       <label className={labelCls}>Title</label>
       <input value={title} onChange={e => setTitle(e.target.value)} className={field} autoFocus />
 
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <div>
-          <label className={labelCls}>When</label>
-          <select value={dayOffset} onChange={e => setDayOffset(e.target.value)} className={field}>
-            <option value="-1" className="bg-[color:var(--indigo)]">Yesterday</option>
-            <option value="0" className="bg-[color:var(--indigo)]">Today</option>
-            <option value="1" className="bg-[color:var(--indigo)]">Tomorrow</option>
-            <option value="2" className="bg-[color:var(--indigo)]">In 2 days</option>
-            <option value="7" className="bg-[color:var(--indigo)]">In a week</option>
-          </select>
-        </div>
-        <div>
-          <label className={labelCls}>Time</label>
-          <input value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 5:00 PM" className={field} />
-        </div>
+      <div className="mt-3">
+        <label className={labelCls}>
+          Date — <span className="text-white">{new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date)}</span>
+        </label>
+        <DatePicker value={date} onChange={setDate} />
+      </div>
+
+      <div className="mt-3">
+        <label className={labelCls}>Time</label>
+        <input value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 5:00 PM — leave blank for all day" className={field} />
       </div>
 
       <div className="mt-4 flex gap-2">
