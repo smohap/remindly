@@ -11,6 +11,7 @@ interface State {
   toggles: Record<ToggleKey, boolean>
   completedBefore: number
   snoozeTargetId: string | null
+  editTargetId: string | null
   quickAddOpen: boolean
   announcement: string
 }
@@ -25,6 +26,9 @@ type Action =
   | { type: 'toggle'; key: ToggleKey }
   | { type: 'openSnooze'; id: string | null }
   | { type: 'setQuickAdd'; open: boolean }
+  | { type: 'edit'; id: string; patch: Partial<Reminder> }
+  | { type: 'remove'; id: string }
+  | { type: 'openEdit'; id: string | null }
 
 const initialState: State = {
   reminders: seedReminders,
@@ -33,6 +37,7 @@ const initialState: State = {
   toggles: { personalAlarm: true, push: true, email: true, sms: false, slack: true, quietHours: true },
   completedBefore: 4,
   snoozeTargetId: null,
+  editTargetId: null,
   quickAddOpen: false,
   announcement: '',
 }
@@ -77,6 +82,8 @@ function reducer(state: State, action: Action): State {
         dayOffset: parsed.dayOffset,
         time: parsed.time,
         acknowledged: false,
+        ownedByMe: true,
+        daily: /\bevery day\b|\bdaily\b/i.test(action.title),
       }
       return { ...state, reminders: [reminder, ...state.reminders], quickAddOpen: false, announcement: `Reminder added: ${parsed.title}` }
     }
@@ -90,6 +97,29 @@ function reducer(state: State, action: Action): State {
       return { ...state, snoozeTargetId: action.id }
     case 'setQuickAdd':
       return { ...state, quickAddOpen: action.open }
+    case 'edit': {
+      // Only the creator may change a reminder.
+      const target = state.reminders.find(r => r.id === action.id)
+      if (!target || target.ownedByMe === false) return state
+      return {
+        ...state,
+        reminders: state.reminders.map(r => (r.id === action.id ? { ...r, ...action.patch } : r)),
+        editTargetId: null,
+        announcement: `${action.patch.title ?? target.title} updated`,
+      }
+    }
+    case 'remove': {
+      const target = state.reminders.find(r => r.id === action.id)
+      if (!target || target.ownedByMe === false) return state
+      return {
+        ...state,
+        reminders: state.reminders.filter(r => r.id !== action.id),
+        editTargetId: null,
+        announcement: `${target.title} deleted`,
+      }
+    }
+    case 'openEdit':
+      return { ...state, editTargetId: action.id }
   }
 }
 
@@ -122,6 +152,9 @@ interface Actions {
   toggle: (key: ToggleKey) => void
   openSnooze: (id: string | null) => void
   setQuickAdd: (open: boolean) => void
+  edit: (id: string, patch: Partial<Reminder>) => void
+  remove: (id: string) => void
+  openEdit: (id: string | null) => void
 }
 
 interface StoreValue {
@@ -172,6 +205,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggle: key => dispatch({ type: 'toggle', key }),
       openSnooze: id => dispatch({ type: 'openSnooze', id }),
       setQuickAdd: open => dispatch({ type: 'setQuickAdd', open }),
+      edit: (id, patch) => dispatch({ type: 'edit', id, patch }),
+      remove: id => dispatch({ type: 'remove', id }),
+      openEdit: id => dispatch({ type: 'openEdit', id }),
     }),
     [],
   )

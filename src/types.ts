@@ -13,6 +13,10 @@ export interface Reminder {
   acknowledged: boolean
   snoozedUntil?: string
   resolveLabel?: string
+  /** Only the creator may edit or delete a reminder. */
+  ownedByMe?: boolean
+  /** Repeats every day — drives same-day notification behaviour. */
+  daily?: boolean
 }
 
 export type Filter = 'today' | 'tomorrow' | 'week' | 'overdue'

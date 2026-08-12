@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight, LogOut, Search, Sparkles, User, Users } from 'lucide-react'
@@ -11,7 +11,9 @@ import { SmartChips } from '../components/SmartChips'
 import { discoverEvents } from '../data'
 import { cn } from '../lib/cn'
 import { timeMinutes, useStore } from '../store'
+import { useNotifications } from '../lib/useNotifications'
 import type { Reminder } from '../types'
+import { CalendarView } from './CalendarView'
 import { GroupsView } from './GroupsView'
 import { InvoicesView } from './InvoicesView'
 import { PremiumView } from './PremiumView'
@@ -71,38 +73,6 @@ function TodayView() {
         <ChannelsCard />
         <QuietHoursCard />
       </div>
-    </>
-  )
-}
-
-function dayLabel(offset: number) {
-  if (offset === -1) return 'Yesterday'
-  if (offset === 0) return 'Today'
-  if (offset === 1) return 'Tomorrow'
-  const d = new Date()
-  d.setDate(d.getDate() + offset)
-  return new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' }).format(d)
-}
-
-function CalendarView() {
-  const { derived } = useStore()
-  const dayGroups = useMemo(() => {
-    const byDay = new Map<number, Reminder[]>()
-    for (const r of [...derived.active].sort(sortByDayAndTime)) {
-      byDay.set(r.dayOffset, [...(byDay.get(r.dayOffset) ?? []), r])
-    }
-    return [...byDay.entries()].sort((a, b) => a[0] - b[0])
-  }, [derived.active])
-  return (
-    <>
-      <WeekStripCard />
-      {dayGroups.length === 0 ? (
-        <div className="glass px-[18px] py-8 text-center text-[0.85rem] text-[color:var(--ink-faint)]">
-          No upcoming reminders — enjoy the quiet 🎧
-        </div>
-      ) : (
-        dayGroups.map(([offset, items]) => <Section key={offset} title={dayLabel(offset)} items={items} />)
-      )}
     </>
   )
 }
@@ -170,6 +140,39 @@ function DiscoverView() {
   )
 }
 
+/** Ask for permission to send desktop/mobile nudges. */
+function NotificationsCard() {
+  const { state } = useStore()
+  const { supported, permission, request } = useNotifications(state.reminders, { quietHours: state.toggles.quietHours })
+
+  const body =
+    !supported ? "This browser can't show notifications."
+    : permission === 'granted' ? 'On — you\'ll be nudged every 15 minutes until you acknowledge. Timed reminders start an hour before; all-day ones start that morning.'
+    : permission === 'denied' ? 'Blocked. Re-enable notifications for this site in your browser settings.'
+    : 'Get nudged when a reminder is due, even when Remindly is in another tab.'
+
+  return (
+    <div className="glass flex flex-col gap-2 p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-display text-[0.82rem] font-bold">🔔 Notifications</h3>
+        {permission === 'granted' ? (
+          <span className="rounded-full bg-[rgba(45,212,191,0.18)] px-2.5 py-1 text-[0.62rem] font-extrabold uppercase tracking-[0.05em] text-[#7BE9D8]">On</span>
+        ) : (
+          <button
+            onClick={() => void request()}
+            disabled={!supported || permission === 'denied'}
+            className="cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-3.5 py-1.5 text-[0.72rem] font-bold text-[#1a1240] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Turn on
+          </button>
+        )}
+      </div>
+      <p className="text-[0.72rem] leading-relaxed text-[color:var(--ink-dim)]">{body}</p>
+      <p className="text-[0.68rem] text-[color:var(--ink-faint)]">On iPhone, add Remindly to your Home Screen first — Safari only allows notifications for installed apps.</p>
+    </div>
+  )
+}
+
 function SectionLabel({ children }: { children: string }) {
   return <div className="px-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[color:var(--ink-faint)]">{children}</div>
 }
@@ -222,6 +225,7 @@ function SettingsView() {
 
         <div className="flex flex-col gap-3">
           <SectionLabel>Preferences</SectionLabel>
+          <NotificationsCard />
           <PersonalAlarmCard />
           <ChannelsCard />
           <QuietHoursCard />

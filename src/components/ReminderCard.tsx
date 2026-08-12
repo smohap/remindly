@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'motion/react'
-import { AlarmClock, Check } from 'lucide-react'
+import { AlarmClock, Check, Pencil } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { useIsMobile } from '../lib/useIsMobile'
 import { useStore } from '../store'
@@ -90,6 +90,17 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
             </div>
             <div className="mt-[3px] text-[0.75rem] text-[color:var(--ink-faint)]">{reminder.meta}</div>
           </div>
+          {/* Only the creator can change a reminder. */}
+          {reminder.ownedByMe !== false && (
+            <button
+              onClick={() => actions.openEdit(reminder.id)}
+              aria-label={`Edit ${reminder.title}`}
+              title="Edit or delete"
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color:var(--ink-faint)] transition hover:bg-white/[0.12] hover:text-white"
+            >
+              <Pencil size={14} />
+            </button>
+          )}
         </div>
         <div className="flex w-full gap-2 md:w-auto md:shrink-0">
           {overdue ? (

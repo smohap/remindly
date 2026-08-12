@@ -5,6 +5,7 @@ import { MobileLayout } from '../components/MobileShell'
 import { GlobalSheets } from '../components/Sheets'
 import { currentUserId } from '../lib/invoicesDb'
 import { useIsMobile } from '../lib/useIsMobile'
+import { useNotifications } from '../lib/useNotifications'
 import { hydratePremium } from '../lib/usePremium'
 import { hydrateWorkspace } from '../lib/useWorkspace'
 import { StoreProvider, useStore } from '../store'
@@ -16,6 +17,13 @@ function LiveRegion() {
       {state.announcement}
     </div>
   )
+}
+
+/** Runs the due-reminder notification loop for as long as the app is open. */
+function NotificationRunner() {
+  const { state } = useStore()
+  useNotifications(state.reminders, { quietHours: state.toggles.quietHours })
+  return null
 }
 
 function Shell() {
@@ -45,6 +53,7 @@ export default function Dashboard() {
       <Shell />
       <GlobalSheets />
       <LiveRegion />
+      <NotificationRunner />
     </StoreProvider>
   )
 }

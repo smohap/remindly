@@ -11,6 +11,8 @@ export const seedReminders: Reminder[] = [
     dayOffset: 0,
     time: '5:00 PM',
     acknowledged: false,
+    // Created by the Group Admin, so it can't be edited or deleted here.
+    ownedByMe: false,
   },
   {
     id: 'r2',
@@ -30,6 +32,8 @@ export const seedReminders: Reminder[] = [
     icon: '🎂',
     dayOffset: 0,
     acknowledged: false,
+    ownedByMe: true,
+    daily: true,
   },
   {
     id: 'r4',
@@ -50,6 +54,7 @@ export const seedReminders: Reminder[] = [
     dayOffset: 1,
     time: '9:00 AM',
     acknowledged: false,
+    ownedByMe: true,
   },
   {
     id: 'r6',
