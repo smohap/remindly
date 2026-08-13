@@ -8,7 +8,7 @@ export function SmartChips() {
   const chips: { key: Filter; label: string; count: number; danger?: boolean }[] = [
     { key: 'today', label: 'Today', count: derived.counts.today },
     { key: 'tomorrow', label: 'Tomorrow', count: derived.counts.tomorrow },
-    { key: 'week', label: 'This week', count: derived.counts.week },
+    { key: 'week', label: 'Next 7 days', count: derived.counts.week },
     { key: 'overdue', label: 'Overdue', count: derived.counts.overdue, danger: true },
   ]
   return (

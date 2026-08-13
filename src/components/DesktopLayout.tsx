@@ -14,7 +14,6 @@ export function DesktopLayout() {
       <main className="flex min-w-0 flex-col gap-[18px]">
         <TopBar />
         <ViewSwitch />
-        <AppFooter />
       </main>
 
       <aside className="hidden flex-col gap-[18px] xl:flex" aria-label="Preferences and calendar">
@@ -23,6 +22,12 @@ export function DesktopLayout() {
         <ChannelsCard />
         <QuietHoursCard />
       </aside>
+
+      {/* Spans every column so it sits at the foot of the page, not under the
+          middle column. */}
+      <div className="col-span-full">
+        <AppFooter />
+      </div>
     </div>
   )
 }

@@ -54,7 +54,7 @@ function TodayView() {
       {state.filter === 'tomorrow' && <Section title="Tomorrow" items={tomorrowItems} emptyText="Nothing scheduled tomorrow 🌙" />}
       {state.filter === 'week' && (
         <>
-          <Section title="This week" items={weekItems} emptyText="A quiet week ahead" />
+          <Section title="Next 7 days" items={weekItems} emptyText="A quiet week ahead" />
           {overdueItems.length > 0 && <Section title="Overdue" items={overdueItems} />}
         </>
       )}

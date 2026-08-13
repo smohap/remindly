@@ -56,9 +56,6 @@ function MobileHeader({ compact }: { compact: boolean }) {
           className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08]"
         >
           <Bell size={17} />
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--red)] text-[0.6rem] font-extrabold shadow-[0_0_0_2px_rgba(42,33,102,0.9)]">
-            5
-          </span>
         </button>
         <button
           aria-label="Sign out"

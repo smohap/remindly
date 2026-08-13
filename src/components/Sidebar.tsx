@@ -35,7 +35,10 @@ export function Sidebar() {
       <nav className="flex flex-col gap-1" aria-label="Main">
         {NAV.map(item => {
           const active = state.tab === item.key
-          const count = item.key === 'today' ? derived.counts.today : item.key === 'notifications' ? 5 : 0
+          // The notification inbox has no data source yet, so it carries no
+          // badge. A hardcoded count that never matched the inbox was worse
+          // than showing nothing.
+          const count = item.key === 'today' ? derived.counts.today : 0
           return (
             <button
               key={item.key}
