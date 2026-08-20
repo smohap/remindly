@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Crown, Layers, Mail, ScrollText, ShieldAlert, ShieldCheck, UserMinus, Users } from 'lucide-react'
+import { BarChart3, Crown, Layers, Mail, ScrollText, ShieldAlert, ShieldCheck, Siren, UserMinus, Users } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { ROLE_LABEL, useAdminData, useMyRole, type AdminMember, type UserRole } from '../lib/useAdmin'
+import { useCompliance } from '../lib/useBusiness'
+import { useStore } from '../store'
 
-type Tab = 'people' | 'groups' | 'audit'
+type Tab = 'people' | 'groups' | 'compliance' | 'analytics' | 'audit'
 
 const field =
   'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
@@ -60,6 +62,8 @@ export function AdminView() {
   const TABS: { key: Tab; label: string; icon: typeof Users }[] = [
     { key: 'people', label: 'People', icon: Users },
     { key: 'groups', label: 'Groups', icon: Layers },
+    { key: 'compliance', label: 'Compliance', icon: Siren },
+    { key: 'analytics', label: 'Analytics', icon: BarChart3 },
     { key: 'audit', label: 'Audit log', icon: ScrollText },
   ]
 
@@ -187,6 +191,9 @@ export function AdminView() {
         </div>
       )}
 
+      {!loading && tab === 'compliance' && <CompliancePanel onNotice={flash} />}
+      {!loading && tab === 'analytics' && <AnalyticsPanel />}
+
       {!loading && tab === 'audit' && (
         <div className="glass p-5">
           <h3 className="font-display mb-3 text-[0.92rem] font-bold">Recent activity</h3>
@@ -217,6 +224,218 @@ export function AdminView() {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+/** Slices 2 & 3: escalation policy per group, and the open escalation queue. */
+function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
+  const { policies, open, updatePolicy, resolveEscalation, escalateFurther } = useCompliance()
+
+  const hoursAgo = (iso: string) => Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 3600_000))
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <h3 className="font-display px-1 text-[0.92rem] font-bold">Open escalations</h3>
+        {open.length === 0 ? (
+          <div className="glass px-6 py-8 text-center text-[0.82rem] text-[color:var(--ink-dim)]">
+            Nothing escalated. Compliance reminders that go unacknowledged past their window will appear here.
+          </div>
+        ) : (
+          open.map(e => (
+            <div key={e.id} className="glass flex flex-col gap-2 px-[18px] py-3.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-[rgba(255,107,107,0.16)] text-base">🚨</span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[0.88rem] font-bold">{e.reminderTitle}</div>
+                  <div className="truncate text-[0.72rem] text-[color:var(--ink-faint)]">
+                    {e.subjectName} · {e.groupName} · raised {hoursAgo(e.raisedAt)}h ago
+                  </div>
+                </div>
+                <span
+                  className={cn(
+                    'shrink-0 rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-[0.05em]',
+                    e.stage === 'super_admin' ? 'bg-[rgba(255,107,107,0.2)] text-[#FFB4B4]' : 'bg-[rgba(251,191,36,0.18)] text-[#FCD770]',
+                  )}
+                >
+                  {e.stage === 'super_admin' ? 'Super Admin' : 'Group Admin'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    resolveEscalation(e.id, 'Resolved by admin')
+                    onNotice(`${e.reminderTitle} marked resolved`)
+                  }}
+                  className="cursor-pointer rounded-full bg-[linear-gradient(135deg,#2DD4BF,#1FA895)] px-3.5 py-1.5 text-[0.75rem] font-bold text-[#0c2b26]"
+                >
+                  Resolve
+                </button>
+                {e.stage === 'group_admin' && (
+                  <button
+                    onClick={() => {
+                      escalateFurther(e.id)
+                      onNotice(`${e.reminderTitle} escalated to Super Admin`)
+                    }}
+                    className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+                  >
+                    Escalate further
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h3 className="font-display px-1 text-[0.92rem] font-bold">Group policy</h3>
+        <p className="px-1 text-[0.74rem] text-[color:var(--ink-dim)]">
+          Compliance reminders must be acknowledged. Unacknowledged ones escalate to the Group Admin, then to a Super Admin.
+        </p>
+        {policies.map(p => (
+          <div key={p.groupId} className="glass flex flex-col gap-3 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="truncate text-[0.9rem] font-bold">{p.groupName}</span>
+              <label className="flex shrink-0 items-center gap-2 text-[0.75rem] text-[color:var(--ink-dim)]">
+                <input
+                  type="checkbox"
+                  checked={p.complianceEnabled}
+                  onChange={e => updatePolicy(p.groupId, { complianceEnabled: e.target.checked })}
+                  className="accent-[color:var(--cyan)]"
+                />
+                Compliance mode
+              </label>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
+                Escalate after (hours)
+                <input
+                  type="number" min={1} max={168} value={p.escalateAfterHours}
+                  onChange={e => updatePolicy(p.groupId, { escalateAfterHours: Number(e.target.value) })}
+                  disabled={!p.complianceEnabled}
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                />
+              </label>
+              <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
+                Then Super Admin after
+                <input
+                  type="number" min={1} max={336} value={p.secondHopHours}
+                  onChange={e => updatePolicy(p.groupId, { secondHopHours: Number(e.target.value) })}
+                  disabled={!p.complianceEnabled}
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                />
+              </label>
+              <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
+                Default lead time (min)
+                <input
+                  type="number" min={0} max={10080} value={p.defaultLeadMinutes}
+                  onChange={e => updatePolicy(p.groupId, { defaultLeadMinutes: Number(e.target.value) })}
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none"
+                />
+              </label>
+            </div>
+
+            <label className="flex items-center gap-2 border-t border-white/10 pt-3 text-[0.78rem]">
+              <input
+                type="checkbox"
+                checked={p.membersMayCreate}
+                onChange={e => updatePolicy(p.groupId, { membersMayCreate: e.target.checked })}
+                className="accent-[color:var(--cyan)]"
+              />
+              Members may create their own group reminders
+              {!p.membersMayCreate && <span className="text-[color:var(--ink-faint)]">— new ones need admin approval</span>}
+            </label>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+/** Slice 4: acknowledgement analytics derived from live reminder state. */
+function AnalyticsPanel() {
+  const { state, derived } = useStore()
+  const { open } = useCompliance()
+
+  const total = state.reminders.length
+  const acked = state.reminders.filter(r => r.acknowledged).length
+  const overdue = state.reminders.filter(r => !r.acknowledged && r.dayOffset < 0).length
+  const snoozed = state.reminders.filter(r => r.snoozedUntil).length
+  const ackRate = total ? Math.round((acked / total) * 100) : 0
+
+  const byCategory = (['compliance', 'group', 'personal'] as const).map(c => {
+    const items = state.reminders.filter(r => r.category === c)
+    const done = items.filter(r => r.acknowledged).length
+    return { category: c, total: items.length, done, pct: items.length ? Math.round((done / items.length) * 100) : 0 }
+  })
+
+  const CAT_COLOR: Record<string, string> = { compliance: 'var(--red)', group: 'var(--teal)', personal: 'var(--violet)' }
+
+  const stats = [
+    { label: 'Acknowledgement rate', value: `${ackRate}%`, tone: ackRate >= 85 ? 'text-[#7BE9D8]' : 'text-[#FCD770]' },
+    { label: 'Open escalations', value: String(open.length), tone: open.length ? 'text-[#FFB4B4]' : 'text-[#7BE9D8]' },
+    { label: 'Overdue', value: String(overdue), tone: overdue ? 'text-[#FFB4B4]' : 'text-[#7BE9D8]' },
+    { label: 'Snoozed', value: String(snoozed), tone: 'text-[color:var(--ink-dim)]' },
+  ]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {stats.map(s => (
+          <div key={s.label} className="glass p-4">
+            <div className={cn('font-display text-[1.6rem] font-extrabold leading-none', s.tone)}>{s.value}</div>
+            <div className="mt-1 text-[0.68rem] text-[color:var(--ink-faint)]">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="glass p-5">
+        <h3 className="font-display mb-3 text-[0.92rem] font-bold">Acknowledgement by category</h3>
+        <div className="flex flex-col gap-3">
+          {byCategory.map(c => (
+            <div key={c.category}>
+              <div className="mb-1 flex items-center justify-between text-[0.76rem]">
+                <span className="capitalize">{c.category}</span>
+                <span className="text-[color:var(--ink-faint)]">
+                  {c.done}/{c.total} · {c.pct}%
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/[0.12]">
+                <div className="h-full rounded-full transition-all" style={{ width: `${c.pct}%`, background: CAT_COLOR[c.category] }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass p-5">
+        <h3 className="font-display mb-1 text-[0.92rem] font-bold">Needs attention</h3>
+        <p className="mb-3 text-[0.74rem] text-[color:var(--ink-dim)]">Unacknowledged reminders, most overdue first.</p>
+        {derived.active.filter(r => r.dayOffset <= 0).length === 0 ? (
+          <p className="py-4 text-center text-[0.8rem] text-[color:var(--ink-dim)]">Everything due has been acknowledged.</p>
+        ) : (
+          <ol className="flex flex-col gap-2">
+            {[...derived.active]
+              .filter(r => r.dayOffset <= 0)
+              .sort((a, b) => a.dayOffset - b.dayOffset)
+              .slice(0, 8)
+              .map(r => (
+                <li key={r.id} className="flex items-center gap-2.5 text-[0.8rem]">
+                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: CAT_COLOR[r.category] }} />
+                  <span className="min-w-0 flex-1 truncate">{r.title}</span>
+                  <span className={cn('shrink-0 text-[0.7rem]', r.dayOffset < 0 ? 'text-[#FFB4B4]' : 'text-[color:var(--ink-faint)]')}>
+                    {r.dayOffset < 0 ? `${Math.abs(r.dayOffset)}d overdue` : 'due today'}
+                  </span>
+                </li>
+              ))}
+          </ol>
+        )}
+      </div>
     </div>
   )
 }

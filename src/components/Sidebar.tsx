@@ -1,4 +1,4 @@
-import { Bell, CalendarDays, FileText, GanttChartSquare, LayoutGrid, LogOut, ScrollText, Search, Settings, ShieldCheck, Sparkles, Sun, Users } from 'lucide-react'
+import { Bell, Briefcase, CalendarDays, FileText, GanttChartSquare, LayoutGrid, LogOut, ScrollText, Search, Settings, ShieldCheck, Sparkles, Sun, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
@@ -14,6 +14,7 @@ const NAV: { key: Tab; label: string; icon: typeof Sun }[] = [
   { key: 'discover', label: 'Discover', icon: Search },
   { key: 'workspace', label: 'Workspace', icon: LayoutGrid },
   { key: 'planner', label: 'Plans', icon: GanttChartSquare },
+  { key: 'business', label: 'Business', icon: Briefcase },
   { key: 'invoices', label: 'Invoices', icon: FileText },
   { key: 'groups', label: 'Groups', icon: Users },
   { key: 'premium', label: 'Premium', icon: Sparkles },

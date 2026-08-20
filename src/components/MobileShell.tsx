@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Bell, CalendarDays, ChevronRight, FileText, GanttChartSquare, LayoutGrid, LogOut, MoreHorizontal,
+  Bell, Briefcase, CalendarDays, ChevronRight, FileText, GanttChartSquare, LayoutGrid, LogOut, MoreHorizontal,
   Plus, ScrollText, Search, Settings, ShieldCheck, Sparkles, Sun, User, Users,
 } from 'lucide-react'
 import { useMyRole } from '../lib/useAdmin'
@@ -24,6 +24,7 @@ const TABS: { key: Tab; label: string; icon: typeof Sun }[] = [
 /** Everything that doesn't fit in the tab bar, reachable from "More". */
 const MORE_ITEMS: { key: Tab; label: string; sub: string; icon: typeof Sun }[] = [
   { key: 'planner', label: 'Plans', sub: 'Events, projects and Gantt charts', icon: GanttChartSquare },
+  { key: 'business', label: 'Business', sub: 'Certifications, contracts, filings', icon: Briefcase },
   { key: 'invoices', label: 'Invoices', sub: 'Send, settle and track invoices', icon: FileText },
   { key: 'groups', label: 'Groups', sub: 'Members and group chat', icon: Users },
   { key: 'premium', label: 'Premium', sub: 'Vault, subscriptions, calendar sync', icon: Sparkles },

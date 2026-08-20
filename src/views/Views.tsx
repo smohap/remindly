@@ -14,6 +14,7 @@ import { timeMinutes, useStore } from '../store'
 import { useNotifications } from '../lib/useNotifications'
 import type { Reminder } from '../types'
 import { AdminView } from './AdminView'
+import { BusinessView } from './BusinessView'
 import { CalendarView } from './CalendarView'
 import { GroupsView } from './GroupsView'
 import { InvoicesView } from './InvoicesView'
@@ -279,6 +280,7 @@ export function ViewSwitch() {
         {state.tab === 'invoices' && <InvoicesView />}
         {state.tab === 'planner' && <PlannerView />}
         {state.tab === 'admin' && <AdminView />}
+        {state.tab === 'business' && <BusinessView />}
         {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}
