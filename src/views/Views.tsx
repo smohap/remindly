@@ -16,6 +16,7 @@ import type { Reminder } from '../types'
 import { CalendarView } from './CalendarView'
 import { GroupsView } from './GroupsView'
 import { InvoicesView } from './InvoicesView'
+import { PlannerView } from './PlannerView'
 import { PremiumView } from './PremiumView'
 import { ProfileView } from './ProfileView'
 import { WorkspaceView } from './WorkspaceView'
@@ -275,6 +276,7 @@ export function ViewSwitch() {
         {state.tab === 'groups' && <GroupsView />}
         {state.tab === 'workspace' && <WorkspaceView />}
         {state.tab === 'invoices' && <InvoicesView />}
+        {state.tab === 'planner' && <PlannerView />}
         {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}

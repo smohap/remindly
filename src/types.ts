@@ -33,6 +33,7 @@ export type Tab =
   | 'premium'
   | 'workspace'
   | 'invoices'
+  | 'planner'
 
 export type ToggleKey = 'personalAlarm' | 'push' | 'email' | 'sms' | 'slack' | 'quietHours'
 
