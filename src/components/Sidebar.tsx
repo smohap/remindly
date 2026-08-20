@@ -1,8 +1,9 @@
-import { Bell, CalendarDays, FileText, GanttChartSquare, LayoutGrid, LogOut, ScrollText, Search, Settings, Sparkles, Sun, Users } from 'lucide-react'
+import { Bell, CalendarDays, FileText, GanttChartSquare, LayoutGrid, LogOut, ScrollText, Search, Settings, ShieldCheck, Sparkles, Sun, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
 import { useGroups } from '../lib/useGroups'
+import { useMyRole } from '../lib/useAdmin'
 import { useStore } from '../store'
 import type { Tab } from '../types'
 import { Avatar } from './Avatar'
@@ -25,7 +26,12 @@ export function Sidebar() {
   const { state, derived, actions } = useStore()
   const { user, signOut } = useAuth()
   const { groups } = useGroups()
+  const { isAdmin } = useMyRole()
   const navigate = useNavigate()
+
+  // Admins get one extra entry. This only controls visibility — the server
+  // decides what an admin may actually do.
+  const nav = isAdmin ? [...NAV, { key: 'admin' as const, label: 'Admin', icon: ShieldCheck }] : NAV
 
   return (
     <aside className="glass flex flex-col gap-6 px-3 py-[26px] xl:px-[18px]">
@@ -34,7 +40,7 @@ export function Sidebar() {
         <span className="hidden xl:inline">Remindly</span>
       </div>
       <nav className="flex flex-col gap-1" aria-label="Main">
-        {NAV.map(item => {
+        {nav.map(item => {
           const active = state.tab === item.key
           // The notification inbox has no data source yet, so it carries no
           // badge. A hardcoded count that never matched the inbox was worse

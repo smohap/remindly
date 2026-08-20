@@ -3,8 +3,9 @@ import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import {
   Bell, CalendarDays, ChevronRight, FileText, GanttChartSquare, LayoutGrid, LogOut, MoreHorizontal,
-  Plus, ScrollText, Search, Settings, Sparkles, Sun, User, Users,
+  Plus, ScrollText, Search, Settings, ShieldCheck, Sparkles, Sun, User, Users,
 } from 'lucide-react'
+import { useMyRole } from '../lib/useAdmin'
 import { BottomSheet } from './BottomSheet'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
@@ -32,6 +33,9 @@ const MORE_ITEMS: { key: Tab; label: string; sub: string; icon: typeof Sun }[] =
   { key: 'profile', label: 'Profile', sub: 'Your details', icon: User },
   { key: 'settings', label: 'Settings', sub: 'Preferences and sign out', icon: Settings },
 ]
+
+/** Shown only to admins; the server still enforces what they may do. */
+const ADMIN_ITEM = { key: 'admin' as const, label: 'Admin', sub: 'People, groups and audit log', icon: ShieldCheck }
 
 function MobileHeader({ compact }: { compact: boolean }) {
   const { actions } = useStore()
@@ -133,7 +137,9 @@ export function MobileLayout() {
   const [compact, setCompact] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const { state, actions } = useStore()
-  const moreActive = MORE_ITEMS.some(i => i.key === state.tab)
+  const { isAdmin } = useMyRole()
+  const moreItems = isAdmin ? [...MORE_ITEMS, ADMIN_ITEM] : MORE_ITEMS
+  const moreActive = moreItems.some(i => i.key === state.tab)
 
   return (
     <div className="relative z-10 flex h-dvh flex-col">
@@ -147,7 +153,7 @@ export function MobileLayout() {
       <BottomSheet open={moreOpen} onClose={() => setMoreOpen(false)} label="All sections">
         <h3 className="font-display mb-3 text-base font-bold">All sections</h3>
         <div className="flex flex-col gap-1.5">
-          {MORE_ITEMS.map(item => {
+          {moreItems.map(item => {
             const active = state.tab === item.key
             return (
               <button

@@ -13,6 +13,7 @@ import { cn } from '../lib/cn'
 import { timeMinutes, useStore } from '../store'
 import { useNotifications } from '../lib/useNotifications'
 import type { Reminder } from '../types'
+import { AdminView } from './AdminView'
 import { CalendarView } from './CalendarView'
 import { GroupsView } from './GroupsView'
 import { InvoicesView } from './InvoicesView'
@@ -277,6 +278,7 @@ export function ViewSwitch() {
         {state.tab === 'workspace' && <WorkspaceView />}
         {state.tab === 'invoices' && <InvoicesView />}
         {state.tab === 'planner' && <PlannerView />}
+        {state.tab === 'admin' && <AdminView />}
         {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
         {state.tab === 'settings' && <SettingsView />}
