@@ -127,7 +127,7 @@ const businessPlans: Plan[] = [
     price: 'Custom',
     unit: 'contact sales',
     cta: 'Contact sales',
-    features: ['Everything in Growth', 'White-label & REST API', 'Franchise / multi-location', 'ANZ data residency & SLA'],
+    features: ['Everything in Growth', 'White-label & REST API', 'Multi-location broadcast', 'Data residency & SLA'],
   },
 ]
 
@@ -135,7 +135,7 @@ const stats = [
   { num: '2', label: 'Ways to use it' },
   { num: '40+', label: 'Reminder types' },
   { num: '4', label: 'Delivery channels' },
-  { num: 'NZD', label: 'ANZ-first' },
+  { num: 'Free', label: 'To get started' },
 ]
 
 function Nav() {
@@ -212,7 +212,7 @@ export default function Landing() {
       <section className="relative z-10 mx-auto max-w-[900px] px-6 pb-14 pt-14 text-center sm:pt-20">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
           <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)]">
-            <Zap size={13} className="text-[color:var(--cyan)]" /> One reminder app for life and work
+            <Zap size={13} className="text-[color:var(--cyan)]" /> Never miss what matters — at home or at work
           </span>
           <h1 className="font-display text-[2.5rem] font-bold leading-[1.05] text-white sm:text-[3.6rem]">
             Never let a deadline,<br />renewal, or payment slip
