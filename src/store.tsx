@@ -7,13 +7,12 @@ import { dateToOffset, offsetToDate, remindersStore } from './lib/remindersStore
 import { currentUserId } from './lib/invoicesDb'
 import { isSnoozed, snoozeLabel, snoozeUntil, type SnoozeKey } from './lib/snooze'
 import type { Feature } from './lib/plans'
-import type { Filter, Reminder, Tab, ToggleKey } from './types'
+import type { Filter, Reminder, Tab } from './types'
 
 interface State {
   reminders: Reminder[]
   filter: Filter
   tab: Tab
-  toggles: Record<ToggleKey, boolean>
   /** Wall clock, refreshed every 30 s so snoozes expire without a reload. */
   now: number
   snoozeTargetId: string | null
@@ -35,7 +34,6 @@ type Action =
   | { type: 'add'; title: string }
   | { type: 'setFilter'; filter: Filter }
   | { type: 'setTab'; tab: Tab }
-  | { type: 'toggle'; key: ToggleKey }
   | { type: 'openSnooze'; id: string | null }
   | { type: 'setQuickAdd'; open: boolean }
   | { type: 'edit'; id: string; patch: Partial<Reminder> }
@@ -50,7 +48,6 @@ const initialState: State = {
   reminders: remindersStore.get(),
   filter: 'today',
   tab: 'today',
-  toggles: { personalAlarm: true, push: true, email: true, sms: false, slack: true, quietHours: true },
   now: Date.now(),
   snoozeTargetId: null,
   editTargetId: null,
@@ -150,8 +147,6 @@ function reducer(state: State, action: Action): State {
       return { ...state, filter: action.filter }
     case 'setTab':
       return { ...state, tab: action.tab }
-    case 'toggle':
-      return { ...state, toggles: { ...state.toggles, [action.key]: !state.toggles[action.key] } }
     case 'openSnooze':
       return { ...state, snoozeTargetId: action.id }
     case 'setQuickAdd':
@@ -215,7 +210,6 @@ interface Actions {
   add: (title: string) => void
   setFilter: (filter: Filter) => void
   setTab: (tab: Tab) => void
-  toggle: (key: ToggleKey) => void
   openSnooze: (id: string | null) => void
   setQuickAdd: (open: boolean) => void
   edit: (id: string, patch: Partial<Reminder>) => void
@@ -305,7 +299,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       add: title => dispatch({ type: 'add', title }),
       setFilter: filter => dispatch({ type: 'setFilter', filter }),
       setTab: tab => dispatch({ type: 'setTab', tab }),
-      toggle: key => dispatch({ type: 'toggle', key }),
       openSnooze: id => dispatch({ type: 'openSnooze', id }),
       setQuickAdd: open => dispatch({ type: 'setQuickAdd', open }),
       edit: (id, patch) => dispatch({ type: 'edit', id, patch }),

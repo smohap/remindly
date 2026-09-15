@@ -1,5 +1,6 @@
-import { Hash, Mail, MessageSquare, Smartphone } from 'lucide-react'
+import { Moon } from 'lucide-react'
 import { cn } from '../lib/cn'
+import { formatClock, usePreferences } from '../lib/usePreferences'
 import { useStore } from '../store'
 import { ToggleSwitch } from './ToggleSwitch'
 
@@ -55,66 +56,31 @@ export function WeekStripCard() {
   )
 }
 
-export function PersonalAlarmCard() {
-  const { state, actions } = useStore()
-  return (
-    <div className="glass relative shrink-0 overflow-hidden p-5">
-      <span className="pointer-events-none absolute right-3 top-2 text-[2.6rem] opacity-[0.12]" aria-hidden>
-        ⏰
-      </span>
-      <div className="relative mb-2 flex items-center justify-between gap-3">
-        <h3 className="font-display text-[0.82rem] font-bold">⏰ Personal alarm</h3>
-        <ToggleSwitch on={state.toggles.personalAlarm} onChange={() => actions.toggle('personalAlarm')} label="Personal alarm" />
-      </div>
-      <p className="relative max-w-[92%] text-[0.72rem] leading-relaxed text-[color:var(--ink-dim)]">
-        Bypasses silent &amp; DND for reminders you mark critical. Loops until dismissed.
-      </p>
-    </div>
-  )
-}
-
-const CHANNELS = [
-  { key: 'push', label: 'Push', icon: Smartphone },
-  { key: 'email', label: 'Email', icon: Mail },
-  { key: 'sms', label: 'SMS', icon: MessageSquare },
-  { key: 'slack', label: 'Slack', icon: Hash },
-] as const
-
-export function ChannelsCard() {
-  const { state, actions } = useStore()
-  return (
-    <div className="glass shrink-0 p-5">
-      <h3 className="font-display mb-2 text-[0.82rem] font-bold">Notification channels</h3>
-      {CHANNELS.map(channel => (
-        <div key={channel.key} className="flex items-center justify-between border-b border-white/10 py-[9px] last:border-0 last:pb-0">
-          <div className="flex items-center gap-[9px] text-[0.8rem] font-semibold">
-            <channel.icon size={15} className="text-[color:var(--ink-dim)]" />
-            {channel.label}
-          </div>
-          <ToggleSwitch on={state.toggles[channel.key]} onChange={() => actions.toggle(channel.key)} label={`${channel.label} notifications`} />
-        </div>
-      ))}
-    </div>
-  )
-}
-
 export function QuietHoursCard() {
-  const { state, actions } = useStore()
+  const { prefs, update } = usePreferences()
   return (
-    <div className="glass shrink-0 p-5">
-      <h3 className="font-display mb-2 text-[0.82rem] font-bold">🌙 Quiet hours</h3>
-      <div className="flex items-center justify-between py-1">
-        <div className="text-[0.8rem] font-semibold">10:00 PM – 7:00 AM</div>
-        <ToggleSwitch on={state.toggles.quietHours} onChange={() => actions.toggle('quietHours')} label="Quiet hours" />
+    <div className="card shrink-0 p-5">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h3 className="font-display flex items-center gap-2 text-[0.82rem] font-bold">
+          <Moon size={14} className="text-[color:var(--ink-dim)]" /> Quiet hours
+        </h3>
+        <ToggleSwitch on={prefs.quietEnabled} onChange={() => update({ quietEnabled: !prefs.quietEnabled })} label="Quiet hours" />
       </div>
-      <div className="relative mt-2.5 h-1.5 rounded-[10px] bg-white/[0.12]">
-        <div className="absolute left-0 h-full w-[42%] rounded-[10px] bg-[linear-gradient(90deg,var(--violet),var(--magenta))]" />
+      <div className={cn('flex items-center gap-2 text-[0.8rem]', !prefs.quietEnabled && 'opacity-50')}>
+        <label className="flex flex-1 flex-col gap-1 text-[0.68rem] text-[color:var(--ink-faint)]">
+          From
+          <input type="time" value={prefs.quietStart} disabled={!prefs.quietEnabled} onChange={e => update({ quietStart: e.target.value })} className="field py-1.5 text-[0.8rem]" />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-[0.68rem] text-[color:var(--ink-faint)]">
+          Until
+          <input type="time" value={prefs.quietEnd} disabled={!prefs.quietEnabled} onChange={e => update({ quietEnd: e.target.value })} className="field py-1.5 text-[0.8rem]" />
+        </label>
       </div>
-      <div className="mt-2 flex justify-between gap-2 text-[0.68rem] text-[color:var(--ink-faint)]">
-        <span>10 PM</span>
-        <span className="text-center">Compliance always breaks through</span>
-        <span>7 AM</span>
-      </div>
+      <p className="mt-2.5 text-[0.7rem] leading-relaxed text-[color:var(--ink-faint)]">
+        {prefs.quietEnabled
+          ? `No nudges between ${formatClock(prefs.quietStart)} and ${formatClock(prefs.quietEnd)}. Compliance reminders always break through.`
+          : 'Nudges can arrive at any hour.'}
+      </p>
     </div>
   )
 }

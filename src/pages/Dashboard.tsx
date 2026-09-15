@@ -9,6 +9,7 @@ import { currentUserId } from '../lib/invoicesDb'
 import { useIsMobile } from '../lib/useIsMobile'
 import { useNotifications } from '../lib/useNotifications'
 import { hydratePremium } from '../lib/usePremium'
+import { hydratePreferences } from '../lib/usePreferences'
 import { hydrateWorkspace } from '../lib/useWorkspace'
 import { StoreProvider, useStore } from '../store'
 
@@ -24,7 +25,7 @@ function LiveRegion() {
 /** Runs the due-reminder notification loop for as long as the app is open. */
 function NotificationRunner() {
   const { state } = useStore()
-  useNotifications(state.reminders, { quietHours: state.toggles.quietHours })
+  useNotifications(state.reminders)
   return null
 }
 
@@ -43,6 +44,7 @@ export default function Dashboard() {
         void hydrateWorkspace(uid)
         void hydratePremium(uid)
         void hydrateActivity(uid)
+        void hydratePreferences(uid)
       }
     })
     return () => {

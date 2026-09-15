@@ -43,8 +43,6 @@ export type Tab =
   | 'business'
   | 'upgrade'
 
-export type ToggleKey = 'personalAlarm' | 'push' | 'email' | 'sms' | 'slack' | 'quietHours'
-
 export interface DiscoverEvent {
   id: string
   title: string

@@ -5,7 +5,7 @@ import { ChevronRight, LogOut, Search, Sparkles, User, Users } from 'lucide-reac
 import { useAuth } from '../auth/AuthContext'
 import { Avatar } from '../components/Avatar'
 import { GreetingHero } from '../components/GreetingHero'
-import { ChannelsCard, PersonalAlarmCard, QuietHoursCard, WeekStripCard } from '../components/RailCards'
+import { QuietHoursCard, WeekStripCard } from '../components/RailCards'
 import { Section } from '../components/Section'
 import { SmartChips } from '../components/SmartChips'
 import { cn } from '../lib/cn'
@@ -75,8 +75,6 @@ function TodayView() {
       )}
       <div className="hidden gap-[18px] md:grid md:grid-cols-2 xl:hidden">
         <WeekStripCard />
-        <PersonalAlarmCard />
-        <ChannelsCard />
         <QuietHoursCard />
       </div>
     </>
@@ -149,7 +147,7 @@ function DiscoverView() {
 /** Ask for permission to send desktop/mobile nudges. */
 function NotificationsCard() {
   const { state } = useStore()
-  const { supported, permission, request } = useNotifications(state.reminders, { quietHours: state.toggles.quietHours })
+  const { supported, permission, request } = useNotifications(state.reminders)
 
   const body =
     !supported ? "This browser can't show notifications."
@@ -232,8 +230,6 @@ function SettingsView() {
         <div className="flex flex-col gap-3">
           <SectionLabel>Preferences</SectionLabel>
           <NotificationsCard />
-          <PersonalAlarmCard />
-          <ChannelsCard />
           <QuietHoursCard />
         </div>
       </div>

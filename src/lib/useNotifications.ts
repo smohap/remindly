@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Reminder } from '../types'
+import { getPreferences, inQuietWindow } from './usePreferences'
 
 /**
  * Desktop and mobile notifications for due reminders.
@@ -63,19 +64,12 @@ export function dueWindowStart(r: Reminder, now = new Date()): number | null {
   return due.getTime() - LEAD_MS
 }
 
-function inQuietHours(now = new Date()): boolean {
-  const h = now.getHours()
-  return h >= 22 || h < 7
-}
-
-export function useNotifications(reminders: Reminder[], opts: { quietHours: boolean }) {
+export function useNotifications(reminders: Reminder[]) {
   const supported = typeof window !== 'undefined' && 'Notification' in window
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(
     supported ? Notification.permission : 'unsupported',
   )
   const sent = useRef<SentMap>(loadSent())
-  const quietRef = useRef(opts.quietHours)
-  quietRef.current = opts.quietHours
 
   const request = useCallback(async () => {
     if (!supported) return 'unsupported' as const
@@ -113,7 +107,7 @@ export function useNotifications(reminders: Reminder[], opts: { quietHours: bool
         if (start === null || now < start) continue
 
         // Quiet hours hold back everything except compliance items.
-        if (quietRef.current && inQuietHours() && r.category !== 'compliance') continue
+        if (inQuietWindow(getPreferences()) && r.category !== 'compliance') continue
 
         const last = sent.current[r.id] ?? 0
         if (now - last < REPEAT_MS) continue

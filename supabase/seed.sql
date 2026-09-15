@@ -43,7 +43,3 @@ update public.profiles set
   location  = 'Auckland, NZ',
   initials  = 'PN'
 where id = '11111111-1111-1111-1111-111111111111';
-
--- Ensure channel toggles match the app (SMS off, the rest on)
-update public.notification_channels set enabled = false
-  where user_id = '11111111-1111-1111-1111-111111111111' and channel = 'sms';
