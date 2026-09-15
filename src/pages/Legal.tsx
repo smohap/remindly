@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { PLANS } from '../lib/plans'
 import { Mail, MapPin, MessageSquare } from 'lucide-react'
 import { AuroraBackground } from '../components/AuroraBackground'
 import { Brand } from '../components/Brand'
@@ -309,31 +310,12 @@ export function Roadmap() {
 }
 
 // ===========================================================================
-const PLANS: { name: string; price: string; unit: string; who: string; highlight?: boolean; features: string[] }[] = [
-  {
-    name: 'Free', price: '$0', unit: 'forever', who: 'Anyone getting started',
-    features: ['Core reminders and smart lists', 'Personal alarm and quiet hours', 'Natural-language add', 'Calendar views', '5 lists, 10 notes, 50 bookmarks', 'Groups and shared reminders'],
-  },
-  {
-    name: 'Personal Plus', price: '$9.99', unit: 'per month', who: 'Individuals and families', highlight: true,
-    features: ['Everything in Free, unlimited', 'Renewal Vault and subscription tracker', 'Diary and creative writing', 'Event planner with Gantt charts', 'Invoicing', 'Calendar connections', 'Household sharing'],
-  },
-  {
-    name: 'Team', price: '$49', unit: 'per org / month', who: 'Small teams and clubs',
-    features: ['Everything in Personal Plus', 'Group chat', 'Admin console and roles', 'Up to 100 members', 'Shared group lists', 'Audit log'],
-  },
-  {
-    name: 'Growth', price: '$149', unit: 'per org / month', who: 'Compliance-driven businesses',
-    features: ['Everything in Team', 'Compliance mode and escalation', 'Certification and contract tracking', 'GST / PAYE filing deadlines', 'Analytics dashboard', 'Unlimited members'],
-  },
-]
-
 export function Pricing() {
   return (
     <PageShell title="Pricing" subtitle="Start free, and pay only when you need the toolkit that matches how you work. Prices in NZD, excluding GST.">
       <div className="grid gap-4 sm:grid-cols-2">
         {PLANS.map(p => (
-          <div key={p.name} className="glass flex flex-col p-6" style={p.highlight ? { borderColor: 'rgba(124,111,255,0.6)' } : undefined}>
+          <div key={p.id} className="glass flex flex-col p-6" style={p.highlight ? { borderColor: 'rgba(124,111,255,0.6)' } : undefined}>
             {p.highlight && (
               <span className="mb-3 self-start rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-[0.08em] text-[#1a1240]">
                 Most popular
@@ -341,7 +323,7 @@ export function Pricing() {
             )}
             <div className="font-display text-[1.1rem] font-bold text-white">{p.name}</div>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="font-display text-[1.9rem] font-extrabold text-white">{p.price}</span>
+              <span className="font-display text-[1.9rem] font-extrabold text-white">{p.priceLabel}</span>
               <span className="text-[0.72rem] text-[color:var(--ink-faint)]">{p.unit}</span>
             </div>
             <div className="mt-1 text-[0.75rem] text-[color:var(--ink-faint)]">{p.who}</div>
