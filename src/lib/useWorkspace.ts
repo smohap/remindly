@@ -1,18 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react'
-import { makeStore } from './localStore'
+import { planAllows } from './plans'
+import { planStore, usePlan } from './usePlan'
 import { makeSyncedStore, useSyncState } from './syncedStore'
-
-// ---------------------------------------------------------------------------
-// Premium status. No billing is wired yet, so this is a local preview switch
-// that lets free-tier limits and premium-only features be exercised.
-// ---------------------------------------------------------------------------
-const premiumStore = makeStore<boolean>('remindly.premium.v1', false)
-
-export function usePremium() {
-  const isPremium = useSyncExternalStore(premiumStore.subscribe, premiumStore.get, premiumStore.get)
-  const setPremium = useCallback((v: boolean) => premiumStore.set(v), [])
-  return { isPremium, setPremium }
-}
 
 // Free-tier caps
 export const FREE_LIMITS = { lists: 5, notes: 10, bookmarks: 50 } as const
@@ -120,7 +109,7 @@ export function useLists() {
   const lists = useSyncExternalStore(listsStore.subscribe, listsStore.get, listsStore.get)
   const syncState = useSyncState(listsStore)
   const syncError = listsStore.getError()
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('unlimited_workspace')
   const atLimit = !isPremium && lists.length >= FREE_LIMITS.lists
 
   const createList = useCallback(
@@ -128,7 +117,7 @@ export function useLists() {
       const trimmed = name.trim()
       if (!trimmed) return false
       const cur = listsStore.get()
-      if (!premiumStore.get() && cur.length >= FREE_LIMITS.lists) return false
+      if (!planAllows(planStore.get().plan, 'unlimited_workspace') && cur.length >= FREE_LIMITS.lists) return false
       listsStore.set([{ id: `l-${Date.now()}`, name: trimmed, color, shared: false, items: [], createdAt: now() }, ...cur])
       return true
     },
@@ -186,12 +175,12 @@ const notesStore = makeSyncedStore<Note>({
 
 export function useNotes() {
   const notes = useSyncExternalStore(notesStore.subscribe, notesStore.get, notesStore.get)
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('unlimited_workspace')
   const atLimit = !isPremium && notes.length >= FREE_LIMITS.notes
 
   const createNote = useCallback((title: string, body: string) => {
     const cur = notesStore.get()
-    if (!premiumStore.get() && cur.length >= FREE_LIMITS.notes) return false
+    if (!planAllows(planStore.get().plan, 'unlimited_workspace') && cur.length >= FREE_LIMITS.notes) return false
     if (!title.trim() && !body.trim()) return false
     notesStore.set([{ id: `n-${Date.now()}`, title: title.trim() || 'Untitled note', body, updatedAt: now(), sharedWith: [] }, ...cur])
     return true
@@ -234,12 +223,12 @@ const bookmarksStore = makeSyncedStore<Bookmark>({
 
 export function useBookmarks() {
   const bookmarks = useSyncExternalStore(bookmarksStore.subscribe, bookmarksStore.get, bookmarksStore.get)
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('unlimited_workspace')
   const atLimit = !isPremium && bookmarks.length >= FREE_LIMITS.bookmarks
 
   const createBookmark = useCallback((title: string, url: string, tag: string) => {
     const cur = bookmarksStore.get()
-    if (!premiumStore.get() && cur.length >= FREE_LIMITS.bookmarks) return false
+    if (!planAllows(planStore.get().plan, 'unlimited_workspace') && cur.length >= FREE_LIMITS.bookmarks) return false
     if (!url.trim()) return false
     const href = /^https?:\/\//i.test(url) ? url : `https://${url}`
     bookmarksStore.set([{ id: `b-${Date.now()}`, title: title.trim() || href, url: href, tag: tag.trim() || 'General', createdAt: now() }, ...cur])

@@ -6,7 +6,9 @@ import { cn } from '../lib/cn'
 import { useGroups } from '../lib/useGroups'
 import { LANGUAGES, TIMEZONES, useProfile } from '../lib/useProfile'
 import { useStore } from '../store'
-import { useBookmarks, useLists, useNotes, usePremium } from '../lib/useWorkspace'
+import { useBookmarks, useLists, useNotes } from '../lib/useWorkspace'
+import { planLabel } from '../lib/plans'
+import { usePlan } from '../lib/usePlan'
 
 const field =
   'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
@@ -24,7 +26,8 @@ function Stat({ value, label }: { value: number | string; label: string }) {
 export function ProfileView() {
   const { user, signOut } = useAuth()
   const { profile, save } = useProfile()
-  const { isPremium } = usePremium()
+  const { plan } = usePlan()
+  const isPremium = plan !== 'free'
   const { groups } = useGroups()
   const { lists } = useLists()
   const { notes } = useNotes()
@@ -64,7 +67,7 @@ export function ProfileView() {
             <h2 className="font-display truncate text-[1.4rem] font-bold">{f.displayName || user?.name || 'Your name'}</h2>
             {isPremium && (
               <span className="flex items-center gap-1 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-2.5 py-[2px] text-[0.6rem] font-extrabold uppercase tracking-[0.06em] text-[#1a1240]">
-                <Sparkles size={10} /> Premium
+                <Sparkles size={10} /> {planLabel(plan)}
               </span>
             )}
           </div>

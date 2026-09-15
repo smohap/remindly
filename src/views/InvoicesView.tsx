@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, Ban, Check, FileText, Lock, Plus, Send, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Ban, Check, FileText, Plus, Send, Trash2, X } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { cn } from '../lib/cn'
 import { useGroups } from '../lib/useGroups'
-import { usePremium } from '../lib/useWorkspace'
+import { usePlan } from '../lib/usePlan'
+import { UpgradeGate } from '../components/UpgradeGate'
 import {
   CURRENCIES, ME, REJECT_COMMENT_MAX,
   displayStatus, isOverdue, lineItemsTotal, money, useInvoices, validateInvoice,
@@ -446,7 +447,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
 
 // ===========================================================================
 export function InvoicesView() {
-  const { isPremium, setPremium } = usePremium()
+  const { can } = usePlan()
   const { sent, received, outstandingCents, awaitingCents } = useInvoices()
   const [role, setRole] = useState<Role>('received')
   const [filter, setFilter] = useState<Filter>('all')
@@ -463,20 +464,8 @@ export function InvoicesView() {
 
   const openInvoice = [...sent, ...received].find(i => i.id === openId) ?? null
 
-  if (!isPremium) {
-    return (
-      <div className="glass flex flex-col items-center gap-3 px-6 py-14 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]">
-          <Lock size={20} />
-        </span>
-        <h3 className="font-display text-[1.15rem] font-bold">Invoicing</h3>
-        <p className="max-w-md text-[0.85rem] leading-relaxed text-[color:var(--ink-dim)]">
-          Create and send invoices to anyone in your groups, track what you're owed, and settle or dispute with a full audit trail.
-          Available on Personal Plus and all business plans.
-        </p>
-        <button onClick={() => setPremium(true)} className={primaryBtn}>Unlock Premium</button>
-      </div>
-    )
+  if (!can('invoices')) {
+    return <UpgradeGate feature="invoices" title="Invoicing" description="Create and send invoices to anyone in your groups, track what you're owed, and settle or dispute with a full audit trail." />
   }
 
   if (openInvoice) return <InvoiceDetail invoice={openInvoice} onBack={() => setOpenId(null)} />

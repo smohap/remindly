@@ -6,6 +6,7 @@ import { nextOccurrence } from './lib/recurrence'
 import { dateToOffset, offsetToDate, remindersStore } from './lib/remindersStore'
 import { currentUserId } from './lib/invoicesDb'
 import { isSnoozed, snoozeLabel, snoozeUntil, type SnoozeKey } from './lib/snooze'
+import type { Feature } from './lib/plans'
 import type { Filter, Reminder, Tab, ToggleKey } from './types'
 
 interface State {
@@ -19,6 +20,10 @@ interface State {
   editTargetId: string | null
   quickAddOpen: boolean
   announcement: string
+  /** Feature that triggered the upgrade chooser, so the right plan is pre-selected. */
+  upgradeFeature: Feature | null
+  /** Where to return after the chooser closes. */
+  upgradeReturnTab: Tab
 }
 
 type Action =
@@ -37,6 +42,7 @@ type Action =
   | { type: 'remove'; id: string }
   | { type: 'openEdit'; id: string | null }
   | { type: 'hydrate'; reminders: Reminder[] }
+  | { type: 'openUpgrade'; feature: Feature | null }
 
 const initialState: State = {
   // Start from whatever is already on this device; the server copy replaces it
@@ -50,6 +56,8 @@ const initialState: State = {
   editTargetId: null,
   quickAddOpen: false,
   announcement: '',
+  upgradeFeature: null,
+  upgradeReturnTab: 'today',
 }
 
 function describeOffset(dayOffset: number): string {
@@ -174,6 +182,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, editTargetId: action.id }
     case 'hydrate':
       return { ...state, reminders: action.reminders }
+    case 'openUpgrade':
+      return { ...state, tab: 'upgrade', upgradeFeature: action.feature, upgradeReturnTab: state.tab === 'upgrade' ? state.upgradeReturnTab : state.tab }
   }
 }
 
@@ -211,6 +221,7 @@ interface Actions {
   edit: (id: string, patch: Partial<Reminder>) => void
   remove: (id: string) => void
   openEdit: (id: string | null) => void
+  openUpgrade: (feature?: Feature) => void
 }
 
 interface StoreValue {
@@ -300,6 +311,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       edit: (id, patch) => dispatch({ type: 'edit', id, patch }),
       remove: id => dispatch({ type: 'remove', id }),
       openEdit: id => dispatch({ type: 'openEdit', id }),
+      openUpgrade: feature => dispatch({ type: 'openUpgrade', feature: feature ?? null }),
     }),
     [],
   )

@@ -23,6 +23,7 @@ import { InvoicesView } from './InvoicesView'
 import { PlannerView } from './PlannerView'
 import { PremiumView } from './PremiumView'
 import { ProfileView } from './ProfileView'
+import { UpgradeView } from './UpgradeView'
 import { WorkspaceView } from './WorkspaceView'
 
 function sortByDayAndTime(a: Reminder, b: Reminder) {
@@ -285,6 +286,7 @@ export function ViewSwitch() {
         {state.tab === 'business' && <BusinessView />}
         {state.tab === 'premium' && <PremiumView />}
         {state.tab === 'profile' && <ProfileView />}
+        {state.tab === 'upgrade' && <UpgradeView />}
         {state.tab === 'settings' && <SettingsView />}
         {state.tab === 'notifications' && (
           <StubView

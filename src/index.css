@@ -19,6 +19,31 @@
   --red: #ff6b6b;
   --teal: #2dd4bf;
   --gold: #fbbf24;
+
+  /* App (dashboard) tokens — solid surfaces, one accent. */
+  --bg: #0f1119;
+  --surface: #171a26;
+  --surface-2: #1e2233;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --accent: #7c6fff;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(124, 111, 255, 0.16);
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+}
+
+/* Inside the dashboard the aurora is replaced by a flat background; text
+   tokens shift to a slightly cooler white that reads better on solid ink. */
+html[data-app] body {
+  background: var(--bg);
+  --ink: #f3f4f8;
+  --ink-dim: rgba(243, 244, 248, 0.66);
+  --ink-faint: rgba(243, 244, 248, 0.42);
+  --glass: var(--surface);
+  --glass-strong: var(--surface-2);
+  --glass-border: var(--border);
 }
 
 html,
@@ -47,6 +72,74 @@ body {
    panels on some displays, so the background is now a clean gradient. */
 
 @layer components {
+  /* Dashboard surfaces: solid, bordered, no blur. */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .card-2 {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--ink-dim);
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); color: var(--ink); }
+  .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-danger { color: var(--danger); }
+  .btn-danger:hover { background: rgba(248, 113, 113, 0.1); color: var(--danger); }
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--ink);
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .field:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .field::placeholder { color: var(--ink-faint); }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+
   /* Opaque sibling of .glass for surfaces that sit ON TOP of page content —
      bottom sheets, the mobile tab bar and header. Translucent .glass reads fine
      over the aurora background, but over dense content it makes text

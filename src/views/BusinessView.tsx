@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlertTriangle, BadgeCheck, FileSignature, Landmark, Lock, Plus, Trash2 } from 'lucide-react'
+import { AlertTriangle, BadgeCheck, FileSignature, Landmark, Plus, Trash2 } from 'lucide-react'
 import { cn } from '../lib/cn'
-import { usePremium } from '../lib/useWorkspace'
+import { usePlan } from '../lib/usePlan'
+import { UpgradeGate } from '../components/UpgradeGate'
 import {
   CERT_TYPES, FILING_PRESETS, HEALTH_STYLE,
   daysUntil, fmtDate, healthOf, isoDate, nextDue, noticeDeadline,
@@ -26,25 +27,13 @@ function Chip({ date, warnDays = 30 }: { date: string; warnDays?: number }) {
 }
 
 export function BusinessView() {
-  const { isPremium, setPremium } = usePremium()
+  const { can } = usePlan()
   const [tab, setTab] = useState<Tab>('certs')
   const certs = useCertifications()
   const contracts = useContracts()
 
-  if (!isPremium) {
-    return (
-      <div className="glass flex flex-col items-center gap-3 px-6 py-14 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]">
-          <Lock size={20} />
-        </span>
-        <h3 className="font-display text-[1.15rem] font-bold">Business compliance suite</h3>
-        <p className="max-w-md text-[0.85rem] leading-relaxed text-[color:var(--ink-dim)]">
-          Track staff certifications, contract notice periods and GST/PAYE filing deadlines — with reminders that reach
-          both the person responsible and their admin. Available on Team, Growth and Enterprise plans.
-        </p>
-        <button onClick={() => setPremium(true)} className={primaryBtn}>Unlock Premium</button>
-      </div>
-    )
+  if (!can('business')) {
+    return <UpgradeGate feature="business" title="Business compliance suite" description="Track staff certifications, contract notice periods and GST/PAYE filing deadlines — with reminders that reach both the person responsible and their admin." />
   }
 
   const TABS: { key: Tab; label: string; icon: typeof BadgeCheck; alert: number }[] = [

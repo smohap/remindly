@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlertTriangle, ArrowLeft, CalendarRange, Link2, Lock, Plus, Trash2, Wand2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, CalendarRange, Link2, Plus, Trash2, Wand2 } from 'lucide-react'
 import { cn } from '../lib/cn'
-import { usePremium } from '../lib/useWorkspace'
+import { usePlan } from '../lib/usePlan'
+import { UpgradeGate } from '../components/UpgradeGate'
 import {
   addDays, conflictsOf, criticalPath, daysBetween, earliestStart,
   parseISO, planRange, taskDays, todayISO, usePlanner, wouldCycle,
@@ -20,7 +21,7 @@ const ghostBtn =
 const fmtShort = (s: string) => new Intl.DateTimeFormat('en-NZ', { day: 'numeric', month: 'short' }).format(parseISO(s))
 
 export function PlannerView() {
-  const { isPremium, setPremium } = usePremium()
+  const { can } = usePlan()
   const { plans, createPlan, deletePlan } = usePlanner()
   const [openId, setOpenId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -28,20 +29,8 @@ export function PlannerView() {
   const [kind, setKind] = useState<PlanKind>('event')
   const [description, setDescription] = useState('')
 
-  if (!isPremium) {
-    return (
-      <div className="glass flex flex-col items-center gap-3 px-6 py-14 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]">
-          <Lock size={20} />
-        </span>
-        <h3 className="font-display text-[1.15rem] font-bold">Event &amp; project planning</h3>
-        <p className="max-w-md text-[0.85rem] leading-relaxed text-[color:var(--ink-dim)]">
-          Break an event or project into tasks with start and end dates, link what depends on what, and see the whole
-          thing as a Gantt chart. Available on Personal Plus and all business plans.
-        </p>
-        <button onClick={() => setPremium(true)} className={primaryBtn}>Unlock Premium</button>
-      </div>
-    )
+  if (!can('planner')) {
+    return <UpgradeGate feature="planner" title="Event & project planning" description="Break an event or project into tasks with start and end dates, link what depends on what, and see the whole thing as a Gantt chart." />
   }
 
   const open = plans.find(p => p.id === openId)

@@ -41,6 +41,7 @@ export type Tab =
   | 'planner'
   | 'admin'
   | 'business'
+  | 'upgrade'
 
 export type ToggleKey = 'personalAlarm' | 'push' | 'email' | 'sms' | 'slack' | 'quietHours'
 

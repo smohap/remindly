@@ -5,9 +5,11 @@ import {
   Lock, Plus, Share2, StickyNote, Trash2, Users2, X,
 } from 'lucide-react'
 import { cn } from '../lib/cn'
+import { usePlan } from '../lib/usePlan'
+import { UpgradeGate } from '../components/UpgradeGate'
 import {
   LIST_COLORS, MOODS, PIECE_TYPES, FREE_LIMITS,
-  nativeShare, shareTargets, useBookmarks, useCreative, useDiary, useLists, useNotes, usePremium,
+  nativeShare, shareTargets, useBookmarks, useCreative, useDiary, useLists, useNotes,
   type PieceType,
 } from '../lib/useWorkspace'
 
@@ -29,7 +31,7 @@ const ghostBtn =
   'cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
 
 function UsageBar({ used, cap, label }: { used: number; cap: number; label: string }) {
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('unlimited_workspace')
   if (isPremium) {
     return (
       <span className="rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-2.5 py-1 text-[0.62rem] font-extrabold uppercase tracking-[0.06em] text-[#1a1240]">
@@ -51,30 +53,15 @@ function UsageBar({ used, cap, label }: { used: number; cap: number; label: stri
 }
 
 function LimitNotice({ what }: { what: string }) {
-  const { setPremium } = usePremium()
   return (
-    <div className="glass flex flex-col items-center gap-2 px-5 py-5 text-center">
-      <Lock size={18} className="text-[color:var(--cyan)]" />
-      <p className="text-[0.85rem] font-semibold">You've reached the free limit for {what}</p>
-      <p className="max-w-sm text-[0.78rem] text-[color:var(--ink-dim)]">Premium gives you unlimited {what}, plus sharing with friends and groups.</p>
-      <button onClick={() => setPremium(true)} className={primaryBtn}>Unlock Premium</button>
-    </div>
+    <UpgradeGate
+      feature="unlimited_workspace"
+      title={`You've reached the free limit for ${what}`}
+      description={`Personal Plus removes the cap on ${what} and lets you share them with friends and groups.`}
+    />
   )
 }
 
-function PremiumOnly({ title, blurb }: { title: string; blurb: string }) {
-  const { setPremium } = usePremium()
-  return (
-    <div className="glass flex flex-col items-center gap-3 px-6 py-12 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]">
-        <Lock size={20} />
-      </span>
-      <h3 className="font-display text-[1.1rem] font-bold">{title}</h3>
-      <p className="max-w-sm text-[0.85rem] text-[color:var(--ink-dim)]">{blurb}</p>
-      <button onClick={() => setPremium(true)} className={primaryBtn}>Unlock Premium</button>
-    </div>
-  )
-}
 
 function ShareRow({ title, text }: { title: string; text: string }) {
   const [state, setState] = useState<string | null>(null)
@@ -109,7 +96,7 @@ function ShareRow({ title, text }: { title: string; text: string }) {
 // ===========================================================================
 function ListsSection() {
   const { lists, atLimit, createList, deleteList, toggleShared, addItem, toggleItem, deleteItem } = useLists()
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('list_sharing')
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [color, setColor] = useState(LIST_COLORS[0])
@@ -396,14 +383,14 @@ function BookmarksSection() {
 
 // ===========================================================================
 function DiarySection() {
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('diary')
   const { entries, createEntry, deleteEntry } = useDiary()
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [mood, setMood] = useState(MOODS[1])
   const [body, setBody] = useState('')
 
   if (!isPremium) {
-    return <PremiumOnly title="Your private diary" blurb="Keep a daily journal with mood tracking, private to your account. Available on Premium." />
+    return <UpgradeGate feature="diary" title="Your private diary" description="Keep a daily journal with mood tracking, private to your account." />
   }
 
   return (
@@ -459,14 +446,14 @@ function DiarySection() {
 
 // ===========================================================================
 function CreativeSection() {
-  const { isPremium } = usePremium()
+  const isPremium = usePlan().can('diary')
   const { pieces, createPiece, deletePiece } = useCreative()
   const [title, setTitle] = useState('')
   const [type, setType] = useState<PieceType>('story')
   const [body, setBody] = useState('')
 
   if (!isPremium) {
-    return <PremiumOnly title="Stories, poems & creative writing" blurb="Write and keep your creative pieces, then share them to X, Facebook, LinkedIn or WhatsApp. Available on Premium." />
+    return <UpgradeGate feature="diary" title="Stories, poems & creative writing" description="Write and keep your creative pieces, then share them to X, Facebook, LinkedIn or WhatsApp." />
   }
 
   return (
@@ -539,7 +526,7 @@ const SYNC_LABEL: Record<string, { text: string; cls: string }> = {
 
 export function WorkspaceView() {
   const [segment, setSegment] = useState<Segment>('lists')
-  const { isPremium, setPremium } = usePremium()
+  const isPremium = usePlan().can('diary')
   const { syncState, syncError } = useLists()
   const sync = SYNC_LABEL[syncState] ?? SYNC_LABEL.local
 
@@ -556,16 +543,6 @@ export function WorkspaceView() {
             )}
           </p>
         </div>
-        <button
-          onClick={() => setPremium(!isPremium)}
-          className={cn(
-            'shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-[0.7rem] font-bold transition',
-            isPremium ? 'bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]' : 'border border-[color:var(--glass-border)] bg-white/[0.08] text-[color:var(--ink-dim)]',
-          )}
-          title="Preview how the app behaves on the free vs premium tier"
-        >
-          {isPremium ? '★ Premium preview on' : 'Preview Premium'}
-        </button>
       </div>
 
       <div className="scrollbar-hidden -mx-1 flex gap-1.5 overflow-x-auto px-1">

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarClock, CalendarDays, Gift, Plus, ShieldCheck, Sparkles, Trash2, Wallet, X } from 'lucide-react'
+import { CalendarDays, Plus, ShieldCheck, Sparkles, Trash2, Wallet, X } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { CalendarSync } from '../components/CalendarSync'
-import { PremiumGate } from '../components/PremiumGate'
+import { UpgradeGate } from '../components/UpgradeGate'
+import { usePlan } from '../lib/usePlan'
 import {
   VAULT_TYPES,
   daysUntil,
@@ -18,14 +19,12 @@ import {
   type VaultType,
 } from '../lib/usePremium'
 
-type Segment = 'vault' | 'subscriptions' | 'calendar' | 'concierge' | 'business'
+type Segment = 'vault' | 'subscriptions' | 'calendar'
 
-const SEGMENTS: { key: Segment; label: string; icon: typeof Wallet; locked?: boolean }[] = [
+const SEGMENTS: { key: Segment; label: string; icon: typeof Wallet }[] = [
   { key: 'vault', label: 'Renewal Vault', icon: ShieldCheck },
   { key: 'subscriptions', label: 'Subscriptions', icon: Wallet },
   { key: 'calendar', label: 'Calendar sync', icon: CalendarDays },
-  { key: 'concierge', label: 'Gift Concierge', icon: Gift, locked: true },
-  { key: 'business', label: 'Business', icon: CalendarClock, locked: true },
 ]
 
 const fieldClass =
@@ -240,49 +239,9 @@ function SubscriptionsSection() {
 }
 
 // --------------------------------------------------------------------------
-// Locked previews (backend-dependent tracks)
-// --------------------------------------------------------------------------
-function ConciergeLocked() {
-  return (
-    <PremiumGate
-      title="Gift & Occasion Concierge"
-      description="AI gift ideas tuned to the recipient, budget and time left — plus one-tap ordering and e-gift cards. Connects to partner marketplaces."
-      preview={
-        <div className="flex flex-col gap-3">
-          {['Handmade ceramic vase — $45–60', 'Same-day flowers, native bouquet — $70', 'Digital e-gift card — instant'].map(t => (
-            <div key={t} className="glass flex items-center gap-3 px-[18px] py-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-white/10 text-lg">🎁</span>
-              <div className="text-[0.9rem] font-bold">{t}</div>
-            </div>
-          ))}
-        </div>
-      }
-    />
-  )
-}
-
-function BusinessLocked() {
-  return (
-    <PremiumGate
-      title="Business compliance suite"
-      description="Certification & licence tracking, contract lifecycle reminders, and NZ GST/PAYE filing deadlines — with escalation to admins."
-      preview={
-        <div className="flex flex-col gap-3">
-          {['Forklift licence — expires in 24 days', 'Supplier contract — notice due in 40 days', 'GST filing — due 28th'].map(t => (
-            <div key={t} className="glass flex items-center gap-3 px-[18px] py-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-white/10 text-lg">📋</span>
-              <div className="text-[0.9rem] font-bold">{t}</div>
-            </div>
-          ))}
-        </div>
-      }
-    />
-  )
-}
-
-// --------------------------------------------------------------------------
 export function PremiumView() {
   const [segment, setSegment] = useState<Segment>('vault')
+  const { can } = usePlan()
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2">
@@ -310,7 +269,6 @@ export function PremiumView() {
               {active && <motion.span layoutId="prem-seg" className="absolute inset-0 rounded-full bg-[color:var(--glass-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
               <span className="relative flex items-center gap-1.5">
                 <s.icon size={14} /> {s.label}
-                {s.locked && <span className="text-[0.62rem]">🔒</span>}
               </span>
             </button>
           )
@@ -319,11 +277,9 @@ export function PremiumView() {
 
       <AnimatePresence mode="wait">
         <motion.div key={segment} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.18 }}>
-          {segment === 'vault' && <VaultSection />}
-          {segment === 'subscriptions' && <SubscriptionsSection />}
+          {segment === 'vault' && (can('vault') ? <VaultSection /> : <UpgradeGate feature="vault" description="Track passports, licences, WOF and policies — Remindly reminds you before each one expires." />)}
+          {segment === 'subscriptions' && (can('subscriptions') ? <SubscriptionsSection /> : <UpgradeGate feature="subscriptions" description="See what your recurring payments add up to and get a nudge before every charge." />)}
           {segment === 'calendar' && <CalendarSync />}
-          {segment === 'concierge' && <ConciergeLocked />}
-          {segment === 'business' && <BusinessLocked />}
         </motion.div>
       </AnimatePresence>
     </div>
