@@ -13,25 +13,13 @@ export interface ChatMessage {
 
 type State = Record<string, ChatMessage[]>
 
-function ago(mins: number) {
-  return new Date(Date.now() - mins * 60000).toISOString()
-}
-
 function initialsOf(name: string) {
   const parts = name.trim().split(/\s+/)
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
   return name.slice(0, 2).toUpperCase()
 }
 
-const seed: State = {
-  g1: [
-    { id: 'c1', authorName: 'Tama Wright', authorInitials: 'TW', body: 'Safety checklist is done for Site A — uploaded the photos.', at: ago(95), self: false },
-    { id: 'c2', authorName: 'Sione Vaka', authorInitials: 'SV', body: 'Nice one. I still need to sign the contract renewal.', at: ago(48), self: false },
-  ],
-  g2: [
-    { id: 'c3', authorName: 'Coach Riley', authorInitials: 'CR', body: 'Practice moved to 6:30pm — bring boots, ground is wet.', at: ago(180), self: false },
-  ],
-}
+const seed: State = {}
 
 const store = makeStore<State>('remindly.groupChat.v1', seed)
 

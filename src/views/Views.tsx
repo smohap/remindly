@@ -8,11 +8,13 @@ import { GreetingHero } from '../components/GreetingHero'
 import { ChannelsCard, PersonalAlarmCard, QuietHoursCard, WeekStripCard } from '../components/RailCards'
 import { Section } from '../components/Section'
 import { SmartChips } from '../components/SmartChips'
-import { discoverEvents } from '../data'
 import { cn } from '../lib/cn'
 import { timeMinutes, useStore } from '../store'
 import { useNotifications } from '../lib/useNotifications'
-import type { Reminder } from '../types'
+import type { DiscoverEvent, Reminder } from '../types'
+
+// Replaced by admin-published events in useDiscover (Task 9).
+const discoverEvents: DiscoverEvent[] = []
 import { AdminView } from './AdminView'
 import { BusinessView } from './BusinessView'
 import { CalendarView } from './CalendarView'

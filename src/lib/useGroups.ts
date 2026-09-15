@@ -36,39 +36,7 @@ function nameFromEmail(email: string) {
     .join(' ')
 }
 
-const seed: Group[] = [
-  {
-    id: 'g1',
-    name: 'Acme · Site A crew',
-    color: '#FF6B6B',
-    description: 'Compliance and safety coordination for Site A',
-    role: 'admin',
-    members: [
-      { id: 'm1', name: 'Priya Nair', email: 'priya@acme.co.nz', initials: 'PN', role: 'admin' },
-      { id: 'm2', name: 'Tama Wright', email: 'tama@acme.co.nz', initials: 'TW', role: 'member' },
-      { id: 'm3', name: 'Sione Vaka', email: 'sione@acme.co.nz', initials: 'SV', role: 'member' },
-    ],
-  },
-  {
-    id: 'g2',
-    name: 'Wellington Rugby',
-    color: '#2DD4BF',
-    description: 'Training schedule and match-day reminders',
-    role: 'member',
-    members: [
-      { id: 'm4', name: 'Priya Nair', email: 'priya@acme.co.nz', initials: 'PN', role: 'member' },
-      { id: 'm5', name: 'Coach Riley', email: 'riley@welly-rugby.nz', initials: 'CR', role: 'admin' },
-    ],
-  },
-  {
-    id: 'g3',
-    name: 'Personal',
-    color: '#7C6FFF',
-    description: 'Your personal reminders',
-    role: 'admin',
-    members: [{ id: 'm6', name: 'Priya Nair', email: 'priya@acme.co.nz', initials: 'PN', role: 'admin' }],
-  },
-]
+const seed: Group[] = []
 
 // ---- tiny localStorage-backed external store ----
 let groups: Group[] = load()

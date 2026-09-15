@@ -103,11 +103,7 @@ const listsStore = makeSyncedStore<UserList>({
     color: '#2DD4BF',
     shared: false,
     createdAt: now(),
-    items: [
-      { id: 'li1', text: 'Milk', done: false },
-      { id: 'li2', text: 'Sourdough', done: true },
-      { id: 'li3', text: 'Coffee beans', done: false },
-    ],
+    items: [],
   },
   {
     id: 'l2',

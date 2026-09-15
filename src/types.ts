@@ -1,3 +1,5 @@
+import type { Recurrence } from './lib/recurrence'
+
 export type Category = 'compliance' | 'group' | 'personal'
 
 export interface Reminder {
@@ -11,12 +13,15 @@ export interface Reminder {
   dayOffset: number
   time?: string
   acknowledged: boolean
+  /** ISO timestamp; the reminder is hidden from the active list until then. */
   snoozedUntil?: string
   resolveLabel?: string
   /** Only the creator may edit or delete a reminder. */
   ownedByMe?: boolean
-  /** Repeats every day — drives same-day notification behaviour. */
-  daily?: boolean
+  /** Repeat cadence; acknowledging rolls the reminder to its next occurrence. */
+  recurrence?: Recurrence
+  /** Set when the reminder was created by subscribing to a Discover event. */
+  sourceEventId?: string
 }
 
 export type Filter = 'today' | 'tomorrow' | 'week' | 'overdue'

@@ -134,8 +134,8 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
             >
               <SnoozeOptions
                 reminder={reminder}
-                onPick={label => {
-                  actions.snooze(reminder.id, label)
+                onPick={key => {
+                  actions.snooze(reminder.id, key)
                   setMenuPos(null)
                 }}
               />

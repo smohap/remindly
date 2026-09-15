@@ -49,27 +49,7 @@ export const todayISO = () => iso(new Date())
 /** Inclusive duration in days. */
 export const taskDays = (t: PlanTask) => Math.max(1, daysBetween(t.start, t.end) + 1)
 
-function seedPlans(): Plan[] {
-  const t = todayISO()
-  return [
-    {
-      id: 'p1',
-      name: 'Wellington Rugby — season launch',
-      kind: 'event',
-      description: 'Everything that has to happen before opening day.',
-      createdAt: new Date().toISOString(),
-      tasks: [
-        { id: 't1', name: 'Book the venue', start: t, end: addDays(t, 3), progress: 100, dependsOn: [], assignee: 'Priya', color: '#7C6FFF' },
-        { id: 't2', name: 'Confirm catering', start: addDays(t, 4), end: addDays(t, 7), progress: 60, dependsOn: ['t1'], assignee: 'Tama', color: '#4FD1FF' },
-        { id: 't3', name: 'Send invitations', start: addDays(t, 4), end: addDays(t, 9), progress: 30, dependsOn: ['t1'], assignee: 'Sione', color: '#2DD4BF' },
-        { id: 't4', name: 'Print programmes', start: addDays(t, 8), end: addDays(t, 11), progress: 0, dependsOn: ['t2', 't3'], color: '#FBBF24' },
-        { id: 't5', name: 'Opening day', start: addDays(t, 12), end: addDays(t, 12), progress: 0, dependsOn: ['t4'], color: '#FF6FB0' },
-      ],
-    },
-  ]
-}
-
-const store = makeStore<Plan[]>('remindly.plans.v1', seedPlans())
+const store = makeStore<Plan[]>('remindly.plans.v1', [])
 
 /**
  * Earliest legal start for a task: the day after every dependency finishes.

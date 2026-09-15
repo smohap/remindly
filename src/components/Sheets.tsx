@@ -132,7 +132,7 @@ export function GlobalSheets() {
           <>
             <h3 className="font-display mb-1 text-base font-bold">Snooze</h3>
             <p className="mb-3 text-[0.8rem] text-[color:var(--ink-dim)]">{target.title}</p>
-            <SnoozeOptions reminder={target} onPick={label => actions.snooze(target.id, label)} />
+            <SnoozeOptions reminder={target} onPick={key => actions.snooze(target.id, key)} />
           </>
         )}
       </BottomSheet>

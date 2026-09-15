@@ -1,5 +1,5 @@
 import { makeSyncedStore } from './syncedStore'
-import { seedReminders } from '../data'
+import { isRecurrence } from './recurrence'
 import type { Reminder } from '../types'
 
 /**
@@ -49,7 +49,9 @@ export const remindersStore = makeSyncedStore<Reminder>({
     time_label: r.time ?? null,
     acknowledged: r.acknowledged,
     snoozed_until: r.snoozedUntil ?? null,
-    daily: r.daily ?? false,
+    daily: r.recurrence === 'daily',
+    recurrence: r.recurrence ?? null,
+    source_event_id: r.sourceEventId ?? null,
     resolve_label: r.resolveLabel ?? null,
     is_compliance: r.category === 'compliance',
     all_day: !r.time,
@@ -65,11 +67,13 @@ export const remindersStore = makeSyncedStore<Reminder>({
     time: (row.time_label as string | null) ?? undefined,
     acknowledged: Boolean(row.acknowledged),
     snoozedUntil: (row.snoozed_until as string | null) ?? undefined,
-    daily: Boolean(row.daily),
+    // `daily` predates `recurrence`; rows saved before the column existed still carry it.
+    recurrence: isRecurrence(row.recurrence) ? row.recurrence : row.daily ? 'daily' : undefined,
+    sourceEventId: (row.source_event_id as string | null) ?? undefined,
     resolveLabel: (row.resolve_label as string | null) ?? undefined,
     // Rows come back through RLS scoped to the signed-in user, so anything
     // fetched here is theirs to edit.
     ownedByMe: true,
   }),
-  seed: seedReminders,
+  seed: [],
 })

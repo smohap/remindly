@@ -34,7 +34,6 @@ export function addCalendarDays(dateStr: string, days: number): string {
   return isoDate(d)
 }
 
-const shift = (days: number) => addCalendarDays(isoDate(new Date()), days)
 export const fmtDate = (s: string) =>
   new Intl.DateTimeFormat('en-NZ', { day: 'numeric', month: 'short', year: 'numeric' }).format(parseDate(s))
 
@@ -68,11 +67,7 @@ export interface Certification {
 
 export const CERT_TYPES = ['Forklift licence', 'First aid', 'Food safety', 'Working at heights', 'Site safety induction', 'Other']
 
-const certStore = makeStore<Certification[]>('remindly.certs.v1', [
-  { id: 'c1', staffName: 'Tama Wright', certType: 'Forklift licence', expiryDate: shift(24), groupName: 'Acme · Site A crew' },
-  { id: 'c2', staffName: 'Sione Vaka', certType: 'First aid', expiryDate: shift(96), groupName: 'Acme · Site A crew' },
-  { id: 'c3', staffName: 'Priya Nair', certType: 'Site safety induction', expiryDate: shift(-6), groupName: 'Acme · Site A crew' },
-])
+const certStore = makeStore<Certification[]>('remindly.certs.v1', [])
 
 export function useCertifications() {
   const items = useSyncExternalStore(certStore.subscribe, certStore.get, certStore.get)
@@ -104,10 +99,7 @@ export function noticeDeadline(c: Contract): string {
   return addCalendarDays(c.endDate, -c.noticePeriodDays)
 }
 
-const contractStore = makeStore<Contract[]>('remindly.contracts.v1', [
-  { id: 'k1', counterparty: 'Fletcher Supplies', contractType: 'Materials', endDate: shift(75), noticePeriodDays: 60, autoRenew: true },
-  { id: 'k2', counterparty: 'Northline Logistics', contractType: 'Freight', endDate: shift(210), noticePeriodDays: 30, autoRenew: false },
-])
+const contractStore = makeStore<Contract[]>('remindly.contracts.v1', [])
 
 export function useContracts() {
   const items = useSyncExternalStore(contractStore.subscribe, contractStore.get, contractStore.get)
@@ -158,10 +150,7 @@ export function nextDue(d: FinanceDeadline): string {
   return isoDate(date)
 }
 
-const financeStore = makeStore<FinanceDeadline[]>('remindly.finance.v1', [
-  { id: 'f1', label: 'GST return', type: 'gst_filing', dueDate: shift(12), recurrenceMonths: 2 },
-  { id: 'f2', label: 'PAYE filing', type: 'paye_filing', dueDate: shift(4), recurrenceMonths: 1 },
-])
+const financeStore = makeStore<FinanceDeadline[]>('remindly.finance.v1', [])
 
 export function useFinanceDeadlines() {
   const items = useSyncExternalStore(financeStore.subscribe, financeStore.get, financeStore.get)
@@ -198,21 +187,9 @@ export interface Escalation {
   note?: string
 }
 
-const policyStore = makeStore<GroupPolicy[]>('remindly.policies.v1', [
-  { groupId: 'g1', groupName: 'Acme · Site A crew', complianceEnabled: true, escalateAfterHours: 2, secondHopHours: 24, defaultLeadMinutes: 60, membersMayCreate: false },
-  { groupId: 'g2', groupName: 'Wellington Rugby', complianceEnabled: false, escalateAfterHours: 6, secondHopHours: 48, defaultLeadMinutes: 60, membersMayCreate: true },
-])
+const policyStore = makeStore<GroupPolicy[]>('remindly.policies.v1', [])
 
-const escalationStore = makeStore<Escalation[]>('remindly.escalations.v1', [
-  {
-    id: 'e1',
-    reminderTitle: 'Submit weekly safety checklist',
-    groupName: 'Acme · Site A crew',
-    subjectName: 'Tama Wright',
-    stage: 'group_admin',
-    raisedAt: new Date(Date.now() - 3 * 3600_000).toISOString(),
-  },
-])
+const escalationStore = makeStore<Escalation[]>('remindly.escalations.v1', [])
 
 export function useCompliance() {
   const policies = useSyncExternalStore(policyStore.subscribe, policyStore.get, policyStore.get)

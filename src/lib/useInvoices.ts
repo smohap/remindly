@@ -50,91 +50,12 @@ export const REJECT_COMMENT_MAX = 1000
 export const ME = 'me'
 
 const iso = () => new Date().toISOString()
-const day = (offset: number) => {
-  const d = new Date()
-  d.setDate(d.getDate() + offset)
-  return d.toISOString().slice(0, 10)
-}
 
 function ev(actor: string, action: InvoiceAction, comment?: string, at = iso()): InvoiceEvent {
   return { id: `e-${Math.random().toString(36).slice(2, 9)}`, actor, action, comment, at }
 }
 
-const seed: Invoice[] = [
-  {
-    id: 'inv-1',
-    number: 'INV-1004',
-    senderId: 'u-tama',
-    senderName: 'Tama Wright',
-    recipientId: ME,
-    recipientName: 'You',
-    amountCents: 45000,
-    currency: 'NZD',
-    description: 'Site A safety equipment restock',
-    lineItems: [
-      { id: 'li-1', name: 'Hi-vis vests', qty: 10, unitPriceCents: 2500 },
-      { id: 'li-2', name: 'Hard hats', qty: 5, unitPriceCents: 4000 },
-    ],
-    dueDate: day(6),
-    status: 'sent',
-    createdAt: iso(),
-    sentAt: iso(),
-    events: [ev('Tama Wright', 'created'), ev('Tama Wright', 'sent')],
-  },
-  {
-    id: 'inv-2',
-    number: 'INV-1003',
-    senderId: 'u-riley',
-    senderName: 'Coach Riley',
-    recipientId: ME,
-    recipientName: 'You',
-    amountCents: 12000,
-    currency: 'NZD',
-    description: 'Wellington Rugby — season subs',
-    lineItems: [],
-    dueDate: day(-3),
-    status: 'sent',
-    createdAt: iso(),
-    sentAt: iso(),
-    events: [ev('Coach Riley', 'created'), ev('Coach Riley', 'sent')],
-  },
-  {
-    id: 'inv-3',
-    number: 'INV-1002',
-    senderId: ME,
-    senderName: 'You',
-    recipientId: 'u-sione',
-    recipientName: 'Sione Vaka',
-    amountCents: 28000,
-    currency: 'NZD',
-    description: 'Consulting — August site audit',
-    lineItems: [{ id: 'li-3', name: 'Audit day rate', qty: 2, unitPriceCents: 14000 }],
-    dueDate: day(11),
-    status: 'sent',
-    createdAt: iso(),
-    sentAt: iso(),
-    events: [ev('You', 'created'), ev('You', 'sent')],
-  },
-  {
-    id: 'inv-4',
-    number: 'INV-1001',
-    senderId: ME,
-    senderName: 'You',
-    recipientId: 'u-tama',
-    recipientName: 'Tama Wright',
-    amountCents: 9500,
-    currency: 'NZD',
-    description: 'Shared toolbox purchase',
-    lineItems: [],
-    dueDate: day(-14),
-    status: 'paid',
-    createdAt: iso(),
-    sentAt: iso(),
-    resolvedAt: iso(),
-    resolutionComment: 'Paid via bank transfer',
-    events: [ev('You', 'created'), ev('You', 'sent'), ev('Tama Wright', 'paid', 'Paid via bank transfer')],
-  },
-]
+const seed: Invoice[] = []
 
 const store = makeStore<Invoice[]>('remindly.invoices.v1', seed)
 

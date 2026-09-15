@@ -1,12 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { makeSyncedStore } from './syncedStore'
 
-function daysFromNow(days: number): string {
-  const d = new Date()
-  d.setDate(d.getDate() + days)
-  return d.toISOString().slice(0, 10)
-}
-
 export function daysUntil(dateStr: string): number {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -44,11 +38,7 @@ export function vaultMeta(type: VaultType) {
   return VAULT_TYPES.find(t => t.value === type) ?? VAULT_TYPES[VAULT_TYPES.length - 1]
 }
 
-const vaultSeed: VaultItem[] = [
-  { id: 'v1', itemType: 'passport', label: 'NZ Passport', expiryDate: daysFromNow(150), leadTimeDays: 180 },
-  { id: 'v2', itemType: 'vehicle_rego_wof', label: 'Toyota Corolla — WOF', expiryDate: daysFromNow(21), leadTimeDays: 30 },
-  { id: 'v3', itemType: 'insurance_policy', label: 'Contents insurance', expiryDate: daysFromNow(64), leadTimeDays: 30 },
-]
+const vaultSeed: VaultItem[] = []
 
 const vaultStore = makeSyncedStore<VaultItem>({
   key: 'remindly.vault.v1',
@@ -118,11 +108,7 @@ export function formatMoney(cents: number, currency = 'NZD'): string {
   return new Intl.NumberFormat('en-NZ', { style: 'currency', currency, maximumFractionDigits: 2 }).format(cents / 100)
 }
 
-const subSeed: Subscription[] = [
-  { id: 's1', merchantName: 'Netflix', amountCents: 2599, currency: 'NZD', cycle: 'monthly', nextChargeDate: daysFromNow(9), leadTimeDays: 3 },
-  { id: 's2', merchantName: 'iCloud+ 200GB', amountCents: 499, currency: 'NZD', cycle: 'monthly', nextChargeDate: daysFromNow(2), leadTimeDays: 3 },
-  { id: 's3', merchantName: 'Les Mills gym', amountCents: 89900, currency: 'NZD', cycle: 'yearly', nextChargeDate: daysFromNow(120), leadTimeDays: 3 },
-]
+const subSeed: Subscription[] = []
 
 const subStore = makeSyncedStore<Subscription>({
   key: 'remindly.subs.v1',
