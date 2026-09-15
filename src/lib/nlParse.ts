@@ -1,4 +1,5 @@
 import type { Category } from '../types'
+import { describeRecurrence, type Recurrence } from './recurrence'
 
 export interface ParsedReminder {
   title: string
@@ -8,6 +9,38 @@ export interface ParsedReminder {
   icon: string
   tag?: string
   meta: string
+  recurrence?: Recurrence
+}
+
+const WEEKDAY_RE = '(sunday|monday|tuesday|wednesday|thursday|friday|saturday)'
+
+/**
+ * Recognise a repeat cadence: "every day", "daily", "every weekday",
+ * "every week", "every Monday", "every fortnight", "every 2 weeks",
+ * "every second Tuesday", "every month", "monthly", "every year", "annually".
+ * Returns the cadence, an optional weekday the series starts on, and the
+ * matched phrase so it can be removed from the title.
+ */
+export function parseRecurrence(lower: string): { recurrence: Recurrence; weekday?: number; matched: string } | null {
+  const rules: { re: RegExp; recurrence: Recurrence }[] = [
+    { re: /\b(every (single )?day|daily|each day)\b/, recurrence: 'daily' },
+    { re: /\b(every weekday|on weekdays|weekdays)\b/, recurrence: 'weekdays' },
+    { re: /\b(every (2|two) weeks|every (other|second) week|fortnightly|every fortnight)\b/, recurrence: 'fortnightly' },
+    { re: /\b(every week|weekly|each week)\b/, recurrence: 'weekly' },
+    { re: /\b(every month|monthly|each month)\b/, recurrence: 'monthly' },
+    { re: /\b(every year|yearly|annually|each year)\b/, recurrence: 'yearly' },
+  ]
+  for (const rule of rules) {
+    const m = rule.re.exec(lower)
+    if (m) return { recurrence: rule.recurrence, matched: m[0] }
+  }
+  // "every second Tuesday" / "every other Friday" -> fortnightly on that day
+  let m = new RegExp(`\\bevery (?:second|other) ${WEEKDAY_RE}\\b`).exec(lower)
+  if (m) return { recurrence: 'fortnightly', weekday: WEEKDAYS.indexOf(m[1]), matched: m[0] }
+  // "every Monday" -> weekly on that day
+  m = new RegExp(`\\bevery ${WEEKDAY_RE}\\b`).exec(lower)
+  if (m) return { recurrence: 'weekly', weekday: WEEKDAYS.indexOf(m[1]), matched: m[0] }
+  return null
 }
 
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -156,9 +189,14 @@ export function parseReminder(input: string, now = new Date()): ParsedReminder {
     dayOffset = (target - now.getDay() + 7) % 7 || 7
   }
 
-  // ---- recurrence (informational tag) ----
-  const every = /\bevery [\w\s]+?(?=(?: at | on |$))/.exec(lower)
-  const tag = every ? `Repeats ${every[0].replace(/^every /, 'every ')}`.trim() : undefined
+  // ---- recurrence ----
+  const rec = parseRecurrence(lower)
+  const recurrence = rec?.recurrence
+  // "every Monday" starts on the coming Monday unless a date was given.
+  if (rec?.weekday !== undefined && !absolute) {
+    dayOffset = (rec.weekday - now.getDay() + 7) % 7 || 7
+  }
+  const tag = recurrence ? describeRecurrence(recurrence) : undefined
 
   // ---- category + icon ----
   let category: Category = 'personal'
@@ -182,7 +220,7 @@ export function parseReminder(input: string, now = new Date()): ParsedReminder {
     .replace(/^\s*(remind me to|remind me|reminder to|remind|remember to|note to)\s+/i, '')
     // Drop the explicit date phrase we just consumed, plus any leading "on".
     .replace(absolute ? new RegExp(`\\b(on\\s+)?${absolute.matched.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i') : /(?!)/, '')
-    .replace(/\b(every [\w\s]+?)(?=(?: at | on |$))/i, '')
+    .replace(rec ? new RegExp(rec.matched.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : /(?!)/, '')
     .replace(/\bnext (sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/gi, '')
     .replace(/\b(?:on |this )?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/gi, '')
     .replace(/\bin \d{1,2} days?\b/gi, '')
@@ -209,5 +247,5 @@ export function parseReminder(input: string, now = new Date()): ParsedReminder {
   if (tag) parts.push(tag)
   const meta = parts.join(' · ')
 
-  return { title, dayOffset, time, category, icon, tag, meta }
+  return { title, dayOffset, time, category, icon, tag, meta, recurrence }
 }
