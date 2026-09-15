@@ -49,4 +49,8 @@ export interface DiscoverEvent {
   scope: string
   meta: string
   icon: string
+  /** YYYY-MM-DD of the next occurrence; drives the reminder created on subscribe. */
+  nextDate?: string
+  timeLabel?: string
+  recurrence?: Recurrence
 }

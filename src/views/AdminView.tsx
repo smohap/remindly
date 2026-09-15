@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { BarChart3, Crown, Layers, Mail, ScrollText, ShieldAlert, ShieldCheck, Siren, UserMinus, Users } from 'lucide-react'
+import { BarChart3, Compass, Crown, Layers, Mail, ScrollText, ShieldAlert, ShieldCheck, Siren, UserMinus, Users } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { ROLE_LABEL, useAdminData, useMyRole, type AdminMember, type UserRole } from '../lib/useAdmin'
 import { useCompliance } from '../lib/useBusiness'
 import { useStore } from '../store'
+import { AdminDiscoverPanel } from './AdminDiscoverPanel'
 
-type Tab = 'people' | 'groups' | 'compliance' | 'analytics' | 'audit'
+type Tab = 'people' | 'groups' | 'discover' | 'compliance' | 'analytics' | 'audit'
 
 const field =
   'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
@@ -62,6 +63,7 @@ export function AdminView() {
   const TABS: { key: Tab; label: string; icon: typeof Users }[] = [
     { key: 'people', label: 'People', icon: Users },
     { key: 'groups', label: 'Groups', icon: Layers },
+    { key: 'discover', label: 'Discover events', icon: Compass },
     { key: 'compliance', label: 'Compliance', icon: Siren },
     { key: 'analytics', label: 'Analytics', icon: BarChart3 },
     { key: 'audit', label: 'Audit log', icon: ScrollText },
@@ -191,6 +193,7 @@ export function AdminView() {
         </div>
       )}
 
+      {tab === 'discover' && <AdminDiscoverPanel canPublish={isSuperAdmin} onNotice={flash} />}
       {!loading && tab === 'compliance' && <CompliancePanel onNotice={flash} />}
       {!loading && tab === 'analytics' && <AnalyticsPanel />}
 

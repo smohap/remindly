@@ -32,6 +32,8 @@ type Action =
   | { type: 'unsnooze'; id: string }
   | { type: 'tick' }
   | { type: 'add'; title: string }
+  | { type: 'addReminder'; reminder: Reminder }
+  | { type: 'removeBySource'; sourceEventId: string }
   | { type: 'setFilter'; filter: Filter }
   | { type: 'setTab'; tab: Tab }
   | { type: 'openSnooze'; id: string | null }
@@ -143,6 +145,10 @@ function reducer(state: State, action: Action): State {
       logActivity('reminder.added', reminder.title, reminder.meta, reminder.id)
       return { ...state, reminders: [reminder, ...state.reminders], quickAddOpen: false, announcement: `Reminder added: ${parsed.title}` }
     }
+    case 'addReminder':
+      return { ...state, reminders: [action.reminder, ...state.reminders], announcement: `Reminder added: ${action.reminder.title}` }
+    case 'removeBySource':
+      return { ...state, reminders: state.reminders.filter(r => r.sourceEventId !== action.sourceEventId) }
     case 'setFilter':
       return { ...state, filter: action.filter }
     case 'setTab':
@@ -208,6 +214,8 @@ interface Actions {
   snooze: (id: string, key: SnoozeKey) => void
   unsnooze: (id: string) => void
   add: (title: string) => void
+  addReminder: (reminder: Reminder) => void
+  removeBySource: (sourceEventId: string) => void
   setFilter: (filter: Filter) => void
   setTab: (tab: Tab) => void
   openSnooze: (id: string | null) => void
@@ -297,6 +305,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       snooze: (id, key) => dispatch({ type: 'snooze', id, key }),
       unsnooze: id => dispatch({ type: 'unsnooze', id }),
       add: title => dispatch({ type: 'add', title }),
+      addReminder: reminder => dispatch({ type: 'addReminder', reminder }),
+      removeBySource: sourceEventId => dispatch({ type: 'removeBySource', sourceEventId }),
       setFilter: filter => dispatch({ type: 'setFilter', filter }),
       setTab: tab => dispatch({ type: 'setTab', tab }),
       openSnooze: id => dispatch({ type: 'openSnooze', id }),
