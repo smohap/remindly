@@ -30,7 +30,7 @@ export function WeekStripCard() {
     }
   })
   return (
-    <div className="glass shrink-0 p-5">
+    <div className="card shrink-0 p-5">
       <h3 className="font-display mb-3.5 flex items-center gap-2 text-[0.82rem] font-bold">🗓️ This week</h3>
       <div className="mb-3.5 flex justify-between">
         {days.map((d, i) => (
@@ -39,7 +39,7 @@ export function WeekStripCard() {
             <span
               className={cn(
                 'flex h-[30px] w-[30px] items-center justify-center rounded-full text-[0.75rem] font-bold text-white',
-                d.isToday && 'bg-[linear-gradient(135deg,var(--cyan),var(--violet))] shadow-[0_0_14px_rgba(124,111,255,0.5)]',
+                d.isToday && 'bg-[color:var(--accent)] shadow-[0_0_14px_rgba(124,111,255,0.5)]',
               )}
             >
               {d.num}

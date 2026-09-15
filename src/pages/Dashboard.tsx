@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { AuroraBackground } from '../components/AuroraBackground'
 import { CheckoutReturn } from '../components/CheckoutReturn'
 import { DesktopLayout } from '../components/DesktopLayout'
 import { MobileLayout } from '../components/MobileShell'
@@ -35,6 +34,12 @@ function Shell() {
 }
 
 export default function Dashboard() {
+  // The dashboard uses the flat theme; marketing pages keep the aurora.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-app', '')
+    return () => document.documentElement.removeAttribute('data-app')
+  }, [])
+
   // Pull the signed-in user's workspace down from Postgres once on entry.
   // In demo mode (no Supabase) this is a no-op and the local copy is used.
   useEffect(() => {
@@ -54,7 +59,6 @@ export default function Dashboard() {
 
   return (
     <StoreProvider>
-      <AuroraBackground />
       <Shell />
       <GlobalSheets />
       <CheckoutReturn />

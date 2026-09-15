@@ -78,6 +78,13 @@ body {
     border: 1px solid var(--border);
     border-radius: 16px;
   }
+  /* Opaque sibling for surfaces that sit on top of content (sheets, mobile bars). */
+  .card-solid {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.45);
+  }
   .card-2 {
     background: var(--surface-2);
     border: 1px solid var(--border);

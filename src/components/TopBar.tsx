@@ -45,6 +45,7 @@ export function TopBar() {
           placeholder='Add a reminder — try "pay rent every month on the 1st at 9am"'
           className="w-full bg-transparent text-[0.85rem] text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)]"
         />
+        <button type="submit" className="sr-only">Add reminder</button>
       </form>
       <IconButton label="Inbox" onClick={() => actions.setTab('inbox')} badge={unread} active={state.tab === 'inbox'}>
         <Bell size={17} />

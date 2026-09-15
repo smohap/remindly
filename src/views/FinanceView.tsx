@@ -24,7 +24,7 @@ const SEGMENTS = ['invoices', 'subscriptions', 'renewals'] as const
 
 
 const fieldClass =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelClass = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
 function CountdownChip({ days }: { days: number }) {
@@ -41,7 +41,7 @@ function CountdownChip({ days }: { days: number }) {
 
 function EmptyState({ icon, title, text }: { icon: string; title: string; text: string }) {
   return (
-    <div className="glass flex flex-col items-center gap-2 px-6 py-10 text-center">
+    <div className="card flex flex-col items-center gap-2 px-6 py-10 text-center">
       <span className="text-3xl" aria-hidden>{icon}</span>
       <h3 className="font-display text-[0.95rem] font-bold">{title}</h3>
       <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">{text}</p>
@@ -73,7 +73,7 @@ function VaultSection() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between px-1">
         <p className="text-[0.8rem] text-[color:var(--ink-dim)]">Track expiries for documents and policies — reminders fire ahead of each renewal.</p>
-        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-3.5 py-2 text-[0.78rem] font-bold text-[#1a1240] transition hover:brightness-110">
+        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-white transition hover:brightness-110">
           <Plus size={15} /> Add item
         </button>
       </div>
@@ -85,7 +85,7 @@ function VaultSection() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             onSubmit={submit}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="grid gap-3 p-5 sm:grid-cols-2">
               <div>
@@ -105,8 +105,8 @@ function VaultSection() {
                 <input value={label} onChange={e => setLabel(e.target.value)} placeholder="e.g. NZ Passport" required className={fieldClass} />
               </div>
               <div className="flex gap-2 sm:col-span-2">
-                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] py-2.5 text-[0.82rem] font-bold text-[#1a1240]">Save to vault</button>
-                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
+                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">Save to vault</button>
+                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
               </div>
             </div>
           </motion.form>
@@ -120,7 +120,7 @@ function VaultSection() {
           const meta = vaultMeta(item.itemType)
           const d = daysUntil(item.expiryDate)
           return (
-            <div key={item.id} className="glass group flex items-center gap-3.5 px-[18px] py-3.5">
+            <div key={item.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-[1.15rem]" aria-hidden>{meta.icon}</span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[0.9rem] font-bold">{item.label}</div>
@@ -163,20 +163,20 @@ function SubscriptionsSection() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="glass flex items-center justify-between p-5">
+      <div className="card flex items-center justify-between p-5">
         <div>
           <div className="text-[0.7rem] uppercase tracking-[0.08em] text-[color:var(--ink-faint)]">Total spend</div>
           <div className="font-display text-[1.6rem] font-extrabold leading-tight">{formatMoney(monthlyTotal, currency)}<span className="text-[0.8rem] font-semibold text-[color:var(--ink-dim)]">/mo</span></div>
           <div className="text-[0.74rem] text-[color:var(--ink-faint)]">{formatMoney(yearlyTotal, currency)} per year · {subs.length} active</div>
         </div>
-        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-3.5 py-2 text-[0.78rem] font-bold text-[#1a1240] transition hover:brightness-110">
+        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-white transition hover:brightness-110">
           <Plus size={15} /> Add
         </button>
       </div>
 
       <AnimatePresence>
         {open && (
-          <motion.form initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} onSubmit={submit} className="glass overflow-hidden">
+          <motion.form initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} onSubmit={submit} className="card overflow-hidden">
             <div className="grid gap-3 p-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className={labelClass}>Merchant</label>
@@ -199,8 +199,8 @@ function SubscriptionsSection() {
                 <input type="date" value={nextChargeDate} onChange={e => setNextChargeDate(e.target.value)} required className={fieldClass} />
               </div>
               <div className="flex gap-2 sm:col-span-2">
-                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] py-2.5 text-[0.82rem] font-bold text-[#1a1240]">Track subscription</button>
-                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
+                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">Track subscription</button>
+                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
               </div>
             </div>
           </motion.form>
@@ -214,7 +214,7 @@ function SubscriptionsSection() {
           const charge = nextOccurrence(sub.nextChargeDate, sub.cycle)
           const d = daysUntil(charge)
           return (
-            <div key={sub.id} className="glass group flex items-center gap-3.5 px-[18px] py-3.5">
+            <div key={sub.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-[0.8rem] font-bold" aria-hidden>{sub.merchantName.slice(0, 2).toUpperCase()}</span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[0.9rem] font-bold">{sub.merchantName}</div>

@@ -14,10 +14,10 @@ import {
 type Tab = 'certs' | 'contracts' | 'finance'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-4 py-2.5 text-[0.8rem] font-bold text-[#1a1240] transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
 
 function Chip({ date, warnDays = 30 }: { date: string; warnDays?: number }) {
   const h = healthOf(date, warnDays)
@@ -50,7 +50,7 @@ export function BusinessView() {
       </div>
 
       {certs.expired.length > 0 && (
-        <div className="glass flex items-start gap-2.5 px-[18px] py-3 text-[0.78rem]">
+        <div className="card flex items-start gap-2.5 px-[18px] py-3 text-[0.78rem]">
           <AlertTriangle size={15} className="mt-0.5 shrink-0 text-[color:var(--red)]" />
           <span>
             <b>{certs.expired.length} expired certification{certs.expired.length === 1 ? '' : 's'}.</b>{' '}
@@ -76,7 +76,7 @@ export function BusinessView() {
               {active && (
                 <motion.span
                   layoutId="biz-tab"
-                  className="absolute inset-0 rounded-full bg-[color:var(--glass-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  className="absolute inset-0 rounded-full bg-[color:var(--card-strong)] "
                   transition={{ type: 'spring', stiffness: 400, damping: 34 }}
                 />
               )}
@@ -133,7 +133,7 @@ function CertsTab() {
                 setOpen(false)
               }
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="grid gap-3 p-5 sm:grid-cols-2">
               <div>
@@ -158,10 +158,10 @@ function CertsTab() {
         )}
       </AnimatePresence>
 
-      {items.length === 0 && <div className="glass px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No certifications tracked yet.</div>}
+      {items.length === 0 && <div className="card px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No certifications tracked yet.</div>}
 
       {items.map(c => (
-        <div key={c.id} className="glass group flex items-center gap-3.5 px-[18px] py-3.5">
+        <div key={c.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🎓</span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[0.9rem] font-bold">{c.staffName}</div>
@@ -216,7 +216,7 @@ function ContractsTab() {
                 setOpen(false)
               }
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="grid gap-3 p-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
@@ -241,19 +241,19 @@ function ContractsTab() {
         )}
       </AnimatePresence>
 
-      {items.length === 0 && <div className="glass px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No contracts tracked yet.</div>}
+      {items.length === 0 && <div className="card px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No contracts tracked yet.</div>}
 
       {items.map(c => {
         const notice = noticeDeadline(c)
         return (
-          <div key={c.id} className="glass group flex flex-col gap-2 px-[18px] py-3.5">
+          <div key={c.id} className="card group flex flex-col gap-2 px-[18px] py-3.5">
             <div className="flex items-center gap-3.5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">📄</span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="truncate text-[0.9rem] font-bold">{c.counterparty}</span>
                   {c.autoRenew && (
-                    <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.58rem] font-extrabold uppercase tracking-[0.05em] text-[color:var(--ink-dim)]">
+                    <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.58rem] font-bold text-[color:var(--ink-dim)]">
                       Auto-renew
                     </span>
                   )}
@@ -310,7 +310,7 @@ function FinanceTab() {
               e.preventDefault()
               if (add({ label: chosen.label, type: preset, dueDate, recurrenceMonths: chosen.recurrenceMonths })) setOpen(false)
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="grid gap-3 p-5 sm:grid-cols-2">
               <div>
@@ -332,12 +332,12 @@ function FinanceTab() {
         )}
       </AnimatePresence>
 
-      {items.length === 0 && <div className="glass px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No filing deadlines yet.</div>}
+      {items.length === 0 && <div className="card px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No filing deadlines yet.</div>}
 
       {items.map(d => {
         const due = nextDue(d)
         return (
-          <div key={d.id} className="glass group flex items-center gap-3.5 px-[18px] py-3.5">
+          <div key={d.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🧾</span>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[0.9rem] font-bold">{d.label}</div>

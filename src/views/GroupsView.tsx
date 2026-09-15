@@ -25,7 +25,7 @@ export function GroupsView() {
         </div>
         <button
           onClick={() => setCreating(v => !v)}
-          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-3.5 py-2 text-[0.78rem] font-bold text-[#1a1240] transition hover:brightness-110"
+          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-white transition hover:brightness-110"
         >
           <Plus size={15} /> New group
         </button>
@@ -47,7 +47,7 @@ export function GroupsView() {
                 setColor(GROUP_COLORS[0])
                 setCreating(false)
               }}
-              className="glass flex flex-col gap-3 p-5"
+              className="card flex flex-col gap-3 p-5"
             >
               <input
                 autoFocus
@@ -55,7 +55,7 @@ export function GroupsView() {
                 onChange={e => setName(e.target.value)}
                 placeholder="Group name (e.g. North Shore Crew)"
                 required
-                className="w-full rounded-[14px] border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)]"
+                className="w-full rounded-[14px] border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
               />
               <div className="flex items-center gap-2">
                 <span className="text-[0.75rem] text-[color:var(--ink-dim)]">Colour</span>
@@ -71,10 +71,10 @@ export function GroupsView() {
                 ))}
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] py-2.5 text-[0.82rem] font-bold text-[#1a1240]">
+                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">
                   Create group
                 </button>
-                <button type="button" onClick={() => setCreating(false)} className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">
+                <button type="button" onClick={() => setCreating(false)} className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">
                   Cancel
                 </button>
               </div>
@@ -84,7 +84,7 @@ export function GroupsView() {
       </AnimatePresence>
 
       {groups.map(g => (
-        <div key={g.id} className="glass overflow-hidden">
+        <div key={g.id} className="card overflow-hidden">
           <button
             onClick={() => setSelectedId(selectedId === g.id ? null : g.id)}
             className="flex w-full cursor-pointer items-center gap-3 px-[18px] py-4 text-left"
@@ -94,7 +94,7 @@ export function GroupsView() {
               <div className="flex items-center gap-2">
                 <span className="truncate text-[0.9rem] font-bold">{g.name}</span>
                 {g.role === 'admin' && (
-                  <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.58rem] font-extrabold uppercase tracking-[0.06em] text-[color:var(--ink-dim)]">Admin</span>
+                  <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.58rem] font-bold text-[color:var(--ink-dim)]">Admin</span>
                 )}
               </div>
               <div className="text-[0.75rem] text-[color:var(--ink-faint)]">
@@ -106,7 +106,7 @@ export function GroupsView() {
               {g.members.slice(0, 4).map(m => (
                 <span
                   key={m.id}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--indigo)] bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.6rem] font-bold"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--indigo)] bg-[color:var(--accent)] text-[0.6rem] font-bold"
                   title={m.name}
                 >
                   {m.initials}
@@ -121,7 +121,7 @@ export function GroupsView() {
                 <div className="flex flex-col gap-2 px-[18px] py-4">
                   {g.members.map(m => (
                     <div key={m.id} className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.65rem] font-bold">{m.initials}</span>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.65rem] font-bold">{m.initials}</span>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[0.82rem] font-semibold">{m.name}</div>
                         <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">{m.email}</div>
@@ -147,7 +147,7 @@ export function GroupsView() {
                       value={selectedId === g.id ? memberInput : ''}
                       onChange={e => setMemberInput(e.target.value)}
                       placeholder="Add member by email…"
-                      className="min-w-0 flex-1 rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.82rem]"
+                      className="min-w-0 flex-1 rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.82rem]"
                     />
                     <button type="submit" className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-white/[0.12] px-4 py-2.5 text-[0.78rem] font-bold text-white transition hover:bg-white/[0.2]">
                       <UserPlus size={15} /> Add

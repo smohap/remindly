@@ -38,7 +38,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
   const navigate = useNavigate()
   return (
     <motion.header
-      className="glass-solid relative z-40 mx-3 flex items-center justify-between px-4"
+      className="card-solid relative z-40 mx-3 flex items-center justify-between px-4"
       style={{ marginTop: 'calc(env(safe-area-inset-top) + 8px)' }}
       animate={{ paddingTop: compact ? 8 : 13, paddingBottom: compact ? 8 : 13 }}
     >
@@ -53,7 +53,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
         <button
           aria-label="Inbox"
           onClick={() => actions.setTab('inbox')}
-          className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08]"
+          className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.08]"
         >
           <Bell size={17} />
           {unread > 0 && (
@@ -66,7 +66,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
             await signOut()
             navigate('/')
           }}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.08] text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
         >
           <LogOut size={17} />
         </button>
@@ -100,7 +100,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
   return (
     <nav
       aria-label="Primary"
-      className="glass-solid fixed inset-x-0 bottom-0 z-50 flex items-end justify-around rounded-none rounded-t-[26px] border-x-0 border-b-0 px-2 pt-2"
+      className="card-solid fixed inset-x-0 bottom-0 z-50 flex items-end justify-around rounded-none rounded-t-[26px] border-x-0 border-b-0 px-2 pt-2"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 10px)' }}
     >
       {TABS.slice(0, 2).map(renderTab)}
@@ -163,7 +163,7 @@ export function MobileLayout() {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex items-center gap-3 rounded-2xl px-3 py-3 text-left transition',
-                  active ? 'bg-[color:var(--glass-strong)]' : 'bg-white/[0.06] hover:bg-white/[0.12]',
+                  active ? 'bg-[color:var(--surface-2)]' : 'bg-white/[0.06] hover:bg-white/[0.12]',
                 )}
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10">

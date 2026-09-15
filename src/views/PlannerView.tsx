@@ -11,12 +11,12 @@ import {
 } from '../lib/usePlanner'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-4 py-2.5 text-[0.8rem] font-bold text-[#1a1240] transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
 const ghostBtn =
-  'cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
+  'cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
 
 const fmtShort = (s: string) => new Intl.DateTimeFormat('en-NZ', { day: 'numeric', month: 'short' }).format(parseISO(s))
 
@@ -64,7 +64,7 @@ export function PlannerView() {
                 setOpenId(id)
               }
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="flex flex-col gap-3 p-5">
               <div>
@@ -82,8 +82,8 @@ export function PlannerView() {
                       className={cn(
                         'flex-1 cursor-pointer rounded-full px-3 py-2 text-[0.8rem] font-semibold capitalize transition',
                         kind === k
-                          ? 'bg-[color:var(--glass-strong)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
-                          : 'border border-[color:var(--glass-border)] bg-white/[0.06] text-[color:var(--ink-faint)]',
+                          ? 'bg-[color:var(--surface-2)] text-white '
+                          : 'border border-[color:var(--border-strong)] bg-white/[0.06] text-[color:var(--ink-faint)]',
                       )}
                     >
                       {k === 'event' ? '🎉 Event' : '📊 Project'}
@@ -105,7 +105,7 @@ export function PlannerView() {
       </AnimatePresence>
 
       {plans.length === 0 && !creating && (
-        <div className="glass flex flex-col items-center gap-2 px-6 py-12 text-center">
+        <div className="card flex flex-col items-center gap-2 px-6 py-12 text-center">
           <CalendarRange size={32} className="text-[color:var(--ink-faint)]" />
           <h3 className="font-display text-[0.95rem] font-bold">No plans yet</h3>
           <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">Create a plan to break work into dated tasks and see them on a timeline.</p>
@@ -117,7 +117,7 @@ export function PlannerView() {
         const issues = Object.keys(conflictsOf(p.tasks)).length
         const done = p.tasks.length ? Math.round(p.tasks.reduce((s, t) => s + t.progress, 0) / p.tasks.length) : 0
         return (
-          <div key={p.id} className="glass flex items-center gap-3.5 px-[18px] py-4">
+          <div key={p.id} className="card flex items-center gap-3.5 px-[18px] py-4">
             <button onClick={() => setOpenId(p.id)} className="flex min-w-0 flex-1 items-center gap-3.5 text-left">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">
                 {p.kind === 'event' ? '🎉' : '📊'}
@@ -166,7 +166,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
         <ArrowLeft size={15} /> All plans
       </button>
 
-      <div className="glass flex flex-wrap items-start justify-between gap-3 p-5">
+      <div className="card flex flex-wrap items-start justify-between gap-3 p-5">
         <div>
           <h2 className="font-display text-[1.25rem] font-bold">
             {plan.kind === 'event' ? '🎉' : '📊'} {plan.name}
@@ -190,7 +190,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
           const conflict = conflicts[t.id]
           const earliest = earliestStart(t, plan.tasks)
           return (
-            <div key={t.id} className="glass flex flex-col gap-2 p-4">
+            <div key={t.id} className="card flex flex-col gap-2 p-4">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: t.color }} />
                 <input
@@ -200,14 +200,14 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                   aria-label="Task name"
                 />
                 {critical.has(t.id) && (
-                  <span className="rounded-full bg-[rgba(255,107,107,0.16)] px-2 py-[1px] text-[0.58rem] font-extrabold uppercase tracking-[0.05em] text-[#FFB4B4]">
+                  <span className="rounded-full bg-[rgba(255,107,107,0.16)] px-2 py-[1px] text-[0.58rem] font-bold text-[#FFB4B4]">
                     Critical
                   </span>
                 )}
                 <button
                   onClick={() => setLinkFor(linkFor === t.id ? null : t.id)}
                   title="Dependencies"
-                  className="flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-[color:var(--glass-border)] bg-white/[0.06] px-2.5 py-1 text-[0.68rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+                  className="flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-[color:var(--card-border)] bg-white/[0.06] px-2.5 py-1 text-[0.68rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
                 >
                   <Link2 size={12} /> {t.dependsOn.length || 'Link'}
                 </button>
@@ -220,13 +220,13 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                 <input
                   type="date" value={t.start} onChange={e => updateTask(plan.id, t.id, { start: e.target.value })}
                   aria-label="Start date"
-                  className="rounded-[9px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2 py-1 text-white outline-none"
+                  className="rounded-[9px] border border-[color:var(--card-border)] bg-white/[0.08] px-2 py-1 text-white outline-none"
                 />
                 <span className="text-[color:var(--ink-faint)]">→</span>
                 <input
                   type="date" value={t.end} min={t.start} onChange={e => updateTask(plan.id, t.id, { end: e.target.value })}
                   aria-label="End date"
-                  className="rounded-[9px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2 py-1 text-white outline-none"
+                  className="rounded-[9px] border border-[color:var(--card-border)] bg-white/[0.08] px-2 py-1 text-white outline-none"
                 />
                 <span className="text-[color:var(--ink-faint)]">{taskDays(t)}d</span>
                 <label className="ml-auto flex items-center gap-1.5 text-[color:var(--ink-dim)]">
@@ -274,10 +274,10 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                                 className={cn(
                                   'cursor-pointer rounded-full px-2.5 py-1 text-[0.7rem] font-semibold transition',
                                   on
-                                    ? 'bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]'
+                                    ? 'bg-[color:var(--accent)] text-white'
                                     : blocked
-                                      ? 'cursor-not-allowed border border-[color:var(--glass-border)] bg-white/[0.04] text-[color:var(--ink-faint)] opacity-50'
-                                      : 'border border-[color:var(--glass-border)] bg-white/[0.06] text-[color:var(--ink-dim)] hover:text-white',
+                                      ? 'cursor-not-allowed border border-[color:var(--border-strong)] bg-white/[0.04] text-[color:var(--ink-faint)] opacity-50'
+                                      : 'border border-[color:var(--border-strong)] bg-white/[0.06] text-[color:var(--ink-dim)] hover:text-white',
                                 )}
                               >
                                 {on && '✓ '}
@@ -301,7 +301,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
           addTask(plan.id, name, start, end)
           setName('')
         }}
-        className="glass flex flex-col gap-3 p-5"
+        className="card flex flex-col gap-3 p-5"
       >
         <h3 className="font-display text-[0.9rem] font-bold">Add a task</h3>
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Task name" required className={field} />
@@ -342,7 +342,7 @@ function Gantt({
 
   if (plan.tasks.length === 0) {
     return (
-      <div className="glass flex flex-col items-center gap-2 px-6 py-10 text-center">
+      <div className="card flex flex-col items-center gap-2 px-6 py-10 text-center">
         <CalendarRange size={28} className="text-[color:var(--ink-faint)]" />
         <p className="text-[0.85rem] font-semibold">No tasks yet</p>
         <p className="max-w-xs text-[0.78rem] text-[color:var(--ink-dim)]">Add your first task below and it will appear on the timeline.</p>
@@ -353,7 +353,7 @@ function Gantt({
   const days = Array.from({ length: range.days }, (_, i) => addDays(range.start, i))
 
   return (
-    <div className="glass overflow-hidden">
+    <div className="card overflow-hidden">
       <div className="scroll-thin overflow-x-auto">
         <div style={{ minWidth: range.days * COL + 180 }}>
           <div className="flex border-b border-white/10">
@@ -371,7 +371,7 @@ function Gantt({
                   className={cn(
                     'shrink-0 py-2 text-center text-[0.6rem] leading-tight',
                     weekend && 'bg-white/[0.04]',
-                    isToday ? 'font-extrabold text-[color:var(--cyan)]' : 'text-[color:var(--ink-faint)]',
+                    isToday ? 'font-extrabold text-[color:var(--accent)]' : 'text-[color:var(--ink-faint)]',
                   )}
                 >
                   <div>{new Intl.DateTimeFormat('en-NZ', { weekday: 'narrow' }).format(dt)}</div>

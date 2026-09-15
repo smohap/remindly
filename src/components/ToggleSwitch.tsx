@@ -8,7 +8,7 @@ export function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: (
       aria-checked={on}
       aria-label={label}
       onClick={() => onChange(!on)}
-      className="relative h-[22px] w-[38px] shrink-0 cursor-pointer rounded-full p-[3px] outline-none transition-colors after:absolute after:-inset-[11px] after:content-[''] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)]"
+      className="relative h-[22px] w-[38px] shrink-0 cursor-pointer rounded-full p-[3px] outline-none transition-colors after:absolute after:-inset-[11px] after:content-[''] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
       style={{ background: on ? 'linear-gradient(135deg, var(--cyan), var(--violet))' : 'rgba(255,255,255,0.15)' }}
     >
       <motion.span

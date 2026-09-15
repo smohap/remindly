@@ -30,10 +30,9 @@ interface State {
 type Action =
   | { type: 'acknowledge'; id: string }
   | { type: 'acknowledgeMany'; ids: string[] }
-  | { type: 'snooze'; id: string; key: SnoozeKey }
+  | { type: 'snooze'; id: string; until: string }
   | { type: 'unsnooze'; id: string }
   | { type: 'tick' }
-  | { type: 'add'; title: string }
   | { type: 'addReminder'; reminder: Reminder }
   | { type: 'removeBySource'; sourceEventId: string }
   | { type: 'setFilter'; filter: Filter }
@@ -77,14 +76,14 @@ function describeOffset(dayOffset: number): string {
  * recorded in the activity log so History still shows it was done.
  */
 export function acknowledgeOne(r: Reminder): Reminder {
-  if (!r.recurrence) {
-    logActivity('reminder.acknowledged', r.title, r.meta, r.id)
-    return { ...r, acknowledged: true, snoozedUntil: undefined }
-  }
+  if (!r.recurrence) return { ...r, acknowledged: true, snoozedUntil: undefined }
   const next = nextOccurrence(offsetToDate(r.dayOffset), r.recurrence)
-  const dayOffset = dateToOffset(next)
-  logActivity('reminder.acknowledged', r.title, `Done — next ${describeOffset(dayOffset)}`, r.id)
-  return { ...r, dayOffset, acknowledged: false, snoozedUntil: undefined }
+  return { ...r, dayOffset: dateToOffset(next), acknowledged: false, snoozedUntil: undefined }
+}
+
+/** What the activity log should say when `r` is completed. */
+function completionDetail(r: Reminder): string | undefined {
+  return r.recurrence ? `Done — next ${describeOffset(acknowledgeOne(r).dayOffset)}` : r.meta
 }
 
 function reducer(state: State, action: Action): State {
@@ -108,13 +107,11 @@ function reducer(state: State, action: Action): State {
     case 'snooze': {
       const target = state.reminders.find(r => r.id === action.id)
       if (!target) return state
-      const until = snoozeUntil(action.key)
-      logActivity('reminder.snoozed', target.title, `Snoozed ${snoozeLabel(until)}`, target.id)
       return {
         ...state,
-        reminders: state.reminders.map(r => (r.id === action.id ? { ...r, snoozedUntil: until } : r)),
+        reminders: state.reminders.map(r => (r.id === action.id ? { ...r, snoozedUntil: action.until } : r)),
         snoozeTargetId: null,
-        announcement: `${target.title} snoozed ${snoozeLabel(until)}`,
+        announcement: `${target.title} snoozed ${snoozeLabel(action.until)}`,
       }
     }
     case 'unsnooze': {
@@ -128,29 +125,8 @@ function reducer(state: State, action: Action): State {
     }
     case 'tick':
       return { ...state, now: Date.now() }
-    case 'add': {
-      if (!action.title.trim()) return state
-      // Killer feature: parse natural language into a scheduled, categorised reminder.
-      const parsed = parseReminder(action.title)
-      if (!parsed.title) return state
-      const reminder: Reminder = {
-        id: `r-${Date.now()}`,
-        title: parsed.title,
-        meta: parsed.meta,
-        category: parsed.category,
-        tag: parsed.tag,
-        icon: parsed.icon,
-        dayOffset: parsed.dayOffset,
-        time: parsed.time,
-        acknowledged: false,
-        ownedByMe: true,
-        recurrence: parsed.recurrence,
-      }
-      logActivity('reminder.added', reminder.title, reminder.meta, reminder.id)
-      return { ...state, reminders: [reminder, ...state.reminders], quickAddOpen: false, announcement: `Reminder added: ${parsed.title}` }
-    }
     case 'addReminder':
-      return { ...state, reminders: [action.reminder, ...state.reminders], announcement: `Reminder added: ${action.reminder.title}` }
+      return { ...state, reminders: [action.reminder, ...state.reminders], quickAddOpen: false, announcement: `Reminder added: ${action.reminder.title}` }
     case 'removeBySource':
       return { ...state, reminders: state.reminders.filter(r => r.sourceEventId !== action.sourceEventId) }
     case 'setFilter':
@@ -177,7 +153,6 @@ function reducer(state: State, action: Action): State {
     case 'remove': {
       const target = state.reminders.find(r => r.id === action.id)
       if (!target || target.ownedByMe === false) return state
-      logActivity('reminder.removed', target.title, undefined, target.id)
       return {
         ...state,
         reminders: state.reminders.filter(r => r.id !== action.id),
@@ -244,6 +219,10 @@ const StoreContext = createContext<StoreValue | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  // Latest state for action creators: side effects (activity log) live here,
+  // never in the reducer, which React may run twice in development.
+  const stateRef = useRef(state)
+  stateRef.current = state
   const hydrated = useRef(false)
 
   // Load: adopt the on-device copy immediately, then the server copy once we
@@ -308,12 +287,48 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<Actions>(
     () => ({
-      acknowledge: id => dispatch({ type: 'acknowledge', id }),
-      acknowledgeMany: ids => dispatch({ type: 'acknowledgeMany', ids }),
-      snooze: (id, key) => dispatch({ type: 'snooze', id, key }),
+      acknowledge: id => {
+        const r = stateRef.current.reminders.find(x => x.id === id)
+        if (r) logActivity('reminder.acknowledged', r.title, completionDetail(r), r.id)
+        dispatch({ type: 'acknowledge', id })
+      },
+      acknowledgeMany: ids => {
+        for (const r of stateRef.current.reminders) if (ids.includes(r.id)) logActivity('reminder.acknowledged', r.title, completionDetail(r), r.id)
+        dispatch({ type: 'acknowledgeMany', ids })
+      },
+      snooze: (id, key) => {
+        const r = stateRef.current.reminders.find(x => x.id === id)
+        if (!r) return
+        const until = snoozeUntil(key)
+        logActivity('reminder.snoozed', r.title, `Snoozed ${snoozeLabel(until)}`, r.id)
+        dispatch({ type: 'snooze', id, until })
+      },
       unsnooze: id => dispatch({ type: 'unsnooze', id }),
-      add: title => dispatch({ type: 'add', title }),
-      addReminder: reminder => dispatch({ type: 'addReminder', reminder }),
+      add: title => {
+        if (!title.trim()) return
+        // Killer feature: parse natural language into a scheduled, categorised reminder.
+        const parsed = parseReminder(title)
+        if (!parsed.title) return
+        const reminder: Reminder = {
+          id: `r-${Date.now()}`,
+          title: parsed.title,
+          meta: parsed.meta,
+          category: parsed.category,
+          tag: parsed.tag,
+          icon: parsed.icon,
+          dayOffset: parsed.dayOffset,
+          time: parsed.time,
+          acknowledged: false,
+          ownedByMe: true,
+          recurrence: parsed.recurrence,
+        }
+        logActivity('reminder.added', reminder.title, reminder.meta, reminder.id)
+        dispatch({ type: 'addReminder', reminder })
+      },
+      addReminder: reminder => {
+        logActivity('reminder.added', reminder.title, reminder.meta, reminder.id)
+        dispatch({ type: 'addReminder', reminder })
+      },
       removeBySource: sourceEventId => dispatch({ type: 'removeBySource', sourceEventId }),
       setFilter: filter => dispatch({ type: 'setFilter', filter }),
       setTab: tab => dispatch({ type: 'setTab', tab }),
@@ -322,7 +337,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       openSnooze: id => dispatch({ type: 'openSnooze', id }),
       setQuickAdd: open => dispatch({ type: 'setQuickAdd', open }),
       edit: (id, patch) => dispatch({ type: 'edit', id, patch }),
-      remove: id => dispatch({ type: 'remove', id }),
+      remove: id => {
+        const r = stateRef.current.reminders.find(x => x.id === id)
+        if (r && r.ownedByMe !== false) logActivity('reminder.removed', r.title, undefined, r.id)
+        dispatch({ type: 'remove', id })
+      },
       openEdit: id => dispatch({ type: 'openEdit', id }),
       openUpgrade: feature => dispatch({ type: 'openUpgrade', feature: feature ?? null }),
     }),

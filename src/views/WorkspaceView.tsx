@@ -28,17 +28,17 @@ const SEGMENTS: { key: Segment; label: string; icon: typeof ListChecks; premium?
 ]
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-4 py-2.5 text-[0.8rem] font-bold text-[#1a1240] transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
 const ghostBtn =
-  'cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
+  'cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
 
 function UsageBar({ used, cap, label }: { used: number; cap: number; label: string }) {
   const isPremium = usePlan().can('unlimited_workspace')
   if (isPremium) {
     return (
-      <span className="rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-2.5 py-1 text-[0.62rem] font-extrabold uppercase tracking-[0.06em] text-[#1a1240]">
+      <span className="rounded-full bg-[color:var(--accent)] px-2.5 py-1 text-[0.62rem] font-bold text-white">
         Unlimited
       </span>
     )
@@ -77,7 +77,7 @@ function ShareRow({ title, text }: { title: string; text: string }) {
           setState(r === 'copied' ? 'Copied to clipboard' : r === 'shared' ? 'Shared' : 'Share unavailable')
           setTimeout(() => setState(null), 2200)
         }}
-        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
       >
         <Share2 size={13} /> Share
       </button>
@@ -87,7 +87,7 @@ function ShareRow({ title, text }: { title: string; text: string }) {
           href={t.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-full border border-[color:var(--glass-border)] bg-white/[0.06] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-faint)] transition hover:text-white"
+          className="rounded-full border border-[color:var(--card-border)] bg-white/[0.06] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-faint)] transition hover:text-white"
         >
           {t.name}
         </a>
@@ -130,7 +130,7 @@ function ListsSection() {
                 setOpen(false)
               }
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="flex flex-col gap-3 p-5">
               <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="List name" required className={field} />
@@ -151,7 +151,7 @@ function ListsSection() {
       </AnimatePresence>
 
       {lists.length === 0 && !atLimit && (
-        <div className="glass flex flex-col items-center gap-2 px-6 py-10 text-center">
+        <div className="card flex flex-col items-center gap-2 px-6 py-10 text-center">
           <span className="text-3xl">🗒️</span>
           <h3 className="font-display text-[0.95rem] font-bold">No lists yet</h3>
           <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">Create a list for groceries, packing, or anything you tick off.</p>
@@ -161,7 +161,7 @@ function ListsSection() {
       {lists.map(l => {
         const doneCount = l.items.filter(i => i.done).length
         return (
-          <div key={l.id} className="glass flex flex-col gap-3 p-5">
+          <div key={l.id} className="card flex flex-col gap-3 p-5">
             <div className="flex items-center gap-3">
               <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: l.color }} />
               <div className="min-w-0 flex-1">
@@ -175,7 +175,7 @@ function ListsSection() {
                 disabled={!isPremium}
                 title={isPremium ? 'Toggle sharing' : 'Sharing lists is a Premium feature'}
                 className={cn(
-                  'flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--glass-border)] px-3 py-1.5 text-[0.7rem] font-semibold transition',
+                  'flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--border-strong)] px-3 py-1.5 text-[0.7rem] font-semibold transition',
                   l.shared ? 'bg-[rgba(45,212,191,0.18)] text-[#7BE9D8]' : 'bg-white/[0.06] text-[color:var(--ink-faint)]',
                   !isPremium && 'cursor-not-allowed opacity-60',
                 )}
@@ -195,7 +195,7 @@ function ListsSection() {
                     aria-label={i.done ? `Mark ${i.text} not done` : `Mark ${i.text} done`}
                     className={cn(
                       'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md border transition',
-                      i.done ? 'border-transparent bg-[color:var(--teal)] text-[#0c2b26]' : 'border-[color:var(--glass-border)] bg-white/[0.06]',
+                      i.done ? 'border-transparent bg-[color:var(--teal)] text-[#0c2b26]' : 'border-[color:var(--border-strong)] bg-white/[0.06]',
                     )}
                   >
                     {i.done && <Check size={12} strokeWidth={3} />}
@@ -263,7 +263,7 @@ function NotesSection() {
                 setTitle(''); setBody(''); setOpen(false)
               }
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="flex flex-col gap-3 p-5">
               <input autoFocus value={title} onChange={e => setTitle(e.target.value)} placeholder="Note title" className={field} />
@@ -278,7 +278,7 @@ function NotesSection() {
       </AnimatePresence>
 
       {notes.map(n => (
-        <div key={n.id} className="glass flex flex-col gap-3 p-5">
+        <div key={n.id} className="card flex flex-col gap-3 p-5">
           <div className="flex items-start gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-white/10 text-base">📝</span>
             <div className="min-w-0 flex-1">
@@ -346,7 +346,7 @@ function BookmarksSection() {
                 setTitle(''); setUrl(''); setTag(''); setOpen(false)
               }
             }}
-            className="glass overflow-hidden"
+            className="card overflow-hidden"
           >
             <div className="grid gap-3 p-5 sm:grid-cols-2">
               <input autoFocus value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" className={field} />
@@ -362,14 +362,14 @@ function BookmarksSection() {
       </AnimatePresence>
 
       {bookmarks.map(b => (
-        <div key={b.id} className="glass group flex items-center gap-3.5 px-[18px] py-3.5">
+        <div key={b.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🔖</span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="truncate text-[0.9rem] font-bold">{b.title}</span>
-              <span className="rounded-full bg-white/[0.12] px-2 py-[2px] text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[color:var(--ink-dim)]">{b.tag}</span>
+              <span className="rounded-full bg-white/[0.12] px-2 py-[2px] text-[0.6rem] font-bold text-[color:var(--ink-dim)]">{b.tag}</span>
             </div>
-            <a href={b.url} target="_blank" rel="noopener noreferrer" className="block truncate text-[0.74rem] text-[color:var(--ink-faint)] transition hover:text-[color:var(--cyan)]">
+            <a href={b.url} target="_blank" rel="noopener noreferrer" className="block truncate text-[0.74rem] text-[color:var(--ink-faint)] transition hover:text-[color:var(--accent)]">
               {b.url}
             </a>
           </div>
@@ -405,14 +405,14 @@ function DiarySection() {
           createEntry(date, mood, body)
           setBody('')
         }}
-        className="glass flex flex-col gap-3 p-5"
+        className="card flex flex-col gap-3 p-5"
       >
         <div className="flex flex-wrap items-center gap-3">
           <input type="date" value={date} onChange={e => setDate(e.target.value)} className={cn(field, 'w-auto')} aria-label="Entry date" />
           <div className="flex flex-wrap gap-1">
             {MOODS.map(m => (
               <button key={m} type="button" onClick={() => setMood(m)} aria-label={`Mood ${m}`}
-                className={cn('h-9 w-9 cursor-pointer rounded-full text-lg transition', mood === m ? 'bg-[color:var(--glass-strong)] ring-1 ring-white/40' : 'hover:bg-white/[0.08]')}>
+                className={cn('h-9 w-9 cursor-pointer rounded-full text-lg transition', mood === m ? 'bg-[color:var(--surface-2)] ring-1 ring-white/40' : 'hover:bg-white/[0.08]')}>
                 {m}
               </button>
             ))}
@@ -423,14 +423,14 @@ function DiarySection() {
       </form>
 
       {entries.length === 0 ? (
-        <div className="glass flex flex-col items-center gap-2 px-6 py-10 text-center">
+        <div className="card flex flex-col items-center gap-2 px-6 py-10 text-center">
           <span className="text-3xl">📔</span>
           <h3 className="font-display text-[0.95rem] font-bold">Your diary is empty</h3>
           <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">Write your first entry above — only you can see it.</p>
         </div>
       ) : (
         entries.map(e => (
-          <div key={e.id} className="glass flex items-start gap-3.5 p-5">
+          <div key={e.id} className="card flex items-start gap-3.5 p-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-xl">{e.mood}</span>
             <div className="min-w-0 flex-1">
               <div className="text-[0.78rem] font-bold text-[color:var(--ink-dim)]">
@@ -468,14 +468,14 @@ function CreativeSection() {
           createPiece(title, type, body)
           setTitle(''); setBody('')
         }}
-        className="glass flex flex-col gap-3 p-5"
+        className="card flex flex-col gap-3 p-5"
       >
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" className={field} />
         <div className="flex gap-1.5">
           {PIECE_TYPES.map(t => (
             <button key={t.value} type="button" onClick={() => setType(t.value)}
               className={cn('cursor-pointer rounded-full px-3.5 py-1.5 text-[0.75rem] font-semibold transition',
-                type === t.value ? 'bg-[color:var(--glass-strong)] text-white' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]')}>
+                type === t.value ? 'bg-[color:var(--surface-2)] text-white' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]')}>
               {t.icon} {t.label}
             </button>
           ))}
@@ -485,7 +485,7 @@ function CreativeSection() {
       </form>
 
       {pieces.length === 0 ? (
-        <div className="glass flex flex-col items-center gap-2 px-6 py-10 text-center">
+        <div className="card flex flex-col items-center gap-2 px-6 py-10 text-center">
           <span className="text-3xl">✒️</span>
           <h3 className="font-display text-[0.95rem] font-bold">Nothing written yet</h3>
           <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">Write a story or poem above, then share it with the world.</p>
@@ -494,13 +494,13 @@ function CreativeSection() {
         pieces.map(p => {
           const meta = PIECE_TYPES.find(t => t.value === p.type)
           return (
-            <div key={p.id} className="glass flex flex-col gap-3 p-5">
+            <div key={p.id} className="card flex flex-col gap-3 p-5">
               <div className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-lg">{meta?.icon}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate text-[0.95rem] font-bold">{p.title}</span>
-                    <span className="rounded-full bg-white/[0.12] px-2 py-[2px] text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[color:var(--ink-dim)]">{meta?.label}</span>
+                    <span className="rounded-full bg-white/[0.12] px-2 py-[2px] text-[0.6rem] font-bold text-[color:var(--ink-dim)]">{meta?.label}</span>
                   </div>
                   <p className="mt-1.5 whitespace-pre-wrap text-[0.85rem] leading-relaxed text-[color:var(--ink-dim)]">{p.body}</p>
                 </div>

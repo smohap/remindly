@@ -21,7 +21,7 @@ function QuickAddForm() {
         value={text}
         onChange={e => setText(e.target.value)}
         placeholder="Remind me to…"
-        className="w-full rounded-[14px] border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)]"
+        className="w-full rounded-[14px] border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
       />
       <div className="mt-3 flex flex-wrap gap-2">
         {['tomorrow 9am', 'every Monday', 'in 1 hour'].map(chip => (
@@ -29,7 +29,7 @@ function QuickAddForm() {
             key={chip}
             type="button"
             onClick={() => setText(t => (t ? `${t} ${chip}` : `Remind me ${chip} — `))}
-            className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)]"
+            className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)]"
           >
             {chip}
           </button>
@@ -37,7 +37,7 @@ function QuickAddForm() {
       </div>
       <button
         type="submit"
-        className="mt-4 w-full cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] py-3 text-[0.85rem] font-bold text-[#1a1240]"
+        className="mt-4 w-full cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-white"
       >
         Add reminder
       </button>
@@ -68,7 +68,7 @@ function EditReminderForm({ id }: { id: string }) {
   }
 
   const field =
-    'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+    'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
   const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
   return (
@@ -100,7 +100,7 @@ function EditReminderForm({ id }: { id: string }) {
       </div>
 
       <div className="mt-4 flex gap-2">
-        <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] py-3 text-[0.85rem] font-bold text-[#1a1240]">
+        <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-white">
           Save changes
         </button>
         <button

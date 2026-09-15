@@ -74,7 +74,7 @@ export function CalendarView() {
   return (
     <div className="flex flex-col gap-[18px]">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="glass inline-flex gap-1 rounded-full p-1">
+        <div className="card inline-flex gap-1 rounded-full p-1">
           {SCALES.map(s => (
             <button
               key={s}
@@ -84,7 +84,7 @@ export function CalendarView() {
               {scale === s && (
                 <motion.span
                   layoutId="cal-scale"
-                  className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))]"
+                  className="absolute inset-0 rounded-full bg-[color:var(--accent)]"
                   transition={{ type: 'spring', stiffness: 400, damping: 34 }}
                 />
               )}
@@ -97,20 +97,20 @@ export function CalendarView() {
           <button
             onClick={() => move(-1)}
             aria-label={`Previous ${scale}`}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] transition hover:bg-white/[0.16]"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--card-border)] bg-white/[0.08] transition hover:bg-white/[0.16]"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={() => setCursor(today)}
-            className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/[0.16]"
+            className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/[0.16]"
           >
             Today
           </button>
           <button
             onClick={() => move(1)}
             aria-label={`Next ${scale}`}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] transition hover:bg-white/[0.16]"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--card-border)] bg-white/[0.08] transition hover:bg-white/[0.16]"
           >
             <ChevronRight size={16} />
           </button>
@@ -130,7 +130,7 @@ export function CalendarView() {
 function DayView({ date, items }: { date: Date; items: Reminder[] }) {
   if (items.length === 0) {
     return (
-      <div className="glass flex flex-col items-center gap-2 px-6 py-12 text-center">
+      <div className="card flex flex-col items-center gap-2 px-6 py-12 text-center">
         <span className="text-3xl" aria-hidden>🌤️</span>
         <h3 className="font-display text-[0.95rem] font-bold">Nothing on {fmt(date, { day: 'numeric', month: 'long' })}</h3>
         <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">A clear day. Use the arrows above to look ahead.</p>
@@ -153,13 +153,13 @@ function WeekView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: D
             key={d.toISOString()}
             onClick={() => onPick(d)}
             className={cn(
-              'glass flex min-h-[128px] flex-col gap-1.5 p-3 text-left transition hover:bg-white/[0.14]',
+              'card flex min-h-[128px] flex-col gap-1.5 p-3 text-left transition hover:bg-white/[0.14]',
               isToday && 'ring-1 ring-[color:var(--cyan)]',
             )}
           >
             <div className="flex items-baseline justify-between">
               <span className="text-[0.68rem] uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">{fmt(d, { weekday: 'short' })}</span>
-              <span className={cn('font-display text-[1.05rem] font-bold', isToday && 'text-[color:var(--cyan)]')}>{d.getDate()}</span>
+              <span className={cn('font-display text-[1.05rem] font-bold', isToday && 'text-[color:var(--accent)]')}>{d.getDate()}</span>
             </div>
             {items.slice(0, 3).map(r => (
               <span key={r.id} className="flex items-start gap-1.5 text-[0.7rem] leading-snug text-[color:var(--ink-dim)]">
@@ -180,7 +180,7 @@ function MonthView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: 
   const gridStart = startOfWeek(first)
   const cells = Array.from({ length: 42 }, (_, i) => addDays(gridStart, i))
   return (
-    <div className="glass p-3 sm:p-4">
+    <div className="card p-3 sm:p-4">
       <div className="mb-1 grid grid-cols-7 gap-1">
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
           <div key={d} className="pb-1 text-center text-[0.64rem] font-bold uppercase tracking-[0.07em] text-[color:var(--ink-faint)]">{d}</div>
@@ -198,7 +198,7 @@ function MonthView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: 
               className={cn(
                 'flex min-h-[62px] flex-col items-center gap-1 rounded-[10px] p-1.5 transition hover:bg-white/[0.12] sm:min-h-[76px]',
                 !inMonth && 'opacity-35',
-                isToday && 'bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]',
+                isToday && 'bg-[color:var(--accent)] text-white',
               )}
             >
               <span className={cn('text-[0.78rem] font-bold', isToday && 'text-[#1a1240]')}>{d.getDate()}</span>
@@ -231,7 +231,7 @@ function YearView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: D
           <button
             key={m}
             onClick={() => onPick(first)}
-            className={cn('glass p-3 text-left transition hover:bg-white/[0.14]', isThisMonth && 'ring-1 ring-[color:var(--cyan)]')}
+            className={cn('card p-3 text-left transition hover:bg-white/[0.14]', isThisMonth && 'ring-1 ring-[color:var(--cyan)]')}
           >
             <div className="mb-2 flex items-baseline justify-between">
               <span className="font-display text-[0.92rem] font-bold">{fmt(first, { month: 'long' })}</span>
@@ -251,7 +251,7 @@ function YearView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: D
                     className={cn(
                       'flex h-[15px] items-center justify-center rounded-[3px] text-[0.55rem]',
                       isToday
-                        ? 'bg-[linear-gradient(135deg,var(--cyan),var(--violet))] font-bold text-[#1a1240]'
+                        ? 'bg-[color:var(--accent)] font-bold text-white'
                         : has
                           ? 'bg-[rgba(124,111,255,0.45)] text-white'
                           : 'text-[color:var(--ink-faint)]',

@@ -25,7 +25,7 @@ export function Section({ title, items, actionLabel, onAction, emptyText }: Sect
         )}
       </div>
       {items.length === 0 ? (
-        <div className="glass px-[18px] py-6 text-center text-[0.8rem] text-[color:var(--ink-faint)]">{emptyText ?? 'All clear 🎉'}</div>
+        <div className="card px-[18px] py-6 text-center text-[0.8rem] text-[color:var(--ink-faint)]">{emptyText ?? 'All clear 🎉'}</div>
       ) : (
         <AnimatePresence initial={false}>
           {items.map(reminder => (
@@ -34,7 +34,7 @@ export function Section({ title, items, actionLabel, onAction, emptyText }: Sect
               layout
               exit={{ opacity: 0, x: 48, height: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              /* Generous inset padding so the hover lift and the glass shadow
+              /* Generous inset padding so the hover lift and the card shadow
                  aren't clipped by the overflow-hidden needed for exit collapse. */
               className="-mx-3 -mt-3 overflow-hidden px-3 pt-3"
             >

@@ -10,9 +10,9 @@ import { AdminDiscoverPanel } from './AdminDiscoverPanel'
 type Tab = 'people' | 'groups' | 'discover' | 'compliance' | 'analytics' | 'audit'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-4 py-2.5 text-[0.8rem] font-bold text-[#1a1240] transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
 
 const ROLE_STYLE: Record<UserRole, string> = {
   super_admin: 'bg-[rgba(251,191,36,0.18)] text-[#FCD770]',
@@ -43,12 +43,12 @@ export function AdminView() {
   }
 
   if (roleLoading) {
-    return <div className="glass px-6 py-12 text-center text-[0.85rem] text-[color:var(--ink-dim)]">Checking your access…</div>
+    return <div className="card px-6 py-12 text-center text-[0.85rem] text-[color:var(--ink-dim)]">Checking your access…</div>
   }
 
   if (!isAdmin) {
     return (
-      <div className="glass flex flex-col items-center gap-3 px-6 py-14 text-center">
+      <div className="card flex flex-col items-center gap-3 px-6 py-14 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.12] text-[color:var(--ink-dim)]">
           <ShieldAlert size={20} />
         </span>
@@ -73,7 +73,7 @@ export function AdminView() {
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="font-display flex items-center gap-2 text-[1.05rem] font-bold">
-          <ShieldCheck size={17} className="text-[color:var(--cyan)]" /> Admin console
+          <ShieldCheck size={17} className="text-[color:var(--accent)]" /> Admin console
         </h2>
         <p className="text-[0.78rem] text-[color:var(--ink-dim)]">
           You are {ROLE_LABEL[role ?? 'user']}
@@ -82,18 +82,18 @@ export function AdminView() {
       </div>
 
       {!dbMode && (
-        <div className="glass px-[18px] py-3 text-[0.75rem] text-[#FCD770]">
+        <div className="card px-[18px] py-3 text-[0.75rem] text-[#FCD770]">
           Demo mode — showing the console as a simulated Super Admin. Connect Supabase and run migration 0005 for real roles.
         </div>
       )}
-      {error && <div className="glass px-[18px] py-3 text-[0.75rem] text-[color:var(--red)]">{error}</div>}
+      {error && <div className="card px-[18px] py-3 text-[0.75rem] text-[color:var(--red)]">{error}</div>}
       <AnimatePresence>
         {notice && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass overflow-hidden px-[18px] py-3 text-[0.78rem] text-[color:var(--teal)]"
+            className="card overflow-hidden px-[18px] py-3 text-[0.78rem] text-[color:var(--teal)]"
           >
             {notice}
           </motion.div>
@@ -115,7 +115,7 @@ export function AdminView() {
               {active && (
                 <motion.span
                   layoutId="admin-tab"
-                  className="absolute inset-0 rounded-full bg-[color:var(--glass-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  className="absolute inset-0 rounded-full bg-[color:var(--card-strong)] "
                   transition={{ type: 'spring', stiffness: 400, damping: 34 }}
                 />
               )}
@@ -127,25 +127,25 @@ export function AdminView() {
         })}
       </div>
 
-      {loading && <div className="glass px-6 py-8 text-center text-[0.82rem] text-[color:var(--ink-dim)]">Loading…</div>}
+      {loading && <div className="card px-6 py-8 text-center text-[0.82rem] text-[color:var(--ink-dim)]">Loading…</div>}
 
       {!loading && tab === 'people' && (
         <div className="flex flex-col gap-2">
           {people.length === 0 && (
-            <div className="glass px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">
+            <div className="card px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">
               No people to show yet — they'll appear here once accounts exist.
             </div>
           )}
           {people.map(p => (
-            <div key={p.id} className="glass flex flex-wrap items-center gap-3 px-[18px] py-3.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.65rem] font-bold">
+            <div key={p.id} className="card flex flex-wrap items-center gap-3 px-[18px] py-3.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.65rem] font-bold">
                 {p.name.slice(0, 2).toUpperCase()}
               </span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[0.88rem] font-bold">{p.name}</div>
                 <div className="truncate text-[0.72rem] text-[color:var(--ink-faint)]">{p.email}</div>
               </div>
-              <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-[0.05em]', ROLE_STYLE[p.role])}>
+              <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-[0.6rem] font-bold', ROLE_STYLE[p.role])}>
                 {p.role === 'super_admin' && <Crown size={9} className="mr-1 inline" />}
                 {ROLE_LABEL[p.role]}
               </span>
@@ -158,7 +158,7 @@ export function AdminView() {
                     flash(err ? `Couldn't change ${p.name}'s role — ${err}` : `${p.name} is now ${ROLE_LABEL[next]}`)
                   }}
                   aria-label={`Role for ${p.name}`}
-                  className="shrink-0 rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-white outline-none"
+                  className="shrink-0 rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-white outline-none"
                 >
                   <option value="user" className="bg-[color:var(--indigo)]">User</option>
                   <option value="group_admin" className="bg-[color:var(--indigo)]">Group Admin</option>
@@ -177,7 +177,7 @@ export function AdminView() {
 
       {!loading && tab === 'groups' && (
         <div className="flex flex-col gap-2">
-          {groups.length === 0 && <div className="glass px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No groups yet.</div>}
+          {groups.length === 0 && <div className="card px-6 py-10 text-center text-[0.82rem] text-[color:var(--ink-dim)]">No groups yet.</div>}
           {groups.map(g => (
             <GroupAdminRow
               key={g.id}
@@ -198,7 +198,7 @@ export function AdminView() {
       {!loading && tab === 'analytics' && <AnalyticsPanel />}
 
       {!loading && tab === 'audit' && (
-        <div className="glass p-5">
+        <div className="card p-5">
           <h3 className="font-display mb-3 text-[0.92rem] font-bold">Recent activity</h3>
           {audit.length === 0 ? (
             <p className="py-6 text-center text-[0.8rem] text-[color:var(--ink-dim)]">
@@ -243,12 +243,12 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
       <div className="flex flex-col gap-2">
         <h3 className="font-display px-1 text-[0.92rem] font-bold">Open escalations</h3>
         {open.length === 0 ? (
-          <div className="glass px-6 py-8 text-center text-[0.82rem] text-[color:var(--ink-dim)]">
+          <div className="card px-6 py-8 text-center text-[0.82rem] text-[color:var(--ink-dim)]">
             Nothing escalated. Compliance reminders that go unacknowledged past their window will appear here.
           </div>
         ) : (
           open.map(e => (
-            <div key={e.id} className="glass flex flex-col gap-2 px-[18px] py-3.5">
+            <div key={e.id} className="card flex flex-col gap-2 px-[18px] py-3.5">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-[rgba(255,107,107,0.16)] text-base">🚨</span>
                 <div className="min-w-0 flex-1">
@@ -259,7 +259,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                 </div>
                 <span
                   className={cn(
-                    'shrink-0 rounded-full px-2.5 py-1 text-[0.6rem] font-extrabold uppercase tracking-[0.05em]',
+                    'shrink-0 rounded-full px-2.5 py-1 text-[0.6rem] font-bold',
                     e.stage === 'super_admin' ? 'bg-[rgba(255,107,107,0.2)] text-[#FFB4B4]' : 'bg-[rgba(251,191,36,0.18)] text-[#FCD770]',
                   )}
                 >
@@ -282,7 +282,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                       escalateFurther(e.id)
                       onNotice(`${e.reminderTitle} escalated to Super Admin`)
                     }}
-                    className="cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+                    className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
                   >
                     Escalate further
                   </button>
@@ -299,7 +299,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
           Compliance reminders must be acknowledged. Unacknowledged ones escalate to the Group Admin, then to a Super Admin.
         </p>
         {policies.map(p => (
-          <div key={p.groupId} className="glass flex flex-col gap-3 p-5">
+          <div key={p.groupId} className="card flex flex-col gap-3 p-5">
             <div className="flex items-center justify-between gap-3">
               <span className="truncate text-[0.9rem] font-bold">{p.groupName}</span>
               <label className="flex shrink-0 items-center gap-2 text-[0.75rem] text-[color:var(--ink-dim)]">
@@ -320,7 +320,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                   type="number" min={1} max={168} value={p.escalateAfterHours}
                   onChange={e => updatePolicy(p.groupId, { escalateAfterHours: Number(e.target.value) })}
                   disabled={!p.complianceEnabled}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
                 />
               </label>
               <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
@@ -329,7 +329,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                   type="number" min={1} max={336} value={p.secondHopHours}
                   onChange={e => updatePolicy(p.groupId, { secondHopHours: Number(e.target.value) })}
                   disabled={!p.complianceEnabled}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
                 />
               </label>
               <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
@@ -337,7 +337,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                 <input
                   type="number" min={0} max={10080} value={p.defaultLeadMinutes}
                   onChange={e => updatePolicy(p.groupId, { defaultLeadMinutes: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none"
                 />
               </label>
             </div>
@@ -390,14 +390,14 @@ function AnalyticsPanel() {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map(s => (
-          <div key={s.label} className="glass p-4">
+          <div key={s.label} className="card p-4">
             <div className={cn('font-display text-[1.6rem] font-extrabold leading-none', s.tone)}>{s.value}</div>
             <div className="mt-1 text-[0.68rem] text-[color:var(--ink-faint)]">{s.label}</div>
           </div>
         ))}
       </div>
 
-      <div className="glass p-5">
+      <div className="card p-5">
         <h3 className="font-display mb-3 text-[0.92rem] font-bold">Acknowledgement by category</h3>
         <div className="flex flex-col gap-3">
           {byCategory.map(c => (
@@ -416,7 +416,7 @@ function AnalyticsPanel() {
         </div>
       </div>
 
-      <div className="glass p-5">
+      <div className="card p-5">
         <h3 className="font-display mb-1 text-[0.92rem] font-bold">Needs attention</h3>
         <p className="mb-3 text-[0.74rem] text-[color:var(--ink-dim)]">Unacknowledged reminders, most overdue first.</p>
         {derived.active.filter(r => r.dayOffset <= 0).length === 0 ? (
@@ -473,7 +473,7 @@ function GroupAdminRow({
   const refresh = () => void membersOf(group.id).then(setMembers)
 
   return (
-    <div className="glass overflow-hidden">
+    <div className="card overflow-hidden">
       <button onClick={() => setOpen(o => !o)} className="flex w-full items-center gap-3 px-[18px] py-3.5 text-left">
         <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: group.color }} />
         <div className="min-w-0 flex-1">
@@ -501,7 +501,7 @@ function GroupAdminRow({
               {members.length === 0 && <p className="text-[0.78rem] text-[color:var(--ink-faint)]">No members loaded.</p>}
               {members.map(m => (
                 <div key={m.membershipId} className="flex flex-wrap items-center gap-2.5">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.6rem] font-bold">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold">
                     {m.name.slice(0, 2).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -519,7 +519,7 @@ function GroupAdminRow({
                           refresh()
                         }}
                         aria-label={`Group role for ${m.name}`}
-                        className="shrink-0 rounded-[9px] border border-[color:var(--glass-border)] bg-white/[0.08] px-2 py-1 text-[0.7rem] text-white outline-none"
+                        className="shrink-0 rounded-[9px] border border-[color:var(--card-border)] bg-white/[0.08] px-2 py-1 text-[0.7rem] text-white outline-none"
                       >
                         <option value="member" className="bg-[color:var(--indigo)]">Member</option>
                         <option value="admin" className="bg-[color:var(--indigo)]">Admin</option>
@@ -564,7 +564,7 @@ function GroupAdminRow({
                     value={inviteRole}
                     onChange={e => setInviteRole(e.target.value as 'admin' | 'member')}
                     aria-label="Invite as"
-                    className="rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-3 py-2 text-[0.75rem] text-white outline-none"
+                    className="rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-2 text-[0.75rem] text-white outline-none"
                   >
                     <option value="member" className="bg-[color:var(--indigo)]">as Member</option>
                     <option value="admin" className="bg-[color:var(--indigo)]">as Admin</option>

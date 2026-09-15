@@ -29,7 +29,7 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
   const shift = (n: number) => setMonth(new Date(month.getFullYear(), month.getMonth() + n, 1))
 
   return (
-    <div className="rounded-[14px] border border-[color:var(--glass-border)] bg-white/[0.06] p-3">
+    <div className="rounded-[14px] border border-[color:var(--card-border)] bg-white/[0.06] p-3">
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
@@ -76,7 +76,7 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
                 'flex h-9 items-center justify-center rounded-[9px] text-[0.78rem] font-semibold transition',
                 !inMonth && 'opacity-30',
                 selected
-                  ? 'bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240] shadow-[0_2px_10px_rgba(124,111,255,0.5)]'
+                  ? 'bg-[color:var(--accent)] text-white shadow-[0_2px_10px_rgba(124,111,255,0.5)]'
                   : isToday
                     ? 'bg-[rgba(45,212,191,0.18)] text-[#7BE9D8] ring-1 ring-[color:var(--teal)]'
                     : 'text-white hover:bg-white/[0.12]',
@@ -90,7 +90,7 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
 
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[0.66rem] text-[color:var(--ink-faint)]">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))]" /> Selected
+          <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--accent)]" /> Selected
           <span className="ml-2 h-2.5 w-2.5 rounded-full bg-[rgba(45,212,191,0.35)] ring-1 ring-[color:var(--teal)]" /> Today
         </span>
         <button

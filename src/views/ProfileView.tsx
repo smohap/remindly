@@ -11,12 +11,12 @@ import { planLabel } from '../lib/plans'
 import { usePlan } from '../lib/usePlan'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
 function Stat({ value, label }: { value: number | string; label: string }) {
   return (
-    <div className="glass flex flex-col items-center gap-0.5 px-3 py-4">
+    <div className="card flex flex-col items-center gap-0.5 px-3 py-4">
       <span className="font-display text-[1.35rem] font-extrabold leading-none">{value}</span>
       <span className="text-[0.68rem] text-[color:var(--ink-faint)]">{label}</span>
     </div>
@@ -58,15 +58,15 @@ export function ProfileView() {
   return (
     <div className="flex flex-col gap-[18px]">
       {/* Identity header */}
-      <div className="glass flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-2xl font-bold">
+      <div className="card flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-2xl font-bold">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-display truncate text-[1.4rem] font-bold">{f.displayName || user?.name || 'Your name'}</h2>
             {isPremium && (
-              <span className="flex items-center gap-1 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-2.5 py-[2px] text-[0.6rem] font-extrabold uppercase tracking-[0.06em] text-[#1a1240]">
+              <span className="flex items-center gap-1 rounded-full bg-[color:var(--accent)] px-2.5 py-[2px] text-[0.6rem] font-bold text-white">
                 <Sparkles size={10} /> {planLabel(plan)}
               </span>
             )}
@@ -96,7 +96,7 @@ export function ProfileView() {
       </div>
 
       {/* Editable details */}
-      <form onSubmit={submit} className="glass flex flex-col gap-5 p-6">
+      <form onSubmit={submit} className="card flex flex-col gap-5 p-6">
         <div>
           <h3 className="font-display text-[0.95rem] font-bold">Personal details</h3>
           <p className="text-[0.75rem] text-[color:var(--ink-dim)]">This information personalises your reminders and how dates are shown.</p>
@@ -177,8 +177,8 @@ export function ProfileView() {
                     className={cn(
                       'flex-1 cursor-pointer rounded-full px-3 py-2.5 text-[0.8rem] font-semibold capitalize transition',
                       f.weekStart === d
-                        ? 'bg-[color:var(--glass-strong)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
-                        : 'border border-[color:var(--glass-border)] bg-white/[0.06] text-[color:var(--ink-faint)]',
+                        ? 'bg-[color:var(--surface-2)] text-white '
+                        : 'border border-[color:var(--border-strong)] bg-white/[0.06] text-[color:var(--ink-faint)]',
                     )}
                   >
                     {d}
@@ -189,7 +189,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        <button type="submit" className="flex items-center justify-center gap-2 self-start rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-6 py-2.5 text-[0.85rem] font-bold text-[#1a1240] transition hover:brightness-110">
+        <button type="submit" className="flex items-center justify-center gap-2 self-start rounded-full bg-[color:var(--accent)] px-6 py-2.5 text-[0.85rem] font-bold text-white transition hover:brightness-110">
           {saved ? (<><Check size={15} /> Saved</>) : 'Save changes'}
         </button>
       </form>
@@ -199,7 +199,7 @@ export function ProfileView() {
           await signOut()
           navigate('/')
         }}
-        className="glass flex cursor-pointer items-center justify-center gap-2 px-[18px] py-3.5 text-[0.85rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
+        className="card flex cursor-pointer items-center justify-center gap-2 px-[18px] py-3.5 text-[0.85rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
       >
         <LogOut size={16} /> Sign out
       </button>

@@ -13,12 +13,12 @@ import {
 } from '../lib/useInvoices'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-4 py-2.5 text-[0.8rem] font-bold text-[#1a1240] transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
 const ghostBtn =
-  'cursor-pointer rounded-full border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
+  'cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
 
 type Role = 'received' | 'sent'
 type Filter = 'all' | 'pending' | 'overdue' | 'paid' | 'rejected' | 'cancelled'
@@ -26,7 +26,7 @@ const FILTERS: Filter[] = ['all', 'pending', 'overdue', 'paid', 'rejected', 'can
 
 function StatusBadge({ inv }: { inv: Invoice }) {
   const s = displayStatus(inv)
-  return <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-[0.62rem] font-extrabold uppercase tracking-[0.05em]', s.cls)}>{s.label}</span>
+  return <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-[0.62rem] font-bold', s.cls)}>{s.label}</span>
 }
 
 function fmtDate(d: string) {
@@ -112,15 +112,15 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={submit} className="glass flex flex-col gap-4 p-6">
+    <form onSubmit={submit} className="card flex flex-col gap-4 p-6">
       <h3 className="font-display text-[1rem] font-bold">New invoice</h3>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="relative">
           <span className={labelCls}>Send to</span>
           {picked ? (
-            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3 py-2">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.6rem] font-bold">
+            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold">
                 {picked.name.slice(0, 2).toUpperCase()}
               </span>
               <div className="min-w-0 flex-1">
@@ -146,7 +146,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
                 <p className="mt-1 text-[0.68rem] text-[color:var(--ink-faint)]">Keep typing — at least 3 characters.</p>
               )}
               {(results.length > 0 || searching) && (
-                <ul className="glass absolute z-30 mt-1 max-h-56 w-full overflow-y-auto p-1" role="listbox">
+                <ul className="card absolute z-30 mt-1 max-h-56 w-full overflow-y-auto p-1" role="listbox">
                   {searching && <li className="px-3 py-2 text-[0.75rem] text-[color:var(--ink-faint)]">Searching…</li>}
                   {results.map(r => (
                     <li key={r.id}>
@@ -155,7 +155,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
                         onClick={() => { setPicked(r); setResults([]); setError(null) }}
                         className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-3 py-2 text-left transition hover:bg-white/[0.12]"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--magenta),var(--violet))] text-[0.6rem] font-bold">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold">
                           {r.name.slice(0, 2).toUpperCase()}
                         </span>
                         <span className="min-w-0">
@@ -286,7 +286,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         <ArrowLeft size={15} /> Back to invoices
       </button>
 
-      <div className="glass flex flex-col gap-4 p-6">
+      <div className="card flex flex-col gap-4 p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -331,7 +331,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         )}
 
         {invoice.resolutionComment && (
-          <div className="rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.06] p-3 text-[0.8rem]">
+          <div className="rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.06] p-3 text-[0.8rem]">
             <span className="font-semibold">{invoice.status === 'rejected' ? 'Reason for rejection: ' : 'Note: '}</span>
             <span className="text-[color:var(--ink-dim)]">{invoice.resolutionComment}</span>
           </div>
@@ -394,7 +394,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         )}
       </div>
 
-      <div className="glass p-6">
+      <div className="card p-6">
         <h3 className="font-display mb-4 text-[0.95rem] font-bold">Activity</h3>
         <ol className="flex flex-col gap-4">
           {invoice.events.map((e, i) => (
@@ -483,12 +483,12 @@ export function InvoicesView() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="glass p-5">
+        <div className="card p-5">
           <div className="text-[0.7rem] uppercase tracking-[0.08em] text-[color:var(--ink-faint)]">You owe</div>
           <div className="font-display text-[1.5rem] font-extrabold">{money(outstandingCents)}</div>
           <div className="text-[0.72rem] text-[color:var(--ink-faint)]">{received.filter(i => i.status === 'sent').length} open invoice(s)</div>
         </div>
-        <div className="glass p-5">
+        <div className="card p-5">
           <div className="text-[0.7rem] uppercase tracking-[0.08em] text-[color:var(--ink-faint)]">Owed to you</div>
           <div className="font-display text-[1.5rem] font-extrabold">{money(awaitingCents)}</div>
           <div className="text-[0.72rem] text-[color:var(--ink-faint)]">{sent.filter(i => i.status === 'sent').length} awaiting payment</div>
@@ -503,10 +503,10 @@ export function InvoicesView() {
         )}
       </AnimatePresence>
 
-      <div className="glass inline-flex w-fit gap-1 rounded-full p-1">
+      <div className="card inline-flex w-fit gap-1 rounded-full p-1">
         {(['received', 'sent'] as const).map(r => (
           <button key={r} onClick={() => setRole(r)} className="relative rounded-full px-5 py-2 text-[0.8rem] font-bold transition-colors">
-            {role === r && <motion.span layoutId="inv-role" className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))]" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
+            {role === r && <motion.span layoutId="inv-role" className="absolute inset-0 rounded-full bg-[color:var(--accent)]" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
             <span className={cn('relative', role === r ? 'text-[#1a1240]' : 'text-[color:var(--ink-dim)]')}>
               {r === 'received' ? 'Received' : 'Sent by me'}
             </span>
@@ -519,7 +519,7 @@ export function InvoicesView() {
           <button
             key={f} onClick={() => setFilter(f)}
             className={cn('shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-[0.75rem] font-semibold capitalize transition',
-              filter === f ? 'bg-[color:var(--glass-strong)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]')}
+              filter === f ? 'bg-[color:var(--surface-2)] text-white ' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]')}
           >
             {f}
           </button>
@@ -527,7 +527,7 @@ export function InvoicesView() {
       </div>
 
       {list.length === 0 ? (
-        <div className="glass flex flex-col items-center gap-2 px-6 py-12 text-center">
+        <div className="card flex flex-col items-center gap-2 px-6 py-12 text-center">
           <FileText size={34} className="text-[color:var(--ink-faint)]" />
           <h3 className="font-display text-[0.95rem] font-bold">No {filter === 'all' ? '' : filter} invoices here</h3>
           <p className="max-w-xs text-[0.8rem] text-[color:var(--ink-dim)]">
@@ -536,7 +536,7 @@ export function InvoicesView() {
         </div>
       ) : (
         list.map(inv => (
-          <button key={inv.id} onClick={() => setOpenId(inv.id)} className="glass flex items-center gap-3.5 px-[18px] py-4 text-left transition hover:bg-white/[0.13]">
+          <button key={inv.id} onClick={() => setOpenId(inv.id)} className="card flex items-center gap-3.5 px-[18px] py-4 text-left transition hover:bg-white/[0.13]">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🧾</span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
