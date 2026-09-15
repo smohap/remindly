@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Bell, Briefcase, CalendarDays, ChevronRight, FileText, GanttChartSquare, LayoutGrid, LogOut, MoreHorizontal,
-  Plus, ScrollText, Search, Settings, ShieldCheck, Sparkles, Sun, User, Users,
-} from 'lucide-react'
+import { Bell, Briefcase, CalendarDays, ChevronRight, Inbox, LayoutGrid, LogOut, MoreHorizontal, Plus, Settings, ShieldCheck, Sun, Users, Wallet } from 'lucide-react'
+import { useActivity } from '../lib/activityStore'
 import { useMyRole } from '../lib/useAdmin'
 import { BottomSheet } from './BottomSheet'
 import { useAuth } from '../auth/AuthContext'
@@ -19,28 +17,24 @@ const TABS: { key: Tab; label: string; icon: typeof Sun }[] = [
   { key: 'today', label: 'Today', icon: Sun },
   { key: 'calendar', label: 'Calendar', icon: CalendarDays },
   { key: 'workspace', label: 'Workspace', icon: LayoutGrid },
+  { key: 'inbox', label: 'Inbox', icon: Inbox },
 ]
 
 /** Everything that doesn't fit in the tab bar, reachable from "More". */
 const MORE_ITEMS: { key: Tab; label: string; sub: string; icon: typeof Sun }[] = [
-  { key: 'planner', label: 'Plans', sub: 'Events, projects and Gantt charts', icon: GanttChartSquare },
+  { key: 'groups', label: 'Groups', sub: 'Members, shared reminders and chat', icon: Users },
+  { key: 'finance', label: 'Finance', sub: 'Invoices, subscriptions, renewals', icon: Wallet },
   { key: 'business', label: 'Business', sub: 'Certifications, contracts, filings', icon: Briefcase },
-  { key: 'invoices', label: 'Invoices', sub: 'Send, settle and track invoices', icon: FileText },
-  { key: 'groups', label: 'Groups', sub: 'Members and group chat', icon: Users },
-  { key: 'premium', label: 'Premium', sub: 'Vault, subscriptions, calendar sync', icon: Sparkles },
-  { key: 'discover', label: 'Discover', sub: 'Subscribe to events', icon: Search },
-  { key: 'notifications', label: 'Notifications', sub: 'Your inbox', icon: Bell },
-  { key: 'history', label: 'History', sub: 'Past reminders', icon: ScrollText },
-  { key: 'profile', label: 'Profile', sub: 'Your details', icon: User },
-  { key: 'settings', label: 'Settings', sub: 'Preferences and sign out', icon: Settings },
+  { key: 'settings', label: 'Settings', sub: 'Profile, plan, notifications', icon: Settings },
 ]
 
 /** Shown only to admins; the server still enforces what they may do. */
-const ADMIN_ITEM = { key: 'admin' as const, label: 'Admin', sub: 'People, groups and audit log', icon: ShieldCheck }
+const ADMIN_ITEM = { key: 'admin' as const, label: 'Admin', sub: 'People, groups, Discover events, audit log', icon: ShieldCheck }
 
 function MobileHeader({ compact }: { compact: boolean }) {
   const { actions } = useStore()
   const { signOut } = useAuth()
+  const { unread } = useActivity()
   const navigate = useNavigate()
   return (
     <motion.header
@@ -48,20 +42,23 @@ function MobileHeader({ compact }: { compact: boolean }) {
       style={{ marginTop: 'calc(env(safe-area-inset-top) + 8px)' }}
       animate={{ paddingTop: compact ? 8 : 13, paddingBottom: compact ? 8 : 13 }}
     >
-      <button aria-label="Profile" onClick={() => actions.setTab('profile')} className="cursor-pointer">
+      <button aria-label="Profile" onClick={() => actions.openTab('settings', 'profile')} className="cursor-pointer">
         <Avatar size={34} />
       </button>
       <div className="font-display flex items-center gap-2 text-base font-extrabold">
-        <span className="h-2.5 w-2.5 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] shadow-[0_0_14px_var(--cyan)]" />
+        <span className="h-2 w-2 rounded-full bg-[color:var(--accent)]" />
         Remindly
       </div>
       <div className="flex items-center gap-2">
         <button
-          aria-label="Notifications"
-          onClick={() => actions.setTab('notifications')}
+          aria-label="Inbox"
+          onClick={() => actions.setTab('inbox')}
           className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08]"
         >
           <Bell size={17} />
+          {unread > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--accent)] px-1 text-[0.6rem] font-bold text-white">{unread}</span>
+          )}
         </button>
         <button
           aria-label="Sign out"
@@ -95,7 +92,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
         <t.icon size={20} />
         <span className="text-[0.6rem] font-semibold">{t.label}</span>
         <span className="relative h-1 w-1">
-          {active && <motion.span layoutId="tab-dot" className="absolute inset-0 rounded-full bg-[color:var(--cyan)]" />}
+          {active && <motion.span layoutId="tab-dot" className="absolute inset-0 rounded-full bg-[color:var(--accent)]" />}
         </span>
       </button>
     )
@@ -111,7 +108,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
         whileTap={{ scale: 0.9 }}
         onClick={() => actions.setQuickAdd(true)}
         aria-label="Add reminder"
-        className="-mt-8 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240] shadow-[0_8px_24px_rgba(124,111,255,0.5)]"
+        className="-mt-8 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[color:var(--accent)] text-white shadow-[0_8px_24px_rgba(124,111,255,0.45)]"
       >
         <Plus size={26} strokeWidth={2.5} />
       </motion.button>
@@ -127,7 +124,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
         <MoreHorizontal size={20} />
         <span className="text-[0.6rem] font-semibold">More</span>
         <span className="relative h-1 w-1">
-          {moreActive && <motion.span layoutId="tab-dot" className="absolute inset-0 rounded-full bg-[color:var(--cyan)]" />}
+          {moreActive && <motion.span layoutId="tab-dot" className="absolute inset-0 rounded-full bg-[color:var(--accent)]" />}
         </span>
       </button>
     </nav>
@@ -140,7 +137,7 @@ export function MobileLayout() {
   const { state, actions } = useStore()
   const { isAdmin } = useMyRole()
   const moreItems = isAdmin ? [...MORE_ITEMS, ADMIN_ITEM] : MORE_ITEMS
-  const moreActive = moreItems.some(i => i.key === state.tab)
+  const moreActive = moreItems.some(i => i.key === state.tab) || state.tab === 'upgrade'
 
   return (
     <div className="relative z-10 flex h-dvh flex-col">

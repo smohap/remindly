@@ -2,18 +2,21 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   BookHeart, Bookmark as BookmarkIcon, Check, ExternalLink, Feather, ListChecks,
-  Lock, Plus, Share2, StickyNote, Trash2, Users2, X,
+  GanttChartSquare, Lock, Plus, Share2, StickyNote, Trash2, Users2, X,
 } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { usePlan } from '../lib/usePlan'
 import { UpgradeGate } from '../components/UpgradeGate'
+import { SegmentBar, useSegment } from '../components/SegmentBar'
+import { PlannerView } from './PlannerView'
 import {
   LIST_COLORS, MOODS, PIECE_TYPES, FREE_LIMITS,
   nativeShare, shareTargets, useBookmarks, useCreative, useDiary, useLists, useNotes,
   type PieceType,
 } from '../lib/useWorkspace'
 
-type Segment = 'lists' | 'notes' | 'bookmarks' | 'diary' | 'creative'
+const SEGMENT_KEYS = ['lists', 'notes', 'bookmarks', 'diary', 'creative', 'plans'] as const
+type Segment = (typeof SEGMENT_KEYS)[number]
 
 const SEGMENTS: { key: Segment; label: string; icon: typeof ListChecks; premium?: boolean }[] = [
   { key: 'lists', label: 'Lists', icon: ListChecks },
@@ -21,6 +24,7 @@ const SEGMENTS: { key: Segment; label: string; icon: typeof ListChecks; premium?
   { key: 'bookmarks', label: 'Bookmarks', icon: BookmarkIcon },
   { key: 'diary', label: 'Diary', icon: BookHeart, premium: true },
   { key: 'creative', label: 'Creative', icon: Feather, premium: true },
+  { key: 'plans', label: 'Plans', icon: GanttChartSquare, premium: true },
 ]
 
 const field =
@@ -525,8 +529,8 @@ const SYNC_LABEL: Record<string, { text: string; cls: string }> = {
 }
 
 export function WorkspaceView() {
-  const [segment, setSegment] = useState<Segment>('lists')
-  const isPremium = usePlan().can('diary')
+  const [segment, setSegment] = useSegment(SEGMENT_KEYS, 'lists')
+  const { can } = usePlan()
   const { syncState, syncError } = useLists()
   const sync = SYNC_LABEL[syncState] ?? SYNC_LABEL.local
 
@@ -535,7 +539,7 @@ export function WorkspaceView() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-[1.05rem] font-bold">Workspace</h2>
-          <p className="text-[0.78rem] text-[color:var(--ink-dim)]">Lists, notes, bookmarks, your diary and creative writing — all in one place.</p>
+          <p className="text-[0.78rem] text-[color:var(--ink-dim)]">Lists, notes, bookmarks, diary, creative writing and plans.</p>
           <p className={cn('mt-1 text-[0.68rem]', sync.cls)}>
             {sync.text}
             {syncState === 'error' && syncError && (
@@ -545,27 +549,12 @@ export function WorkspaceView() {
         </div>
       </div>
 
-      <div className="scrollbar-hidden -mx-1 flex gap-1.5 overflow-x-auto px-1">
-        {SEGMENTS.map(s => {
-          const active = segment === s.key
-          return (
-            <button
-              key={s.key}
-              onClick={() => setSegment(s.key)}
-              className={cn(
-                'relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.78rem] font-semibold transition-colors',
-                active ? 'text-white' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]',
-              )}
-            >
-              {active && <motion.span layoutId="ws-seg" className="absolute inset-0 rounded-full bg-[color:var(--glass-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
-              <span className="relative flex items-center gap-1.5">
-                <s.icon size={14} /> {s.label}
-                {s.premium && !isPremium && <Lock size={10} />}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+      <SegmentBar
+        label="Workspace sections"
+        value={segment}
+        onChange={setSegment}
+        segments={SEGMENTS.map(s => ({ key: s.key, label: s.label, icon: s.icon, locked: s.key === 'plans' ? !can('planner') : s.premium ? !can('diary') : false }))}
+      />
 
       <AnimatePresence mode="wait">
         <motion.div key={segment} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.18 }}>
@@ -574,6 +563,7 @@ export function WorkspaceView() {
           {segment === 'bookmarks' && <BookmarksSection />}
           {segment === 'diary' && <DiarySection />}
           {segment === 'creative' && <CreativeSection />}
+          {segment === 'plans' && <PlannerView />}
         </motion.div>
       </AnimatePresence>
     </div>

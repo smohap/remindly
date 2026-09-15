@@ -1,17 +1,21 @@
-import { Bell, Settings } from 'lucide-react'
+import { Bell, Plus, Settings } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
+import { useActivity } from '../lib/activityStore'
 import { useStore } from '../store'
 
-function IconButton({ children, label, onClick, badge }: { children: ReactNode; label: string; onClick: () => void; badge?: number }) {
+function IconButton({ children, label, onClick, badge, active }: { children: ReactNode; label: string; onClick: () => void; badge?: number; active?: boolean }) {
   return (
     <button
       aria-label={label}
       onClick={onClick}
-      className="relative flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] transition hover:bg-white/[0.14]"
+      className={
+        'relative flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-[color:var(--border)] transition hover:bg-white/[0.06] ' +
+        (active ? 'bg-[color:var(--surface-2)] text-[color:var(--ink)]' : 'text-[color:var(--ink-dim)]')
+      }
     >
       {children}
       {badge ? (
-        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--red)] text-[0.6rem] font-extrabold shadow-[0_0_0_2px_rgba(42,33,102,0.9)]">
+        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--accent)] px-1 text-[0.6rem] font-bold text-white">
           {badge}
         </span>
       ) : null}
@@ -20,33 +24,32 @@ function IconButton({ children, label, onClick, badge }: { children: ReactNode; 
 }
 
 export function TopBar() {
-  const { actions } = useStore()
+  const { state, actions } = useStore()
+  const { unread } = useActivity()
   const [text, setText] = useState('')
   return (
-    <div className="glass flex items-center gap-4 px-[22px] py-3.5">
+    <div className="flex items-center gap-3">
       <form
-        className="flex flex-1 items-center gap-2.5 rounded-[14px] border border-[color:var(--glass-border)] bg-white/[0.08] px-4 py-2.5"
+        className="card flex flex-1 items-center gap-2.5 px-4 py-2.5 focus-within:border-[color:var(--accent)]"
         onSubmit={e => {
           e.preventDefault()
           actions.add(text)
           setText('')
         }}
       >
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[7px] bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[0.8rem] font-bold text-[#1a1240]" aria-hidden>
-          +
-        </span>
+        <Plus size={16} className="shrink-0 text-[color:var(--ink-faint)]" aria-hidden />
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           aria-label="Quick add a reminder"
-          placeholder='Try "remind me every second Tuesday at 9am"…'
-          className="w-full bg-transparent text-[0.85rem] text-white outline-none placeholder:text-[color:var(--ink-faint)]"
+          placeholder='Add a reminder — try "pay rent every month on the 1st at 9am"'
+          className="w-full bg-transparent text-[0.85rem] text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)]"
         />
       </form>
-      <IconButton label="Notifications" onClick={() => actions.setTab('notifications')} badge={5}>
+      <IconButton label="Inbox" onClick={() => actions.setTab('inbox')} badge={unread} active={state.tab === 'inbox'}>
         <Bell size={17} />
       </IconButton>
-      <IconButton label="Settings" onClick={() => actions.setTab('settings')}>
+      <IconButton label="Settings" onClick={() => actions.setTab('settings')} active={state.tab === 'settings'}>
         <Settings size={17} />
       </IconButton>
     </div>

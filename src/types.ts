@@ -26,22 +26,7 @@ export interface Reminder {
 
 export type Filter = 'today' | 'tomorrow' | 'week' | 'overdue'
 
-export type Tab =
-  | 'today'
-  | 'calendar'
-  | 'discover'
-  | 'notifications'
-  | 'history'
-  | 'settings'
-  | 'groups'
-  | 'profile'
-  | 'premium'
-  | 'workspace'
-  | 'invoices'
-  | 'planner'
-  | 'admin'
-  | 'business'
-  | 'upgrade'
+export type Tab = 'today' | 'calendar' | 'workspace' | 'groups' | 'finance' | 'business' | 'inbox' | 'settings' | 'admin' | 'upgrade'
 
 export interface DiscoverEvent {
   id: string

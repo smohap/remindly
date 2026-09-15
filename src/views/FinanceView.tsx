@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarDays, Plus, ShieldCheck, Sparkles, Trash2, Wallet, X } from 'lucide-react'
+import { FileText, Plus, ShieldCheck, Trash2, Wallet, X } from 'lucide-react'
 import { cn } from '../lib/cn'
-import { CalendarSync } from '../components/CalendarSync'
+import { SegmentBar, useSegment } from '../components/SegmentBar'
+import { InvoicesView } from './InvoicesView'
 import { UpgradeGate } from '../components/UpgradeGate'
 import { usePlan } from '../lib/usePlan'
 import {
@@ -19,13 +20,8 @@ import {
   type VaultType,
 } from '../lib/usePremium'
 
-type Segment = 'vault' | 'subscriptions' | 'calendar'
+const SEGMENTS = ['invoices', 'subscriptions', 'renewals'] as const
 
-const SEGMENTS: { key: Segment; label: string; icon: typeof Wallet }[] = [
-  { key: 'vault', label: 'Renewal Vault', icon: ShieldCheck },
-  { key: 'subscriptions', label: 'Subscriptions', icon: Wallet },
-  { key: 'calendar', label: 'Calendar sync', icon: CalendarDays },
-]
 
 const fieldClass =
   'w-full rounded-[12px] border border-[color:var(--glass-border)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--cyan)] md:text-[0.85rem]'
@@ -239,49 +235,28 @@ function SubscriptionsSection() {
 }
 
 // --------------------------------------------------------------------------
-export function PremiumView() {
-  const [segment, setSegment] = useState<Segment>('vault')
+export function FinanceView() {
+  const [segment, setSegment] = useSegment(SEGMENTS, 'invoices')
   const { can } = usePlan()
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] text-[#1a1240]">
-          <Sparkles size={16} />
-        </span>
-        <div>
-          <h2 className="font-display text-[1.05rem] font-bold leading-none">Premium</h2>
-          <p className="text-[0.74rem] text-[color:var(--ink-dim)]">Renewals, subscriptions, gifting and business tools</p>
-        </div>
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="font-display text-[1.05rem] font-bold">Finance</h2>
+        <p className="text-[0.78rem] text-[color:var(--ink-dim)]">Invoices, recurring payments and renewals.</p>
       </div>
-
-      <div className="scrollbar-hidden -mx-1 flex gap-1.5 overflow-x-auto px-1">
-        {SEGMENTS.map(s => {
-          const active = segment === s.key
-          return (
-            <button
-              key={s.key}
-              onClick={() => setSegment(s.key)}
-              className={cn(
-                'relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.78rem] font-semibold transition-colors',
-                active ? 'text-white' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]',
-              )}
-            >
-              {active && <motion.span layoutId="prem-seg" className="absolute inset-0 rounded-full bg-[color:var(--glass-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
-              <span className="relative flex items-center gap-1.5">
-                <s.icon size={14} /> {s.label}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div key={segment} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.18 }}>
-          {segment === 'vault' && (can('vault') ? <VaultSection /> : <UpgradeGate feature="vault" description="Track passports, licences, WOF and policies — Remindly reminds you before each one expires." />)}
-          {segment === 'subscriptions' && (can('subscriptions') ? <SubscriptionsSection /> : <UpgradeGate feature="subscriptions" description="See what your recurring payments add up to and get a nudge before every charge." />)}
-          {segment === 'calendar' && <CalendarSync />}
-        </motion.div>
-      </AnimatePresence>
+      <SegmentBar
+        label="Finance sections"
+        value={segment}
+        onChange={setSegment}
+        segments={[
+          { key: 'invoices', label: 'Invoices', icon: FileText, locked: !can('invoices') },
+          { key: 'subscriptions', label: 'Subscriptions', icon: Wallet, locked: !can('subscriptions') },
+          { key: 'renewals', label: 'Renewals', icon: ShieldCheck, locked: !can('vault') },
+        ]}
+      />
+      {segment === 'invoices' && <InvoicesView />}
+      {segment === 'subscriptions' && (can('subscriptions') ? <SubscriptionsSection /> : <UpgradeGate feature="subscriptions" description="See what your recurring payments add up to and get a nudge before every charge." />)}
+      {segment === 'renewals' && (can('vault') ? <VaultSection /> : <UpgradeGate feature="vault" description="Track passports, licences, WOF and policies — Remindly reminds you before each one expires." />)}
     </div>
   )
 }

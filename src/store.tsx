@@ -13,6 +13,8 @@ interface State {
   reminders: Reminder[]
   filter: Filter
   tab: Tab
+  /** A segment requested for the current tab (consumed by useSegment). */
+  segment: string | null
   /** Wall clock, refreshed every 30 s so snoozes expire without a reload. */
   now: number
   snoozeTargetId: string | null
@@ -35,7 +37,8 @@ type Action =
   | { type: 'addReminder'; reminder: Reminder }
   | { type: 'removeBySource'; sourceEventId: string }
   | { type: 'setFilter'; filter: Filter }
-  | { type: 'setTab'; tab: Tab }
+  | { type: 'setTab'; tab: Tab; segment?: string }
+  | { type: 'clearSegment' }
   | { type: 'openSnooze'; id: string | null }
   | { type: 'setQuickAdd'; open: boolean }
   | { type: 'edit'; id: string; patch: Partial<Reminder> }
@@ -50,6 +53,7 @@ const initialState: State = {
   reminders: remindersStore.get(),
   filter: 'today',
   tab: 'today',
+  segment: null,
   now: Date.now(),
   snoozeTargetId: null,
   editTargetId: null,
@@ -152,7 +156,9 @@ function reducer(state: State, action: Action): State {
     case 'setFilter':
       return { ...state, filter: action.filter }
     case 'setTab':
-      return { ...state, tab: action.tab }
+      return { ...state, tab: action.tab, segment: action.segment ?? null }
+    case 'clearSegment':
+      return state.segment === null ? state : { ...state, segment: null }
     case 'openSnooze':
       return { ...state, snoozeTargetId: action.id }
     case 'setQuickAdd':
@@ -218,6 +224,8 @@ interface Actions {
   removeBySource: (sourceEventId: string) => void
   setFilter: (filter: Filter) => void
   setTab: (tab: Tab) => void
+  openTab: (tab: Tab, segment?: string) => void
+  clearSegment: () => void
   openSnooze: (id: string | null) => void
   setQuickAdd: (open: boolean) => void
   edit: (id: string, patch: Partial<Reminder>) => void
@@ -309,6 +317,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       removeBySource: sourceEventId => dispatch({ type: 'removeBySource', sourceEventId }),
       setFilter: filter => dispatch({ type: 'setFilter', filter }),
       setTab: tab => dispatch({ type: 'setTab', tab }),
+      openTab: (tab, segment) => dispatch({ type: 'setTab', tab, segment }),
+      clearSegment: () => dispatch({ type: 'clearSegment' }),
       openSnooze: id => dispatch({ type: 'openSnooze', id }),
       setQuickAdd: open => dispatch({ type: 'setQuickAdd', open }),
       edit: (id, patch) => dispatch({ type: 'edit', id, patch }),
