@@ -12,10 +12,10 @@ import { Footer } from '../components/Footer'
 // The essentials — free on every plan
 const features = [
   { icon: Bot, title: 'AI natural-language add', body: 'Type "remind me to submit the safety audit tomorrow at 9am". Remindly parses the date, time, and category for you.' },
-  { icon: BellRing, title: 'Multi-channel delivery', body: 'Push, email, SMS, and Slack — each person picks their channels, with delivery confirmation end to end.' },
-  { icon: AlarmClock, title: 'Personal alarm mode', body: 'Bypass silent & DND for critical reminders. Loops until dismissed, with your own ringtone.' },
+  { icon: BellRing, title: 'Nudges until it’s done', body: 'Browser and installed-app notifications every 15 minutes until you acknowledge — starting an hour before timed reminders.' },
+  { icon: AlarmClock, title: 'Snooze that comes back', body: 'An hour, this evening, tomorrow or next week — snoozed reminders return on their own and show up in your history.' },
   { icon: MoonStar, title: 'Quiet hours', body: 'Batch non-urgent reminders during your quiet hours — while critical items always break through.' },
-  { icon: CalendarClock, title: 'Smart lists & recurrence', body: 'Today, Tomorrow, This week, Overdue — auto-organised, with flexible recurring schedules.' },
+  { icon: CalendarClock, title: 'Smart lists & recurrence', body: 'Today, Tomorrow, This week, Overdue — auto-organised. Repeat daily, weekdays, weekly, fortnightly, monthly or yearly.' },
   { icon: Users, title: 'Shared groups', body: 'Create groups, invite members, and coordinate reminders across a team, club, or family.' },
 ]
 
@@ -32,8 +32,6 @@ const audiences = [
       'Subscription tracker — see total spend, get warned before each charge',
       'Bill & rent reminders with a mark-as-paid history',
       'Household & family plan — shared reminders with per-person status',
-      'Gift & Occasion Concierge — AI gift ideas, one-tap ordering & e-gift cards',
-      'Calendar sync — two-way with Google, Outlook & Apple',
       'Invoicing — send, track, settle or dispute with an audit trail',
       'Private diary with mood tracking',
       'Stories & poems — write and share to social',
@@ -88,13 +86,10 @@ const personalPlans: Plan[] = [
       'Everything in Free, unlimited',
       'Renewal Vault',
       'Subscription tracker & bill reminders',
-      'Household & family plan',
-      'Gift & Occasion Concierge',
-      'Calendar sync — Google, Outlook & Apple',
+      'Event & project planner with Gantt charts',
       'Invoicing with settle / dispute & audit trail',
       'Diary & creative writing with social sharing',
       'Unlimited lists, notes & bookmarks',
-      'Medication & location reminders',
     ],
   },
 ]

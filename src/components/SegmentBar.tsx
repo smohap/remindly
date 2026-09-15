@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from 'react'
 import { Lock } from 'lucide-react'
 import { cn } from '../lib/cn'

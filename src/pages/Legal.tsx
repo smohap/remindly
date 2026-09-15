@@ -172,7 +172,8 @@ const FEATURE_GROUPS: { title: string; items: [string, string][] }[] = [
       ['Smart lists', 'Today, Tomorrow, Next 7 days and Overdue, organised automatically.'],
       ['Natural-language add', 'Type "remind me to renew the passport on 20 August 2026" and it schedules itself.'],
       ['Calendar views', 'Day, week, month and year, with navigation across any period.'],
-      ['Personal alarm', 'Bypass silent and Do Not Disturb for the things that really matter.'],
+      ['Recurring reminders', 'Daily, weekdays, weekly, fortnightly, monthly or yearly — completing one rolls it to the next occurrence.'],
+      ['Snooze', 'An hour, this evening, tomorrow or next week; snoozed items return on their own.'],
       ['Quiet hours', 'Hold non-urgent reminders back; compliance always breaks through.'],
       ['Browser notifications', 'Nudges every 15 minutes until acknowledged — from an hour before timed reminders.'],
       ['Edit and delete', 'Full control over any reminder you created.'],
@@ -244,7 +245,7 @@ const ROADMAP: { stage: string; tone: string; items: [string, string][] }[] = [
     tone: 'text-[#FCD770]',
     items: [
       ['Cross-device sync', 'Workspace, planner and business records currently save per device; moving them fully server-side.'],
-      ['Real calendar sync', 'The Google, Outlook and Apple connection flow is built; live two-way OAuth sync is still to come.'],
+      ['Calendar sync', 'Two-way sync with Google, Outlook and Apple calendars.'],
       ['Escalation automation', 'Escalation chains are configurable today, but the scheduled job that raises them automatically is not live.'],
     ],
   },
@@ -252,7 +253,8 @@ const ROADMAP: { stage: string; tone: string; items: [string, string][] }[] = [
     stage: '○ Next up',
     tone: 'text-[color:var(--ink-dim)]',
     items: [
-      ['Push, SMS and Slack delivery', 'Today reminders arrive as browser notifications; native push, SMS and Slack are planned.'],
+      ['Push, SMS and Slack delivery', 'Today reminders arrive as browser notifications; native push, email, SMS and Slack are planned.'],
+      ['Personal alarm', 'Bypass silent and Do Not Disturb for critical reminders — needs the native apps.'],
       ['AI Reminder Copilot', 'Our parser understands dates and recurrence; a full AI assistant that drafts and schedules for you is next.'],
       ['Medication reminders', 'Dose schedules with adherence tracking and refill prompts.'],
       ['Location-triggered reminders', 'Geofenced nudges — "remind me when I get to the office".'],
@@ -404,11 +406,11 @@ export function Security() {
 
 // ===========================================================================
 const FAQS: [string, string][] = [
-  ['Is Remindly free?', 'Yes. The core reminder engine — smart lists, natural-language adding, calendar views, personal alarm and quiet hours — is free forever, including 5 lists, 10 notes and 50 bookmarks. Premium adds unlimited items plus the individual and business toolkits.'],
+  ['Is Remindly free?', 'Yes. The core reminder engine — smart lists, natural-language adding, recurring reminders, calendar views, snooze and quiet hours — is free forever, including 5 lists, 10 notes and 50 bookmarks. Personal Plus, Team and Growth add unlimited items plus the individual and business toolkits.'],
   ['Do I need an account for my whole family or team?', 'Each person signs up individually, then you invite them to a group. Group members see shared reminders and group chat; personal reminders stay private to each person.'],
   ['How do notifications work?', 'Remindly sends browser notifications on laptops and Android. A reminder with a specific time starts nudging an hour beforehand; an all-day reminder starts that morning. Either way it repeats every 15 minutes until you acknowledge it.'],
   ['Why am I not getting notifications on my iPhone?', 'Safari only delivers web notifications when a site has been added to the Home Screen. Open Remindly in Safari, tap Share, then "Add to Home Screen", and enable notifications from Settings inside the app.'],
-  ['Does calendar sync really connect to Google or Outlook?', 'Not yet. You can set up and configure connections, but live two-way sync is still in development — see the roadmap. We would rather say so than let you assume your calendar is syncing.'],
+  ['Does Remindly sync with Google or Outlook calendars?', 'Not yet — calendar sync is on the roadmap. We would rather say so than let you assume your calendar is syncing.'],
   ['Can I use Remindly on my phone?', 'Yes. Remindly is a responsive web app with a native-feeling mobile layout — bottom tab bar, swipe to acknowledge or snooze, and bottom sheets. Native app store apps are on the roadmap.'],
   ['What happens to my data if I stop paying?', 'Your data is never deleted because a subscription lapses. You keep read access to everything and revert to the free limits for creating new items.'],
   ['Can I export my data?', 'You can delete your account and its data at any time from Settings. A full self-service export is on our roadmap; in the meantime email us and we will send you your data.'],

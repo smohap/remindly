@@ -11,7 +11,7 @@ import type { Tab } from '../types'
 import { Avatar } from './Avatar'
 
 /** The eight top-level destinations. Locked ones still open — onto a gate. */
-export const NAV: { key: Tab; label: string; icon: typeof Sun; feature?: Feature }[] = [
+const NAV: { key: Tab; label: string; icon: typeof Sun; feature?: Feature }[] = [
   { key: 'today', label: 'Today', icon: Sun },
   { key: 'calendar', label: 'Calendar', icon: CalendarDays },
   { key: 'workspace', label: 'Workspace', icon: LayoutGrid },
@@ -22,7 +22,7 @@ export const NAV: { key: Tab; label: string; icon: typeof Sun; feature?: Feature
   { key: 'settings', label: 'Settings', icon: Settings },
 ]
 
-export const ADMIN_NAV = { key: 'admin' as const, label: 'Admin', icon: ShieldCheck }
+const ADMIN_NAV = { key: 'admin' as const, label: 'Admin', icon: ShieldCheck }
 
 export function Sidebar() {
   const { state, derived, actions } = useStore()
