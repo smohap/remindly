@@ -7,7 +7,7 @@
 const FLAG = 'remindly.migrated.v2'
 const KEEP = new Set(['remindly.demoUser', 'remindly.plan.v1', 'remindly.notify.v1', FLAG])
 
-export function runLocalCleanup() {
+function runLocalCleanup() {
   try {
     if (localStorage.getItem(FLAG)) return
     const doomed: string[] = []
@@ -21,3 +21,5 @@ export function runLocalCleanup() {
     /* private mode — nothing to clean */
   }
 }
+
+runLocalCleanup()
