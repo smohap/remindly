@@ -12,6 +12,7 @@ import type { Tab } from '../types'
 import { ViewSwitch } from '../views/Views'
 import { AppFooter } from './AppFooter'
 import { Avatar } from './Avatar'
+import { ThemeToggle } from './ThemeToggle'
 
 const TABS: { key: Tab; label: string; icon: typeof Sun }[] = [
   { key: 'today', label: 'Today', icon: Sun },
@@ -53,20 +54,21 @@ function MobileHeader({ compact }: { compact: boolean }) {
         <button
           aria-label="Inbox"
           onClick={() => actions.setTab('inbox')}
-          className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08]"
+          className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)]"
         >
           <Bell size={17} />
           {unread > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--accent)] px-1 text-[0.6rem] font-bold text-white">{unread}</span>
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--accent)] px-1 text-[0.6rem] font-bold text-[color:var(--accent-ink)]">{unread}</span>
           )}
         </button>
+        <ThemeToggle />
         <button
           aria-label="Sign out"
           onClick={async () => {
             await signOut()
             navigate('/')
           }}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
         >
           <LogOut size={17} />
         </button>
@@ -86,7 +88,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
         aria-current={active ? 'page' : undefined}
         className={cn(
           'flex min-h-11 min-w-14 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 transition-colors',
-          active ? 'text-white' : 'text-[color:var(--ink-faint)]',
+          active ? 'text-[color:var(--ink)]' : 'text-[color:var(--ink-faint)]',
         )}
       >
         <t.icon size={20} />
@@ -108,7 +110,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
         whileTap={{ scale: 0.9 }}
         onClick={() => actions.setQuickAdd(true)}
         aria-label="Add reminder"
-        className="-mt-8 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[color:var(--accent)] text-white shadow-[0_8px_24px_rgba(124,111,255,0.45)]"
+        className="-mt-8 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[color:var(--accent)] text-[color:var(--accent-ink)] shadow-[0_8px_24px_rgba(124,111,255,0.45)]"
       >
         <Plus size={26} strokeWidth={2.5} />
       </motion.button>
@@ -118,7 +120,7 @@ function MobileTabBar({ onMore, moreActive }: { onMore: () => void; moreActive: 
         aria-label="More sections"
         className={cn(
           'flex min-h-11 min-w-14 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 transition-colors',
-          moreActive ? 'text-white' : 'text-[color:var(--ink-faint)]',
+          moreActive ? 'text-[color:var(--ink)]' : 'text-[color:var(--ink-faint)]',
         )}
       >
         <MoreHorizontal size={20} />
@@ -163,10 +165,10 @@ export function MobileLayout() {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex items-center gap-3 rounded-2xl px-3 py-3 text-left transition',
-                  active ? 'bg-[color:var(--surface-2)]' : 'bg-white/[0.06] hover:bg-white/[0.12]',
+                  active ? 'bg-[color:var(--surface-2)]' : 'bg-[color:var(--subtle)] hover:bg-[color:var(--hover)]',
                 )}
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)]">
                   <item.icon size={18} />
                 </span>
                 <span className="min-w-0 flex-1">

@@ -76,7 +76,7 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
         className={cn('card relative flex flex-col gap-3 px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)] md:flex-row md:items-center md:gap-3.5', overdue && 'border-[rgba(248,113,113,0.35)]')}
       >
         <div className="flex min-w-0 items-start gap-3.5 md:flex-1 md:items-center">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white/[0.05] text-[1rem]" aria-hidden>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[color:var(--subtle)] text-[1rem]" aria-hidden>
             {reminder.icon}
           </div>
           <div className="min-w-0 flex-1">
@@ -84,7 +84,7 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
               <span className="text-[0.88rem] font-semibold">{reminder.title}</span>
               {reminder.category === 'compliance' && <span className="badge bg-[rgba(248,113,113,0.16)] text-[color:var(--danger)]">Ack required</span>}
               {reminder.recurrence && (
-                <span className="badge bg-white/[0.06] text-[color:var(--ink-faint)]" title={describeRecurrence(reminder.recurrence)}>
+                <span className="badge bg-[color:var(--subtle)] text-[color:var(--ink-faint)]" title={describeRecurrence(reminder.recurrence)}>
                   <Repeat size={10} /> {describeRecurrence(reminder.recurrence).replace('Every ', '')}
                 </span>
               )}
@@ -97,7 +97,7 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
               onClick={() => actions.openEdit(reminder.id)}
               aria-label={`Edit ${reminder.title}`}
               title="Edit or delete"
-              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color:var(--ink-faint)] transition hover:bg-white/[0.08] hover:text-[color:var(--ink)]"
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color:var(--ink-faint)] transition hover:bg-[color:var(--hover)] hover:text-[color:var(--ink)]"
             >
               <Pencil size={14} />
             </button>

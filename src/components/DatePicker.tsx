@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 const startOfDay = (d: Date) => {
@@ -27,29 +27,46 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
   const gridStart = startOfWeek(new Date(month.getFullYear(), month.getMonth(), 1))
   const cells = Array.from({ length: 42 }, (_, i) => addDays(gridStart, i))
   const shift = (n: number) => setMonth(new Date(month.getFullYear(), month.getMonth() + n, 1))
+  const setYear = (y: number) => setMonth(new Date(y, month.getMonth(), 1))
+  // Birthdays, anniversaries and document dates go back decades; renewals go
+  // forward a few years. Anything outside is still reachable with the arrows.
+  const years = Array.from({ length: today.getFullYear() + 10 - 1900 + 1 }, (_, i) => 1900 + i).reverse()
+  const MONTHS = Array.from({ length: 12 }, (_, i) => new Intl.DateTimeFormat('en-NZ', { month: 'long' }).format(new Date(2000, i, 1)))
+  const navBtn = 'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[color:var(--ink-dim)] transition hover:bg-[color:var(--hover)] hover:text-[color:var(--ink)]'
+  const selectCls = 'cursor-pointer rounded-[8px] border border-transparent bg-transparent px-1.5 py-1 text-[0.86rem] font-bold text-[color:var(--ink)] outline-none hover:border-[color:var(--border-strong)] focus-visible:border-[color:var(--accent)]'
 
   return (
-    <div className="rounded-[14px] border border-[color:var(--border-strong)] bg-white/[0.06] p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => shift(-1)}
-          aria-label="Previous month"
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[color:var(--ink-dim)] transition hover:bg-white/[0.12] hover:text-white"
-        >
-          <ChevronLeft size={15} />
-        </button>
-        <span className="font-display text-[0.9rem] font-bold">
-          {new Intl.DateTimeFormat('en-NZ', { month: 'long', year: 'numeric' }).format(month)}
-        </span>
-        <button
-          type="button"
-          onClick={() => shift(1)}
-          aria-label="Next month"
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[color:var(--ink-dim)] transition hover:bg-white/[0.12] hover:text-white"
-        >
-          <ChevronRight size={15} />
-        </button>
+    <div className="rounded-[14px] border border-[color:var(--border-strong)] bg-[color:var(--subtle)] p-3">
+      <div className="mb-2 flex items-center justify-between gap-1">
+        <div className="flex items-center">
+          <button type="button" onClick={() => shift(-12)} aria-label="Previous year" className={navBtn}>
+            <ChevronsLeft size={15} />
+          </button>
+          <button type="button" onClick={() => shift(-1)} aria-label="Previous month" className={navBtn}>
+            <ChevronLeft size={15} />
+          </button>
+        </div>
+        <div className="font-display flex items-center gap-0.5">
+          <select aria-label="Month" value={month.getMonth()} onChange={e => setMonth(new Date(month.getFullYear(), Number(e.target.value), 1))} className={selectCls}>
+            {MONTHS.map((m, i) => (
+              <option key={m} value={i} className="bg-[color:var(--surface-2)]">{m}</option>
+            ))}
+          </select>
+          <select aria-label="Year" value={month.getFullYear()} onChange={e => setYear(Number(e.target.value))} className={selectCls}>
+            {!years.includes(month.getFullYear()) && <option value={month.getFullYear()}>{month.getFullYear()}</option>}
+            {years.map(y => (
+              <option key={y} value={y} className="bg-[color:var(--surface-2)]">{y}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center">
+          <button type="button" onClick={() => shift(1)} aria-label="Next month" className={navBtn}>
+            <ChevronRight size={15} />
+          </button>
+          <button type="button" onClick={() => shift(12)} aria-label="Next year" className={navBtn}>
+            <ChevronsRight size={15} />
+          </button>
+        </div>
       </div>
 
       <div className="mb-1 grid grid-cols-7 gap-1">
@@ -76,10 +93,10 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
                 'flex h-9 items-center justify-center rounded-[9px] text-[0.78rem] font-semibold transition',
                 !inMonth && 'opacity-30',
                 selected
-                  ? 'bg-[color:var(--accent)] text-white shadow-[0_2px_10px_rgba(124,111,255,0.5)]'
+                  ? 'bg-[color:var(--accent)] text-[color:var(--accent-ink)] shadow-[0_2px_10px_rgba(124,111,255,0.5)]'
                   : isToday
                     ? 'bg-[rgba(45,212,191,0.18)] text-[#7BE9D8] ring-1 ring-[color:var(--teal)]'
-                    : 'text-white hover:bg-white/[0.12]',
+                    : 'text-[color:var(--ink)] hover:bg-[color:var(--hover)]',
               )}
             >
               {d.getDate()}
@@ -99,7 +116,7 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
             onChange(today)
             setMonth(new Date(today.getFullYear(), today.getMonth(), 1))
           }}
-          className="cursor-pointer font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+          className="cursor-pointer font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--ink)]"
         >
           Jump to today
         </button>

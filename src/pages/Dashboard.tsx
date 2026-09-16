@@ -9,6 +9,7 @@ import { useIsMobile } from '../lib/useIsMobile'
 import { useNotifications } from '../lib/useNotifications'
 import { hydratePremium } from '../lib/usePremium'
 import { hydratePreferences } from '../lib/usePreferences'
+import { useTheme } from '../lib/useTheme'
 import { hydrateWorkspace } from '../lib/useWorkspace'
 import { StoreProvider, useStore } from '../store'
 
@@ -34,6 +35,8 @@ function Shell() {
 }
 
 export default function Dashboard() {
+  // Applies data-theme; the CSS only honours it under data-app.
+  useTheme()
   // The dashboard uses the flat theme; marketing pages keep the aurora.
   useEffect(() => {
     document.documentElement.setAttribute('data-app', '')

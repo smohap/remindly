@@ -71,7 +71,7 @@ export function UpgradeView() {
               <div className="flex items-center justify-between">
                 <span className="font-display text-[1rem] font-bold">{p.name}</span>
                 {isCurrent && <span className="badge bg-[color:var(--accent-soft)] text-[color:var(--accent)]">Current</span>}
-                {!isCurrent && p.highlight && <span className="badge bg-white/[0.08] text-[color:var(--ink-dim)]">Popular</span>}
+                {!isCurrent && p.highlight && <span className="badge bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">Popular</span>}
               </div>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="font-display text-[1.7rem] font-extrabold">{p.priceLabel}</span>

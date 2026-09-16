@@ -9,7 +9,7 @@ import { DatePicker } from './DatePicker'
 import { SnoozeOptions } from './SnoozeOptions'
 
 const FIELD =
-  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const LABEL = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
 const CATEGORIES: { value: Category; label: string }[] = [
@@ -71,7 +71,7 @@ function NewReminderForm() {
 
       <div className="mt-3">
         <label className={LABEL}>
-          Date — <span className="text-white">{new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' }).format(date)}</span>
+          Date — <span className="text-[color:var(--ink)]">{new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' }).format(date)}</span>
         </label>
         <DatePicker value={date} onChange={setDate} />
       </div>
@@ -96,7 +96,7 @@ function NewReminderForm() {
               type="button"
               onClick={() => setCategory(c.value)}
               aria-pressed={category === c.value}
-              className={cn('rounded-[10px] px-3 py-1.5 text-[0.78rem] font-semibold transition', category === c.value ? 'bg-[color:var(--accent-soft)] text-[color:var(--accent)]' : 'bg-white/[0.06] text-[color:var(--ink-dim)] hover:text-white')}
+              className={cn('rounded-[10px] px-3 py-1.5 text-[0.78rem] font-semibold transition', category === c.value ? 'bg-[color:var(--accent-soft)] text-[color:var(--accent)]' : 'bg-[color:var(--subtle)] text-[color:var(--ink-dim)] hover:text-[color:var(--ink)]')}
             >
               {c.label}
             </button>
@@ -106,7 +106,7 @@ function NewReminderForm() {
 
       {error && <p className="mt-3 text-[0.78rem] text-[color:var(--danger)]">{error}</p>}
 
-      <button type="submit" className="mt-4 w-full cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-white">
+      <button type="submit" className="mt-4 w-full cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-[color:var(--accent-ink)]">
         Add reminder
       </button>
       <p className="mt-2 text-center text-[0.7rem] text-[color:var(--ink-faint)]">Or type it naturally in the bar at the top — "gym every weekday at 6am".</p>
@@ -138,7 +138,7 @@ function EditReminderForm({ id }: { id: string }) {
   }
 
   const field =
-    'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+    'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
   const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
   return (
@@ -160,7 +160,7 @@ function EditReminderForm({ id }: { id: string }) {
 
       <div className="mt-3">
         <label className={labelCls}>
-          Date — <span className="text-white">{new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date)}</span>
+          Date — <span className="text-[color:var(--ink)]">{new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date)}</span>
         </label>
         <DatePicker value={date} onChange={setDate} />
       </div>
@@ -177,13 +177,13 @@ function EditReminderForm({ id }: { id: string }) {
       </div>
 
       <div className="mt-4 flex gap-2">
-        <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-white">
+        <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-[color:var(--accent-ink)]">
           Save changes
         </button>
         <button
           type="button"
           onClick={() => (confirmDelete ? actions.remove(id) : setConfirmDelete(true))}
-          className="cursor-pointer rounded-full border border-[rgba(255,107,107,0.45)] bg-white/[0.06] px-4 py-3 text-[0.82rem] font-semibold text-[color:var(--red)] transition hover:bg-[rgba(255,107,107,0.14)]"
+          className="cursor-pointer rounded-full border border-[rgba(255,107,107,0.45)] bg-[color:var(--subtle)] px-4 py-3 text-[0.82rem] font-semibold text-[color:var(--red)] transition hover:bg-[rgba(255,107,107,0.14)]"
         >
           {confirmDelete ? 'Tap again to delete' : 'Delete'}
         </button>

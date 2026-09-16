@@ -54,13 +54,13 @@ function Row({ entry, onOpen, onRead }: { entry: ActivityEntry; onOpen?: () => v
         !entry.read && 'border-l-2 border-l-[color:var(--accent)]',
       )}
     >
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-white/[0.05] text-[color:var(--ink-dim)]">
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-[color:var(--subtle)] text-[color:var(--ink-dim)]">
         <Icon size={15} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span className={cn('truncate text-[0.88rem]', entry.read ? 'font-medium' : 'font-semibold')}>{entry.title}</span>
-          <span className="badge bg-white/[0.06] text-[color:var(--ink-faint)]">{KIND_LABEL[entry.kind]}</span>
+          <span className="badge bg-[color:var(--subtle)] text-[color:var(--ink-faint)]">{KIND_LABEL[entry.kind]}</span>
         </span>
         {entry.detail && <span className="mt-0.5 block truncate text-[0.75rem] text-[color:var(--ink-faint)]">{entry.detail}</span>}
       </span>

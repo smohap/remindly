@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { BarChart3, Compass, Crown, Layers, Mail, ScrollText, ShieldAlert, ShieldCheck, Siren, UserMinus, Users } from 'lucide-react'
+import { BarChart3, Compass, Crown, Layers, Mail, ScrollText, ShieldAlert, ShieldCheck, Siren, Trash2, UserMinus, Users } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { ROLE_LABEL, useAdminData, useMyRole, type AdminMember, type UserRole } from '../lib/useAdmin'
 import { useCompliance } from '../lib/useBusiness'
 import { useStore } from '../store'
+import { useAuth } from '../auth/AuthContext'
+import { currentUserId } from '../lib/invoicesDb'
 import { AdminDiscoverPanel } from './AdminDiscoverPanel'
 
 type Tab = 'people' | 'groups' | 'discover' | 'compliance' | 'analytics' | 'audit'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110'
 
 const ROLE_STYLE: Record<UserRole, string> = {
   super_admin: 'bg-[rgba(251,191,36,0.18)] text-[#FCD770]',
   group_admin: 'bg-[rgba(124,111,255,0.22)] text-[#C6BFFF]',
-  user: 'bg-white/[0.12] text-[color:var(--ink-dim)]',
+  user: 'bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]',
 }
 
 const ACTION_LABEL: Record<string, string> = {
@@ -33,7 +35,13 @@ function fmtWhen(iso: string) {
 
 export function AdminView() {
   const { role, isAdmin, isSuperAdmin, loading: roleLoading, dbMode } = useMyRole()
-  const { people, groups, audit, loading, error, setUserRole, membersOf, setMemberRole, removeMember, inviteToGroup } = useAdminData()
+  const { people, groups, audit, loading, error, setUserRole, removeUser, membersOf, setMemberRole, removeMember, inviteToGroup } = useAdminData()
+  const { user } = useAuth()
+  const [myId, setMyId] = useState<string | null>(null)
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  useEffect(() => {
+    void currentUserId().then(id => setMyId(id ?? user?.id ?? null))
+  }, [user])
   const [tab, setTab] = useState<Tab>('people')
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -49,7 +57,7 @@ export function AdminView() {
   if (!isAdmin) {
     return (
       <div className="card flex flex-col items-center gap-3 px-6 py-14 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.12] text-[color:var(--ink-dim)]">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">
           <ShieldAlert size={20} />
         </span>
         <h3 className="font-display text-[1.1rem] font-bold">Admin access required</h3>
@@ -109,7 +117,7 @@ export function AdminView() {
               onClick={() => setTab(t.key)}
               className={cn(
                 'relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.78rem] font-semibold transition-colors',
-                active ? 'text-white' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]',
+                active ? 'text-[color:var(--ink)]' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]',
               )}
             >
               {active && (
@@ -158,12 +166,30 @@ export function AdminView() {
                     flash(err ? `Couldn't change ${p.name}'s role — ${err}` : `${p.name} is now ${ROLE_LABEL[next]}`)
                   }}
                   aria-label={`Role for ${p.name}`}
-                  className="shrink-0 rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-white outline-none"
+                  className="shrink-0 rounded-[10px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2.5 py-1.5 text-[0.72rem] text-[color:var(--ink)] outline-none"
                 >
                   <option value="user" className="bg-[color:var(--surface-2)]">User</option>
                   <option value="group_admin" className="bg-[color:var(--surface-2)]">Group Admin</option>
                   <option value="super_admin" className="bg-[color:var(--surface-2)]">Super Admin</option>
                 </select>
+              )}
+              {isSuperAdmin && p.id !== myId && (
+                <button
+                  onClick={async () => {
+                    if (confirmRemove !== p.id) {
+                      setConfirmRemove(p.id)
+                      return
+                    }
+                    setConfirmRemove(null)
+                    const err = await removeUser(p.id, p.name)
+                    flash(err ? `Couldn't remove ${p.name} — ${err}` : `${p.name}'s account was removed`)
+                  }}
+                  onBlur={() => setConfirmRemove(null)}
+                  aria-label={`Remove ${p.name}`}
+                  className={cn('btn-ghost shrink-0 px-2.5 py-1.5 text-[0.72rem]', confirmRemove === p.id ? 'btn-danger border-[rgba(248,113,113,0.5)]' : 'btn-danger')}
+                >
+                  <Trash2 size={13} /> {confirmRemove === p.id ? 'Confirm removal' : 'Remove'}
+                </button>
               )}
             </div>
           ))}
@@ -282,7 +308,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                       escalateFurther(e.id)
                       onNotice(`${e.reminderTitle} escalated to Super Admin`)
                     }}
-                    className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+                    className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--ink)]"
                   >
                     Escalate further
                   </button>
@@ -320,7 +346,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                   type="number" min={1} max={168} value={p.escalateAfterHours}
                   onChange={e => updatePolicy(p.groupId, { escalateAfterHours: Number(e.target.value) })}
                   disabled={!p.complianceEnabled}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2.5 py-1.5 text-[color:var(--ink)] outline-none disabled:opacity-50"
                 />
               </label>
               <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
@@ -329,7 +355,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                   type="number" min={1} max={336} value={p.secondHopHours}
                   onChange={e => updatePolicy(p.groupId, { secondHopHours: Number(e.target.value) })}
                   disabled={!p.complianceEnabled}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2.5 py-1.5 text-[color:var(--ink)] outline-none disabled:opacity-50"
                 />
               </label>
               <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
@@ -337,12 +363,12 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                 <input
                   type="number" min={0} max={10080} value={p.defaultLeadMinutes}
                   onChange={e => updatePolicy(p.groupId, { defaultLeadMinutes: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2.5 py-1.5 text-[color:var(--ink)] outline-none"
                 />
               </label>
             </div>
 
-            <label className="flex items-center gap-2 border-t border-white/10 pt-3 text-[0.78rem]">
+            <label className="flex items-center gap-2 border-t border-[color:var(--border)] pt-3 text-[0.78rem]">
               <input
                 type="checkbox"
                 checked={p.membersMayCreate}
@@ -408,7 +434,7 @@ function AnalyticsPanel() {
                   {c.done}/{c.total} · {c.pct}%
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-white/[0.12]">
+              <div className="h-2 overflow-hidden rounded-full bg-[color:var(--subtle-2)]">
                 <div className="h-full rounded-full transition-all" style={{ width: `${c.pct}%`, background: CAT_COLOR[c.category] }} />
               </div>
             </div>
@@ -495,7 +521,7 @@ function GroupAdminRow({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-white/10"
+            className="overflow-hidden border-t border-[color:var(--border)]"
           >
             <div className="flex flex-col gap-2 px-[18px] py-4">
               {members.length === 0 && <p className="text-[0.78rem] text-[color:var(--ink-faint)]">No members loaded.</p>}
@@ -519,7 +545,7 @@ function GroupAdminRow({
                           refresh()
                         }}
                         aria-label={`Group role for ${m.name}`}
-                        className="shrink-0 rounded-[9px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2 py-1 text-[0.7rem] text-white outline-none"
+                        className="shrink-0 rounded-[9px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2 py-1 text-[0.7rem] text-[color:var(--ink)] outline-none"
                       >
                         <option value="member" className="bg-[color:var(--surface-2)]">Member</option>
                         <option value="admin" className="bg-[color:var(--surface-2)]">Admin</option>
@@ -550,7 +576,7 @@ function GroupAdminRow({
                     onNotice(err ? `Invite failed — ${err}` : `Invitation created for ${email}`)
                     if (!err) setEmail('')
                   }}
-                  className="mt-2 flex flex-wrap gap-2 border-t border-white/10 pt-3"
+                  className="mt-2 flex flex-wrap gap-2 border-t border-[color:var(--border)] pt-3"
                 >
                   <input
                     type="email"
@@ -564,7 +590,7 @@ function GroupAdminRow({
                     value={inviteRole}
                     onChange={e => setInviteRole(e.target.value as 'admin' | 'member')}
                     aria-label="Invite as"
-                    className="rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3 py-2 text-[0.75rem] text-white outline-none"
+                    className="rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3 py-2 text-[0.75rem] text-[color:var(--ink)] outline-none"
                   >
                     <option value="member" className="bg-[color:var(--surface-2)]">as Member</option>
                     <option value="admin" className="bg-[color:var(--surface-2)]">as Admin</option>

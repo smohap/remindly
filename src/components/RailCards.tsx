@@ -38,7 +38,7 @@ export function WeekStripCard() {
             <span>{d.letter}</span>
             <span
               className={cn(
-                'flex h-[30px] w-[30px] items-center justify-center rounded-full text-[0.75rem] font-bold text-white',
+                'flex h-[30px] w-[30px] items-center justify-center rounded-full text-[0.75rem] font-bold text-[color:var(--ink)]',
                 d.isToday && 'bg-[color:var(--accent)] shadow-[0_0_14px_rgba(124,111,255,0.5)]',
               )}
             >
@@ -48,7 +48,7 @@ export function WeekStripCard() {
           </div>
         ))}
       </div>
-      <div className="rounded-[12px] bg-white/[0.07] p-3 text-[0.75rem]">
+      <div className="rounded-[12px] bg-[color:var(--subtle)] p-3 text-[0.75rem]">
         <div className="mb-1 text-[0.65rem] uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">Next up</div>
         <div className="font-bold">{derived.nextUp ? `${derived.nextUp.title} · ${derived.nextUp.time} today` : 'Nothing more today'}</div>
       </div>

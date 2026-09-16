@@ -200,6 +200,32 @@ export function useAdminData() {
     [load],
   )
 
+  /** Super Admin only. Removes the auth account; the profile cascades. */
+  const removeUser = useCallback(
+    async (userId: string, name: string): Promise<string | null> => {
+      if (!supabase) return 'Connect Supabase to remove accounts.'
+      const { data } = await supabase.auth.getSession()
+      const token = data.session?.access_token
+      if (!token) return 'Sign in again to continue.'
+      try {
+        const res = await fetch('/api/admin-delete-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ userId }),
+        })
+        const body = (await res.json().catch(() => ({}))) as { error?: string }
+        if (res.status === 503) return 'Account removal needs SUPABASE_SERVICE_ROLE_KEY on the server.'
+        if (!res.ok) return body.error ?? `Request failed (${res.status})`
+      } catch (e) {
+        return e instanceof Error ? e.message : 'Network error'
+      }
+      await recordAudit('user.removed', 'profile', userId, { name })
+      await load()
+      return null
+    },
+    [load],
+  )
+
   const membersOf = useCallback(async (groupId: string): Promise<AdminMember[]> => {
     if (!supabase) return []
     const { data } = await supabase
@@ -262,5 +288,5 @@ export function useAdminData() {
     [load],
   )
 
-  return { people, groups, audit, loading, error, reload: load, setUserRole, membersOf, setMemberRole, removeMember, inviteToGroup }
+  return { people, groups, audit, loading, error, reload: load, setUserRole, removeUser, membersOf, setMemberRole, removeMember, inviteToGroup }
 }

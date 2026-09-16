@@ -13,12 +13,12 @@ import {
 } from '../lib/useInvoices'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110'
 const ghostBtn =
-  'cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white'
+  'cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--ink)]'
 
 type Role = 'received' | 'sent'
 type Filter = 'all' | 'pending' | 'overdue' | 'paid' | 'rejected' | 'cancelled'
@@ -119,7 +119,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
         <div className="relative">
           <span className={labelCls}>Send to</span>
           {picked ? (
-            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3 py-2">
+            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3 py-2">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold">
                 {picked.name.slice(0, 2).toUpperCase()}
               </span>
@@ -128,7 +128,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
                 {picked.email && <div className="truncate text-[0.68rem] text-[color:var(--ink-faint)]">{picked.email}</div>}
               </div>
               <button type="button" aria-label="Clear recipient" onClick={() => { setPicked(null); setQuery('') }}
-                className="shrink-0 cursor-pointer text-[color:var(--ink-faint)] transition hover:text-white">
+                className="shrink-0 cursor-pointer text-[color:var(--ink-faint)] transition hover:text-[color:var(--ink)]">
                 <X size={15} />
               </button>
             </div>
@@ -153,7 +153,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
                       <button
                         type="button"
                         onClick={() => { setPicked(r); setResults([]); setError(null) }}
-                        className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-3 py-2 text-left transition hover:bg-white/[0.12]"
+                        className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-3 py-2 text-left transition hover:bg-[color:var(--hover)]"
                       >
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold">
                           {r.name.slice(0, 2).toUpperCase()}
@@ -204,7 +204,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
         </label>
       </div>
 
-      <div className="border-t border-white/10 pt-4">
+      <div className="border-t border-[color:var(--border)] pt-4">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-[0.78rem] font-bold">
             Line items <span className="font-normal text-[color:var(--ink-faint)]">(optional)</span>
@@ -212,7 +212,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
           <button
             type="button"
             onClick={() => setItems([...items, { id: `li-${Date.now()}`, name: '', qty: 1, unitPriceCents: 0 }])}
-            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-white/[0.1] px-3 py-1.5 text-[0.72rem] font-semibold transition hover:bg-white/[0.18]"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--subtle-2)] px-3 py-1.5 text-[0.72rem] font-semibold transition hover:bg-[color:var(--hover)]"
           >
             <Plus size={13} /> Add item
           </button>
@@ -282,7 +282,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
 
   return (
     <div className="flex flex-col gap-[18px]">
-      <button onClick={onBack} className="flex w-fit cursor-pointer items-center gap-1.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white">
+      <button onClick={onBack} className="flex w-fit cursor-pointer items-center gap-1.5 text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-[color:var(--ink)]">
         <ArrowLeft size={15} /> Back to invoices
       </button>
 
@@ -306,7 +306,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         </div>
 
         {invoice.lineItems.length > 0 && (
-          <div className="overflow-x-auto border-t border-white/10 pt-3">
+          <div className="overflow-x-auto border-t border-[color:var(--border)] pt-3">
             <table className="w-full text-[0.82rem]">
               <thead>
                 <tr className="text-[0.68rem] uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">
@@ -331,7 +331,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         )}
 
         {invoice.resolutionComment && (
-          <div className="rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.06] p-3 text-[0.8rem]">
+          <div className="rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle)] p-3 text-[0.8rem]">
             <span className="font-semibold">{invoice.status === 'rejected' ? 'Reason for rejection: ' : 'Note: '}</span>
             <span className="text-[color:var(--ink-dim)]">{invoice.resolutionComment}</span>
           </div>
@@ -340,18 +340,18 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         {error && <p className="text-[0.8rem] text-[color:var(--red)]">{error}</p>}
 
         {open && amIRecipient && mode === 'none' && (
-          <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
+          <div className="flex flex-wrap gap-2 border-t border-[color:var(--border)] pt-4">
             <button onClick={() => setMode('pay')} className="flex cursor-pointer items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,#2DD4BF,#1FA895)] px-4 py-2.5 text-[0.8rem] font-bold text-[#0c2b26] transition hover:brightness-110">
               <Check size={14} /> Mark as paid
             </button>
-            <button onClick={() => setMode('reject')} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[rgba(255,107,107,0.4)] bg-white/[0.06] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--red)] transition hover:bg-[rgba(255,107,107,0.12)]">
+            <button onClick={() => setMode('reject')} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[rgba(255,107,107,0.4)] bg-[color:var(--subtle)] px-4 py-2.5 text-[0.8rem] font-semibold text-[color:var(--red)] transition hover:bg-[rgba(255,107,107,0.12)]">
               <Ban size={14} /> Reject
             </button>
           </div>
         )}
 
         {open && amISender && (
-          <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
+          <div className="flex flex-wrap gap-2 border-t border-[color:var(--border)] pt-4">
             <button onClick={() => run(() => cancel(invoice.id, actor))} className={cn(ghostBtn, 'flex items-center gap-1.5')}>
               <Ban size={14} /> Cancel invoice
             </button>
@@ -360,7 +360,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         )}
 
         {mode === 'pay' && (
-          <div className="flex flex-col gap-3 border-t border-white/10 pt-4">
+          <div className="flex flex-col gap-3 border-t border-[color:var(--border)] pt-4">
             <p className="text-[0.85rem] font-semibold">Mark {money(invoice.amountCents, invoice.currency)} as paid?</p>
             <input value={comment} onChange={e => setComment(e.target.value)} placeholder="Optional note (e.g. paid via bank transfer)" className={field} />
             <div className="flex gap-2">
@@ -371,7 +371,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         )}
 
         {mode === 'reject' && (
-          <div className="flex flex-col gap-3 border-t border-white/10 pt-4">
+          <div className="flex flex-col gap-3 border-t border-[color:var(--border)] pt-4">
             <p className="text-[0.85rem] font-semibold">Reject this invoice</p>
             <textarea
               value={comment}
@@ -428,10 +428,10 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
 
         <form
           onSubmit={e => { e.preventDefault(); addComment(invoice.id, note, actor); setNote('') }}
-          className="mt-4 flex gap-2 border-t border-white/10 pt-4"
+          className="mt-4 flex gap-2 border-t border-[color:var(--border)] pt-4"
         >
           <input value={note} onChange={e => setNote(e.target.value)} placeholder="Add a comment…" aria-label="Add a comment" className={cn(field, 'rounded-full py-2')} />
-          <button type="submit" className="shrink-0 cursor-pointer rounded-full bg-white/[0.12] px-4 py-2 text-[0.75rem] font-bold transition hover:bg-white/[0.2]">Post</button>
+          <button type="submit" className="shrink-0 cursor-pointer rounded-full bg-[color:var(--subtle-2)] px-4 py-2 text-[0.75rem] font-bold transition hover:bg-[color:var(--hover)]">Post</button>
         </form>
       </div>
 
@@ -519,7 +519,7 @@ export function InvoicesView() {
           <button
             key={f} onClick={() => setFilter(f)}
             className={cn('shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-[0.75rem] font-semibold capitalize transition',
-              filter === f ? 'bg-[color:var(--surface-2)] text-white ' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]')}
+              filter === f ? 'bg-[color:var(--surface-2)] text-[color:var(--ink)] ' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]')}
           >
             {f}
           </button>
@@ -536,8 +536,8 @@ export function InvoicesView() {
         </div>
       ) : (
         list.map(inv => (
-          <button key={inv.id} onClick={() => setOpenId(inv.id)} className="card flex items-center gap-3.5 px-[18px] py-4 text-left transition hover:bg-white/[0.13]">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🧾</span>
+          <button key={inv.id} onClick={() => setOpenId(inv.id)} className="card flex items-center gap-3.5 px-[18px] py-4 text-left transition hover:bg-[color:var(--hover)]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)] text-base">🧾</span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[0.9rem] font-bold">{inv.number}</span>

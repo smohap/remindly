@@ -10,14 +10,14 @@ export function SnoozeOptions({ reminder, onPick }: { reminder: Reminder; onPick
         <button
           key={option.key}
           onClick={() => onPick(option.key)}
-          className="flex cursor-pointer items-center justify-between rounded-[10px] px-3 py-2.5 text-left text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:bg-white/[0.08] hover:text-white"
+          className="flex cursor-pointer items-center justify-between rounded-[10px] px-3 py-2.5 text-left text-[0.8rem] font-semibold text-[color:var(--ink-dim)] transition hover:bg-[color:var(--hover)] hover:text-[color:var(--ink)]"
         >
           <span>{option.label}</span>
           <span className="text-[0.7rem] font-normal text-[color:var(--ink-faint)]">{option.hint}</span>
         </button>
       ))}
       {reminder.category === 'compliance' && (
-        <p className="mt-1 border-t border-white/10 px-3 pt-2 text-[0.65rem] leading-relaxed text-[color:var(--ink-faint)]">
+        <p className="mt-1 border-t border-[color:var(--border)] px-3 pt-2 text-[0.65rem] leading-relaxed text-[color:var(--ink-faint)]">
           Compliance reminders can't be snoozed past today.
         </p>
       )}

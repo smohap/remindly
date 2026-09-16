@@ -14,10 +14,10 @@ import {
 type Tab = 'certs' | 'contracts' | 'finance'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 const primaryBtn =
-  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-white transition hover:brightness-110'
+  'cursor-pointer rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-[0.8rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110'
 
 function Chip({ date, warnDays = 30 }: { date: string; warnDays?: number }) {
   const h = healthOf(date, warnDays)
@@ -70,7 +70,7 @@ export function BusinessView() {
               onClick={() => setTab(t.key)}
               className={cn(
                 'relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.78rem] font-semibold transition-colors',
-                active ? 'text-white' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]',
+                active ? 'text-[color:var(--ink)]' : 'text-[color:var(--ink-faint)] hover:text-[color:var(--ink-dim)]',
               )}
             >
               {active && (
@@ -162,7 +162,7 @@ function CertsTab() {
 
       {items.map(c => (
         <div key={c.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🎓</span>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)] text-base">🎓</span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[0.9rem] font-bold">{c.staffName}</div>
             <div className="truncate text-[0.74rem] text-[color:var(--ink-faint)]">
@@ -248,12 +248,12 @@ function ContractsTab() {
         return (
           <div key={c.id} className="card group flex flex-col gap-2 px-[18px] py-3.5">
             <div className="flex items-center gap-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">📄</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)] text-base">📄</span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="truncate text-[0.9rem] font-bold">{c.counterparty}</span>
                   {c.autoRenew && (
-                    <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.58rem] font-bold text-[color:var(--ink-dim)]">
+                    <span className="rounded-full bg-[color:var(--subtle-2)] px-2 py-[1px] text-[0.58rem] font-bold text-[color:var(--ink-dim)]">
                       Auto-renew
                     </span>
                   )}
@@ -338,7 +338,7 @@ function FinanceTab() {
         const due = nextDue(d)
         return (
           <div key={d.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-base">🧾</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)] text-base">🧾</span>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[0.9rem] font-bold">{d.label}</div>
               <div className="truncate text-[0.74rem] text-[color:var(--ink-faint)]">

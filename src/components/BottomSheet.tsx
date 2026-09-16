@@ -46,7 +46,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
               if (info.offset.y > 90 || info.velocity.y > 500) onClose()
             }}
           >
-            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-white/30" aria-hidden />
+            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-[color:var(--ink-faint)]" aria-hidden />
             {children}
           </motion.div>
         </>

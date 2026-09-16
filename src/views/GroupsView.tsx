@@ -9,7 +9,7 @@ import { GROUP_COLORS, useGroups } from '../lib/useGroups'
 
 export function GroupsView() {
   const { can } = usePlan()
-  const { groups, createGroup, addMember, removeMember, deleteGroup } = useGroups()
+  const { groups, createGroup, addMember, removeMember, deleteGroup, error, loading } = useGroups()
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [color, setColor] = useState(GROUP_COLORS[0])
@@ -25,11 +25,14 @@ export function GroupsView() {
         </div>
         <button
           onClick={() => setCreating(v => !v)}
-          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-white transition hover:brightness-110"
+          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110"
         >
           <Plus size={15} /> New group
         </button>
       </div>
+
+      {error && <p className="px-1 text-[0.78rem] text-[color:var(--danger)]">{error}</p>}
+      {loading && <p className="px-1 text-[0.78rem] text-[color:var(--ink-faint)]">Loading your groups…</p>}
 
       <AnimatePresence>
         {creating && (
@@ -55,7 +58,7 @@ export function GroupsView() {
                 onChange={e => setName(e.target.value)}
                 placeholder="Group name (e.g. North Shore Crew)"
                 required
-                className="w-full rounded-[14px] border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                className="w-full rounded-[14px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-3 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
               />
               <div className="flex items-center gap-2">
                 <span className="text-[0.75rem] text-[color:var(--ink-dim)]">Colour</span>
@@ -71,10 +74,10 @@ export function GroupsView() {
                 ))}
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">
+                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-[color:var(--accent-ink)]">
                   Create group
                 </button>
-                <button type="button" onClick={() => setCreating(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">
+                <button type="button" onClick={() => setCreating(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">
                   Cancel
                 </button>
               </div>
@@ -94,7 +97,7 @@ export function GroupsView() {
               <div className="flex items-center gap-2">
                 <span className="truncate text-[0.9rem] font-bold">{g.name}</span>
                 {g.role === 'admin' && (
-                  <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.58rem] font-bold text-[color:var(--ink-dim)]">Admin</span>
+                  <span className="rounded-full bg-[color:var(--subtle-2)] px-2 py-[1px] text-[0.58rem] font-bold text-[color:var(--ink-dim)]">Admin</span>
                 )}
               </div>
               <div className="text-[0.75rem] text-[color:var(--ink-faint)]">
@@ -117,7 +120,7 @@ export function GroupsView() {
 
           <AnimatePresence>
             {selectedId === g.id && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden border-t border-white/10">
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden border-t border-[color:var(--border)]">
                 <div className="flex flex-col gap-2 px-[18px] py-4">
                   {g.members.map(m => (
                     <div key={m.id} className="flex items-center gap-3">
@@ -147,14 +150,14 @@ export function GroupsView() {
                       value={selectedId === g.id ? memberInput : ''}
                       onChange={e => setMemberInput(e.target.value)}
                       placeholder="Add member by email…"
-                      className="min-w-0 flex-1 rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.82rem]"
+                      className="min-w-0 flex-1 rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.82rem]"
                     />
-                    <button type="submit" className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-white/[0.12] px-4 py-2.5 text-[0.78rem] font-bold text-white transition hover:bg-white/[0.2]">
+                    <button type="submit" className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--subtle-2)] px-4 py-2.5 text-[0.78rem] font-bold text-[color:var(--ink)] transition hover:bg-[color:var(--hover)]">
                       <UserPlus size={15} /> Add
                     </button>
                   </form>
 
-                  <div className="mt-3 border-t border-white/10 pt-3">
+                  <div className="mt-3 border-t border-[color:var(--border)] pt-3">
                     <div className="mb-2.5 flex items-center gap-2">
                       <MessageSquare size={14} className="text-[color:var(--ink-dim)]" />
                       <span className="text-[0.8rem] font-bold">Group chat</span>

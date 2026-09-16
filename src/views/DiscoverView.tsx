@@ -33,7 +33,7 @@ export function DiscoverView() {
           onChange={e => setQuery(e.target.value)}
           placeholder="Search events to subscribe…"
           aria-label="Search events"
-          className="w-full bg-transparent text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] md:text-[0.85rem]"
+          className="w-full bg-transparent text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] md:text-[0.85rem]"
         />
       </div>
       {filtered.map(event => {
@@ -44,13 +44,13 @@ export function DiscoverView() {
         return (
           <div key={event.id} className="card flex flex-col gap-3 px-[18px] py-4 md:flex-row md:items-center md:gap-3.5">
             <div className="flex min-w-0 items-start gap-3.5 md:flex-1 md:items-center">
-              <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[12px] bg-white/[0.06] text-[1.05rem]" aria-hidden>
+              <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle)] text-[1.05rem]" aria-hidden>
                 {event.icon}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[0.9rem] font-bold">{event.title}</span>
-                  <span className="badge bg-white/[0.08] text-[color:var(--ink-dim)]">{event.scope}</span>
+                  <span className="badge bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">{event.scope}</span>
                 </div>
                 <div className="mt-[3px] text-[0.75rem] text-[color:var(--ink-faint)]">{[when, event.meta].filter(Boolean).join(' — ')}</div>
               </div>

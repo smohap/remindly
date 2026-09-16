@@ -11,7 +11,7 @@ import { planLabel } from '../lib/plans'
 import { usePlan } from '../lib/usePlan'
 
 const field =
-  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelCls = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
 function Stat({ value, label }: { value: number | string; label: string }) {
@@ -66,7 +66,7 @@ export function ProfileView() {
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-display truncate text-[1.4rem] font-bold">{f.displayName || user?.name || 'Your name'}</h2>
             {isPremium && (
-              <span className="flex items-center gap-1 rounded-full bg-[color:var(--accent)] px-2.5 py-[2px] text-[0.6rem] font-bold text-white">
+              <span className="flex items-center gap-1 rounded-full bg-[color:var(--accent)] px-2.5 py-[2px] text-[0.6rem] font-bold text-[color:var(--accent-ink)]">
                 <Sparkles size={10} /> {planLabel(plan)}
               </span>
             )}
@@ -79,9 +79,9 @@ export function ProfileView() {
           )}
           {f.bio && <p className="mt-2 max-w-lg text-[0.82rem] leading-relaxed text-[color:var(--ink-dim)]">{f.bio}</p>}
           <div className="mt-2 flex flex-wrap gap-2 text-[0.72rem] text-[color:var(--ink-faint)]">
-            {f.location && <span className="rounded-full bg-white/[0.08] px-2.5 py-1">📍 {f.location}</span>}
-            <span className="rounded-full bg-white/[0.08] px-2.5 py-1">🕓 {f.timezone.replace('_', ' ')}</span>
-            <span className="rounded-full bg-white/[0.08] px-2.5 py-1">🌐 {f.language}</span>
+            {f.location && <span className="rounded-full bg-[color:var(--subtle-2)] px-2.5 py-1">📍 {f.location}</span>}
+            <span className="rounded-full bg-[color:var(--subtle-2)] px-2.5 py-1">🕓 {f.timezone.replace('_', ' ')}</span>
+            <span className="rounded-full bg-[color:var(--subtle-2)] px-2.5 py-1">🌐 {f.language}</span>
           </div>
         </div>
       </div>
@@ -125,7 +125,7 @@ export function ProfileView() {
           </label>
         </div>
 
-        <div className="border-t border-white/10 pt-5">
+        <div className="border-t border-[color:var(--border)] pt-5">
           <h3 className="font-display mb-3 text-[0.95rem] font-bold">Work</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <label>
@@ -143,7 +143,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-5">
+        <div className="border-t border-[color:var(--border)] pt-5">
           <h3 className="font-display mb-3 text-[0.95rem] font-bold">Locale & preferences</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <label>
@@ -177,8 +177,8 @@ export function ProfileView() {
                     className={cn(
                       'flex-1 cursor-pointer rounded-full px-3 py-2.5 text-[0.8rem] font-semibold capitalize transition',
                       f.weekStart === d
-                        ? 'bg-[color:var(--surface-2)] text-white '
-                        : 'border border-[color:var(--border-strong)] bg-white/[0.06] text-[color:var(--ink-faint)]',
+                        ? 'bg-[color:var(--surface-2)] text-[color:var(--ink)] '
+                        : 'border border-[color:var(--border-strong)] bg-[color:var(--subtle)] text-[color:var(--ink-faint)]',
                     )}
                   >
                     {d}
@@ -189,7 +189,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        <button type="submit" className="flex items-center justify-center gap-2 self-start rounded-full bg-[color:var(--accent)] px-6 py-2.5 text-[0.85rem] font-bold text-white transition hover:brightness-110">
+        <button type="submit" className="flex items-center justify-center gap-2 self-start rounded-full bg-[color:var(--accent)] px-6 py-2.5 text-[0.85rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110">
           {saved ? (<><Check size={15} /> Saved</>) : 'Save changes'}
         </button>
       </form>

@@ -24,7 +24,7 @@ const SEGMENTS = ['invoices', 'subscriptions', 'renewals'] as const
 
 
 const fieldClass =
-  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
 const labelClass = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
 
 function CountdownChip({ days }: { days: number }) {
@@ -73,7 +73,7 @@ function VaultSection() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between px-1">
         <p className="text-[0.8rem] text-[color:var(--ink-dim)]">Track expiries for documents and policies — reminders fire ahead of each renewal.</p>
-        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-white transition hover:brightness-110">
+        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110">
           <Plus size={15} /> Add item
         </button>
       </div>
@@ -105,8 +105,8 @@ function VaultSection() {
                 <input value={label} onChange={e => setLabel(e.target.value)} placeholder="e.g. NZ Passport" required className={fieldClass} />
               </div>
               <div className="flex gap-2 sm:col-span-2">
-                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">Save to vault</button>
-                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
+                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-[color:var(--accent-ink)]">Save to vault</button>
+                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
               </div>
             </div>
           </motion.form>
@@ -121,7 +121,7 @@ function VaultSection() {
           const d = daysUntil(item.expiryDate)
           return (
             <div key={item.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-[1.15rem]" aria-hidden>{meta.icon}</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)] text-[1.15rem]" aria-hidden>{meta.icon}</span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[0.9rem] font-bold">{item.label}</div>
                 <div className="text-[0.74rem] text-[color:var(--ink-faint)]">{meta.label} · expires {formatDate(item.expiryDate)}</div>
@@ -169,7 +169,7 @@ function SubscriptionsSection() {
           <div className="font-display text-[1.6rem] font-extrabold leading-tight">{formatMoney(monthlyTotal, currency)}<span className="text-[0.8rem] font-semibold text-[color:var(--ink-dim)]">/mo</span></div>
           <div className="text-[0.74rem] text-[color:var(--ink-faint)]">{formatMoney(yearlyTotal, currency)} per year · {subs.length} active</div>
         </div>
-        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-white transition hover:brightness-110">
+        <button onClick={() => setOpen(v => !v)} className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--accent)] px-3.5 py-2 text-[0.78rem] font-bold text-[color:var(--accent-ink)] transition hover:brightness-110">
           <Plus size={15} /> Add
         </button>
       </div>
@@ -199,8 +199,8 @@ function SubscriptionsSection() {
                 <input type="date" value={nextChargeDate} onChange={e => setNextChargeDate(e.target.value)} required className={fieldClass} />
               </div>
               <div className="flex gap-2 sm:col-span-2">
-                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">Track subscription</button>
-                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
+                <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-[color:var(--accent-ink)]">Track subscription</button>
+                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
               </div>
             </div>
           </motion.form>
@@ -215,14 +215,14 @@ function SubscriptionsSection() {
           const d = daysUntil(charge)
           return (
             <div key={sub.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/10 text-[0.8rem] font-bold" aria-hidden>{sub.merchantName.slice(0, 2).toUpperCase()}</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle-2)] text-[0.8rem] font-bold" aria-hidden>{sub.merchantName.slice(0, 2).toUpperCase()}</span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[0.9rem] font-bold">{sub.merchantName}</div>
                 <div className="text-[0.74rem] text-[color:var(--ink-faint)]">
                   {formatMoney(sub.amountCents, sub.currency)}/{sub.cycle === 'monthly' ? 'mo' : sub.cycle === 'yearly' ? 'yr' : 'wk'} · next {formatDate(charge)} · {formatMoney(monthlyCents(sub), sub.currency)}/mo
                 </div>
               </div>
-              <span className="shrink-0 rounded-full bg-white/[0.1] px-2.5 py-1 text-[0.68rem] font-bold text-[color:var(--ink-dim)]">{d}d</span>
+              <span className="shrink-0 rounded-full bg-[color:var(--subtle-2)] px-2.5 py-1 text-[0.68rem] font-bold text-[color:var(--ink-dim)]">{d}d</span>
               <button onClick={() => remove(sub.id)} aria-label={`Remove ${sub.merchantName}`} className="shrink-0 cursor-pointer text-[color:var(--ink-faint)] opacity-0 transition hover:text-[color:var(--red)] group-hover:opacity-100">
                 <X size={16} />
               </button>

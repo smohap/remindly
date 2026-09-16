@@ -18,7 +18,7 @@ export function Section({ title, items, actionLabel, onAction, emptyText }: Sect
         {actionLabel && (
           <button
             onClick={onAction}
-            className="cursor-pointer text-[0.75rem] font-semibold text-[color:var(--ink-faint)] transition hover:text-white"
+            className="cursor-pointer text-[0.75rem] font-semibold text-[color:var(--ink-faint)] transition hover:text-[color:var(--ink)]"
           >
             {actionLabel}
           </button>

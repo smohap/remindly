@@ -32,6 +32,10 @@
   --ok: #34d399;
   --warn: #fbbf24;
   --danger: #f87171;
+  /* Translucent overlays that must flip with the theme. */
+  --subtle: rgba(255, 255, 255, 0.05);
+  --subtle-2: rgba(255, 255, 255, 0.1);
+  --hover: rgba(255, 255, 255, 0.07);
 }
 
 /* Inside the dashboard the aurora is replaced by a flat background; text
@@ -44,12 +48,51 @@ html[data-app] body {
     radial-gradient(800px 600px at 100% 100%, rgba(79, 209, 255, 0.08), transparent 70%),
     var(--bg);
   background-attachment: fixed;
+  color: var(--ink);
   --ink: #f3f4f8;
   --ink-dim: rgba(243, 244, 248, 0.66);
   --ink-faint: rgba(243, 244, 248, 0.42);
   --glass: var(--surface);
   --glass-strong: var(--surface-2);
   --glass-border: var(--border);
+}
+
+/* Light mode for the app: the landing page's soft washes on a lighter base. */
+html[data-app][data-theme='light'] body {
+  --bg: #eef0f9;
+  --surface: #ffffff;
+  --surface-2: #f2f3fa;
+  --border: rgba(23, 26, 43, 0.08);
+  --border-strong: rgba(23, 26, 43, 0.14);
+  --ink: #171a2b;
+  --ink-dim: rgba(23, 26, 43, 0.68);
+  --ink-faint: rgba(23, 26, 43, 0.46);
+  --accent: #6b5cff;
+  --accent-soft: rgba(107, 92, 255, 0.12);
+  --ok: #059669;
+  --warn: #b45309;
+  --danger: #dc2626;
+  --subtle: rgba(23, 26, 43, 0.04);
+  --subtle-2: rgba(23, 26, 43, 0.08);
+  --hover: rgba(23, 26, 43, 0.06);
+  --glass: var(--surface);
+  --glass-strong: var(--surface-2);
+  --glass-border: var(--border);
+  background:
+    radial-gradient(900px 600px at 0% 0%, rgba(138, 124, 255, 0.28), transparent 70%),
+    radial-gradient(800px 600px at 100% 0%, rgba(255, 128, 196, 0.18), transparent 70%),
+    radial-gradient(800px 600px at 100% 100%, rgba(79, 209, 255, 0.2), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+}
+html[data-app][data-theme='light'] .card-solid {
+  box-shadow: 0 -8px 40px rgba(23, 26, 43, 0.12);
+}
+html[data-app][data-theme='light'] input[type='time'],
+html[data-app][data-theme='light'] input[type='date'],
+html[data-app][data-theme='light'] select {
+  color-scheme: light;
 }
 
 html,

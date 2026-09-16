@@ -86,7 +86,7 @@ export function AdminDiscoverPanel({ canPublish, onNotice }: { canPublish: boole
       ) : (
         events.map(e => (
           <div key={e.id} className="card group flex items-center gap-3.5 px-[18px] py-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-white/[0.06] text-[1.1rem]" aria-hidden>{e.icon}</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color:var(--subtle)] text-[1.1rem]" aria-hidden>{e.icon}</span>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[0.9rem] font-bold">{e.title}</div>
               <div className="text-[0.74rem] text-[color:var(--ink-faint)]">

@@ -27,7 +27,7 @@ export function SmartChips() {
             )}
           >
             {chip.label}
-            <span className={cn('badge', chip.danger && chip.count > 0 ? 'bg-[rgba(248,113,113,0.16)] text-[color:var(--danger)]' : 'bg-white/[0.06] text-[color:var(--ink-faint)]')}>{chip.count}</span>
+            <span className={cn('badge', chip.danger && chip.count > 0 ? 'bg-[rgba(248,113,113,0.16)] text-[color:var(--danger)]' : 'bg-[color:var(--subtle)] text-[color:var(--ink-faint)]')}>{chip.count}</span>
           </button>
         )
       })}

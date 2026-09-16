@@ -32,7 +32,7 @@ function SnoozedSection() {
     <section className="flex flex-col">
       <button onClick={() => setOpen(v => !v)} className="mb-2 flex items-center gap-2 px-1 text-left text-[0.9rem] font-bold" aria-expanded={open}>
         <ChevronDown size={15} className={open ? '' : '-rotate-90'} style={{ transition: 'transform 0.15s' }} />
-        Snoozed <span className="badge bg-white/[0.06] text-[color:var(--ink-faint)]">{derived.snoozed.length}</span>
+        Snoozed <span className="badge bg-[color:var(--subtle)] text-[color:var(--ink-faint)]">{derived.snoozed.length}</span>
       </button>
       {open && (
         <div className="flex flex-col gap-2">

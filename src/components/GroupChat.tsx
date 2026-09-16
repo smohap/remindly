@@ -44,7 +44,7 @@ export function GroupChat({ groupId, groupColor }: { groupId: string; groupColor
                 <div
                   className={cn(
                     'inline-block rounded-2xl px-3.5 py-2 text-left text-[0.85rem] leading-relaxed',
-                    m.self ? 'bg-[color:var(--accent)] text-white' : 'border border-[color:var(--border-strong)] bg-white/[0.08] text-white',
+                    m.self ? 'bg-[color:var(--accent)] text-[color:var(--accent-ink)]' : 'border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] text-[color:var(--ink)]',
                   )}
                 >
                   {m.body}
@@ -69,12 +69,12 @@ export function GroupChat({ groupId, groupColor }: { groupId: string; groupColor
           onChange={e => setText(e.target.value)}
           placeholder="Message the group…"
           aria-label="Message the group"
-          className="min-w-0 flex-1 rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]"
+          className="min-w-0 flex-1 rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]"
         />
         <button
           type="submit"
           aria-label="Send message"
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[color:var(--accent)] text-white transition hover:brightness-110"
+          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[color:var(--accent)] text-[color:var(--accent-ink)] transition hover:brightness-110"
         >
           <SendHorizonal size={16} />
         </button>

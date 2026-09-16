@@ -97,20 +97,20 @@ export function CalendarView() {
           <button
             onClick={() => move(-1)}
             aria-label={`Previous ${scale}`}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] transition hover:bg-white/[0.16]"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] transition hover:bg-[color:var(--hover)]"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={() => setCursor(today)}
-            className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/[0.16]"
+            className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-3.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-[color:var(--hover)]"
           >
             Today
           </button>
           <button
             onClick={() => move(1)}
             aria-label={`Next ${scale}`}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] transition hover:bg-white/[0.16]"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] transition hover:bg-[color:var(--hover)]"
           >
             <ChevronRight size={16} />
           </button>
@@ -153,7 +153,7 @@ function WeekView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: D
             key={d.toISOString()}
             onClick={() => onPick(d)}
             className={cn(
-              'card flex min-h-[128px] flex-col gap-1.5 p-3 text-left transition hover:bg-white/[0.14]',
+              'card flex min-h-[128px] flex-col gap-1.5 p-3 text-left transition hover:bg-[color:var(--hover)]',
               isToday && 'ring-1 ring-[color:var(--cyan)]',
             )}
           >
@@ -196,9 +196,9 @@ function MonthView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: 
               key={d.toISOString()}
               onClick={() => onPick(d)}
               className={cn(
-                'flex min-h-[62px] flex-col items-center gap-1 rounded-[10px] p-1.5 transition hover:bg-white/[0.12] sm:min-h-[76px]',
+                'flex min-h-[62px] flex-col items-center gap-1 rounded-[10px] p-1.5 transition hover:bg-[color:var(--hover)] sm:min-h-[76px]',
                 !inMonth && 'opacity-35',
-                isToday && 'bg-[color:var(--accent)] text-white',
+                isToday && 'bg-[color:var(--accent)] text-[color:var(--accent-ink)]',
               )}
             >
               <span className={cn('text-[0.78rem] font-bold', isToday && 'text-[#1a1240]')}>{d.getDate()}</span>
@@ -231,12 +231,12 @@ function YearView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: D
           <button
             key={m}
             onClick={() => onPick(first)}
-            className={cn('card p-3 text-left transition hover:bg-white/[0.14]', isThisMonth && 'ring-1 ring-[color:var(--cyan)]')}
+            className={cn('card p-3 text-left transition hover:bg-[color:var(--hover)]', isThisMonth && 'ring-1 ring-[color:var(--cyan)]')}
           >
             <div className="mb-2 flex items-baseline justify-between">
               <span className="font-display text-[0.92rem] font-bold">{fmt(first, { month: 'long' })}</span>
               {count > 0 && (
-                <span className="rounded-full bg-white/[0.14] px-2 py-[1px] text-[0.62rem] font-bold text-[color:var(--ink-dim)]">{count}</span>
+                <span className="rounded-full bg-[color:var(--subtle-2)] px-2 py-[1px] text-[0.62rem] font-bold text-[color:var(--ink-dim)]">{count}</span>
               )}
             </div>
             <div className="grid grid-cols-7 gap-[3px]">
@@ -251,9 +251,9 @@ function YearView({ cursor, onDay, today, onPick }: { cursor: Date; onDay: (d: D
                     className={cn(
                       'flex h-[15px] items-center justify-center rounded-[3px] text-[0.55rem]',
                       isToday
-                        ? 'bg-[color:var(--accent)] font-bold text-white'
+                        ? 'bg-[color:var(--accent)] font-bold text-[color:var(--accent-ink)]'
                         : has
-                          ? 'bg-[rgba(124,111,255,0.45)] text-white'
+                          ? 'bg-[rgba(124,111,255,0.45)] text-[color:var(--ink)]'
                           : 'text-[color:var(--ink-faint)]',
                     )}
                   >

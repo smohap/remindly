@@ -55,7 +55,7 @@ export function Sidebar() {
               title={item.label}
               className={cn(
                 'flex cursor-pointer items-center justify-center gap-3 rounded-[10px] px-3 py-2.5 text-[0.85rem] font-medium transition-colors xl:justify-start',
-                active ? 'bg-[color:var(--surface-2)] text-[color:var(--ink)]' : 'text-[color:var(--ink-dim)] hover:bg-white/[0.04] hover:text-[color:var(--ink)]',
+                active ? 'bg-[color:var(--surface-2)] text-[color:var(--ink)]' : 'text-[color:var(--ink-dim)] hover:bg-[color:var(--hover)] hover:text-[color:var(--ink)]',
               )}
             >
               <item.icon size={17} className="shrink-0" />
@@ -71,7 +71,7 @@ export function Sidebar() {
       <div className="mt-auto flex flex-col gap-2">
         <button
           onClick={() => actions.openTab('settings', 'profile')}
-          className="flex items-center justify-center gap-2.5 rounded-[12px] border border-[color:var(--border)] p-2.5 text-left transition hover:bg-white/[0.04] xl:justify-start"
+          className="flex items-center justify-center gap-2.5 rounded-[12px] border border-[color:var(--border)] p-2.5 text-left transition hover:bg-[color:var(--hover)] xl:justify-start"
         >
           <Avatar />
           <div className="hidden min-w-0 leading-tight xl:block">
