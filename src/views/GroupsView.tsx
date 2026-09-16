@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Check, KeyRound, MessageSquare, Plus, Trash2, UserPlus, X } from 'lucide-react'
 import { cn } from '../lib/cn'
@@ -6,11 +6,15 @@ import { GroupChat } from '../components/GroupChat'
 import { UpgradeGate } from '../components/UpgradeGate'
 import { usePlan } from '../lib/usePlan'
 import { useAuth } from '../auth/AuthContext'
-import { GROUP_COLORS, useGroups } from '../lib/useGroups'
+import { GROUP_COLORS, useGroups, type GroupHit, type PersonHit } from '../lib/useGroups'
 
 export function GroupsView() {
   const { can } = usePlan()
-  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, respond, error, loading } = useGroups()
+  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, searchPeople, searchGroups, respond, error, loading } = useGroups()
+  const [inviteMsg, setInviteMsg] = useState<string | null>(null)
+  const [people, setPeople] = useState<PersonHit[]>([])
+  const [groupQuery, setGroupQuery] = useState('')
+  const [groupHits, setGroupHits] = useState<GroupHit[]>([])
   const { user } = useAuth()
   const [joining, setJoining] = useState(false)
   const [code, setCode] = useState('')
@@ -20,6 +24,28 @@ export function GroupsView() {
   const [color, setColor] = useState(GROUP_COLORS[0])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [memberInput, setMemberInput] = useState('')
+
+  // People typeahead for the invite box.
+  useEffect(() => {
+    const q = memberInput.trim()
+    if (q.length < 2) {
+      setPeople([])
+      return
+    }
+    const t = setTimeout(() => void searchPeople(q).then(setPeople), 250)
+    return () => clearTimeout(t)
+  }, [memberInput, searchPeople])
+
+  // Group search for "Join a group".
+  useEffect(() => {
+    const q = groupQuery.trim()
+    if (q.length < 2) {
+      setGroupHits([])
+      return
+    }
+    const t = setTimeout(() => void searchGroups(q).then(setGroupHits), 250)
+    return () => clearTimeout(t)
+  }, [groupQuery, searchGroups])
 
   return (
     <>
@@ -52,10 +78,52 @@ export function GroupsView() {
               setJoining(false)
             }
           }}
-          className="card flex flex-col gap-2 p-4 sm:flex-row sm:items-center"
+          className="card flex flex-col gap-3 p-4"
         >
-          <input autoFocus value={code} onChange={e => setCode(e.target.value.toUpperCase())} placeholder="Group code, e.g. 7F3A9C1D" className="field sm:flex-1" />
-          <button type="submit" className="btn-primary">Ask to join</button>
+          <div>
+            <label className="mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]">Search groups by name</label>
+            <input autoFocus value={groupQuery} onChange={e => setGroupQuery(e.target.value)} placeholder="e.g. Wellington Rugby" className="field" />
+          </div>
+          {groupHits.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              {groupHits.map(h => (
+                <div key={h.id} className="flex items-center gap-3 rounded-[10px] bg-[color:var(--subtle)] px-3 py-2">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: h.color }} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[0.84rem] font-semibold">{h.name}</div>
+                    <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">
+                      {h.memberCount} member{h.memberCount === 1 ? '' : 's'}
+                      {h.description ? ` · ${h.description}` : ''}
+                    </div>
+                  </div>
+                  {h.myStatus === 'active' ? (
+                    <span className="badge bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">Member</span>
+                  ) : h.myStatus === 'requested' ? (
+                    <span className="badge bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">Requested</span>
+                  ) : h.myStatus === 'invited' ? (
+                    <span className="badge bg-[color:var(--accent-soft)] text-[color:var(--accent)]">Invited — see above</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const err = await requestToJoinGroup(h.id)
+                        setJoinMsg(err ?? `Request sent to ${h.name} — an admin will approve it.`)
+                        if (!err) setGroupHits(prev => prev.map(x => (x.id === h.id ? { ...x, myStatus: 'requested' } : x)))
+                      }}
+                      className="btn-primary px-3 py-1.5 text-[0.74rem]"
+                    >
+                      Ask to join
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {groupQuery.trim().length >= 2 && groupHits.length === 0 && <p className="text-[0.74rem] text-[color:var(--ink-faint)]">No groups match that name.</p>}
+          <div className="flex flex-col gap-2 border-t border-[color:var(--border)] pt-3 sm:flex-row sm:items-center">
+            <input value={code} onChange={e => setCode(e.target.value.toUpperCase())} placeholder="…or enter a group code, e.g. 7F3A9C1D" className="field sm:flex-1" />
+            <button type="submit" className="btn-ghost">Ask to join by code</button>
+          </div>
         </form>
       )}
       {joinMsg && <p className="px-1 text-[0.78rem] text-[color:var(--ink-dim)]">{joinMsg}</p>}
@@ -220,23 +288,46 @@ export function GroupsView() {
                   ))}
 
                   <form
-                    onSubmit={e => {
+                    onSubmit={async e => {
                       e.preventDefault()
-                      addMember(g.id, memberInput)
+                      const msg = await addMember(g.id, memberInput)
+                      setInviteMsg(msg)
                       setMemberInput('')
                     }}
-                    className="mt-2 flex gap-2"
+                    className="relative mt-2 flex gap-2"
                   >
+                    {selectedId === g.id && people.length > 0 && (
+                      <div className="card-solid absolute left-0 top-full z-20 mt-1 flex w-full max-w-md flex-col overflow-hidden p-1">
+                        {people.map(ph => (
+                          <button
+                            key={ph.id}
+                            type="button"
+                            onClick={() => {
+                              setMemberInput(ph.email)
+                              setPeople([])
+                            }}
+                            className="flex items-center gap-2.5 rounded-[9px] px-3 py-2 text-left hover:bg-[color:var(--hover)]"
+                          >
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold text-[color:var(--accent-ink)]">{ph.name.slice(0, 2).toUpperCase()}</span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-[0.82rem] font-semibold">{ph.name}</span>
+                              <span className="block truncate text-[0.7rem] text-[color:var(--ink-faint)]">{ph.email}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <input
                       value={selectedId === g.id ? memberInput : ''}
                       onChange={e => setMemberInput(e.target.value)}
-                      placeholder="Invite by email — they'll need to accept…"
+                      placeholder="Search by name, or type an email to invite…"
                       className="min-w-0 flex-1 rounded-full border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-4 py-2.5 text-base text-[color:var(--ink)] outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.82rem]"
                     />
                     <button type="submit" className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[color:var(--subtle-2)] px-4 py-2.5 text-[0.78rem] font-bold text-[color:var(--ink)] transition hover:bg-[color:var(--hover)]">
                       <UserPlus size={15} /> Invite
                     </button>
                   </form>
+                  {inviteMsg && selectedId === g.id && <p className="text-[0.74rem] text-[color:var(--ink-dim)]">{inviteMsg}</p>}
                   {g.role === 'admin' && g.joinCode && (
                     <p className="text-[0.72rem] text-[color:var(--ink-faint)]">
                       Group code <span className="font-mono font-bold text-[color:var(--ink)]">{g.joinCode}</span> — share it so people can ask to join; you approve each request here.

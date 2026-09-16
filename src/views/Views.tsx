@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { motion } from 'motion/react'
 import { AlarmClockOff, CalendarDays, ChevronDown, Compass, Plus } from 'lucide-react'
 import { snoozeLabel } from '../lib/snooze'
 import { GreetingHero } from '../components/GreetingHero'
@@ -152,16 +152,10 @@ function CalendarTab() {
 
 export function ViewSwitch() {
   const { state } = useStore()
+  // No exit animation: a throttled tab (background, hidden pane) would
+  // otherwise leave the old view stuck mid-exit and never mount the new one.
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={state.tab}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.16 }}
-        className="flex flex-col gap-4"
-      >
+    <motion.div key={state.tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.14 }} className="flex flex-col gap-4">
         {state.tab === 'today' && <TodayView />}
         {state.tab === 'calendar' && <CalendarTab />}
         {state.tab === 'workspace' && <WorkspaceView />}
@@ -172,7 +166,6 @@ export function ViewSwitch() {
         {state.tab === 'settings' && <SettingsView />}
         {state.tab === 'admin' && <AdminView />}
         {state.tab === 'upgrade' && <UpgradeView />}
-      </motion.div>
-    </AnimatePresence>
+    </motion.div>
   )
 }

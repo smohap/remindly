@@ -27,6 +27,8 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
   /** Column holding the owner; defaults to owner_id. */
   ownerColumn?: string
   orderBy?: { column: string; ascending?: boolean }
+  /** When false, rows missing locally are NOT deleted remotely — for tables the server also writes to. */
+  pruneRemote?: boolean
 }) {
   const ownerCol = opts.ownerColumn ?? 'owner_id'
   let items: T[] = load()
@@ -97,11 +99,13 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
         const { error } = await supabase.from(opts.table).upsert(rows, { onConflict: 'id' })
         if (error) throw error
       }
-      const keep = items.map(i => i.id)
-      let del = supabase.from(opts.table).delete().eq(ownerCol, ownerId)
-      if (keep.length > 0) del = del.not('id', 'in', `(${keep.join(',')})`)
-      const { error: delError } = await del
-      if (delError) throw delError
+      if (opts.pruneRemote !== false) {
+        const keep = items.map(i => i.id)
+        let del = supabase.from(opts.table).delete().eq(ownerCol, ownerId)
+        if (keep.length > 0) del = del.not('id', 'in', `(${keep.join(',')})`)
+        const { error: delError } = await del
+        if (delError) throw delError
+      }
       lastError = null
       setState('synced')
     } catch (e) {
@@ -169,6 +173,11 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
       return () => stateListeners.delete(l)
     },
     hydrate,
+    /** Re-fetch from the server if signed in (no-op otherwise). */
+    refresh: async () => {
+      if (ownerId) await hydrate(ownerId)
+    },
+    ownerId: () => ownerId,
     isDbMode: () => ownerId !== null,
   }
 }

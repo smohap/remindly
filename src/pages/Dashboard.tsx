@@ -3,7 +3,7 @@ import { CheckoutReturn } from '../components/CheckoutReturn'
 import { DesktopLayout } from '../components/DesktopLayout'
 import { MobileLayout } from '../components/MobileShell'
 import { GlobalSheets } from '../components/Sheets'
-import { hydrateActivity } from '../lib/activityStore'
+import { hydrateActivity, refreshActivity } from '../lib/activityStore'
 import { currentUserId } from '../lib/invoicesDb'
 import { useIsMobile } from '../lib/useIsMobile'
 import { useNotifications } from '../lib/useNotifications'
@@ -58,6 +58,11 @@ export default function Dashboard() {
     return () => {
       cancelled = true
     }
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => void refreshActivity(), 60_000)
+    return () => clearInterval(id)
   }, [])
 
   return (

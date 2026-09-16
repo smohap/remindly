@@ -17,6 +17,21 @@ export interface Member {
 
 export type MembershipStatus = 'active' | 'invited' | 'requested'
 
+export interface PersonHit {
+  id: string
+  name: string
+  email: string
+}
+
+export interface GroupHit {
+  id: string
+  name: string
+  color: string
+  description?: string
+  memberCount: number
+  myStatus: MembershipStatus | null
+}
+
 export interface Group {
   id: string
   name: string
@@ -156,15 +171,33 @@ export function useGroups() {
   )
 
   const addMember = useCallback(
-    async (groupId: string, emailOrName: string) => {
+    async (groupId: string, emailOrName: string): Promise<string | null> => {
       const value = emailOrName.trim()
-      if (!value) return
+      if (!value) return null
       setError(null)
       if (supabase) {
-        const { error: err } = await supabase.rpc('add_group_member', { p_group: groupId, p_email: value })
-        if (err) setError(err.message.replace(/^.*?:\s*/, ''))
-        await reload()
-        return
+        const { data } = await supabase.auth.getSession()
+        const token = data.session?.access_token
+        if (!token) return 'Sign in again to continue.'
+        try {
+          const res = await fetch('/api/invite-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ groupId, email: value, origin: window.location.origin }),
+          })
+          const body = (await res.json().catch(() => ({}))) as { error?: string; emailed?: boolean }
+          if (res.status === 503) return 'Invitations need SUPABASE_SERVICE_ROLE_KEY on the server.'
+          if (!res.ok) {
+            setError(body.error ?? `Request failed (${res.status})`)
+            return body.error ?? `Request failed (${res.status})`
+          }
+          await reload()
+          return body.emailed ? `Invitation email sent to ${value} — they'll appear here once they've signed up and accepted.` : `Invitation sent to ${value}.`
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'Network error'
+          setError(msg)
+          return msg
+        }
       }
       const isEmail = value.includes('@')
       const email = isEmail ? value : `${value.toLowerCase().replace(/\s+/g, '.')}@example.com`
@@ -172,6 +205,39 @@ export function useGroups() {
       // Demo: invitations stay pending until the invitee accepts (nobody else is signed in here).
       const member: Member = { id: `m-${Date.now()}`, name, email, initials: initialsOf(name), role: 'member', status: 'invited' }
       commit(groups.map(g => (g.id === groupId ? { ...g, members: [...g.members, member] } : g)))
+      return `Invitation sent to ${email}.`
+    },
+    [reload],
+  )
+
+  /** Typeahead for the invite box. */
+  const searchPeople = useCallback(async (q: string): Promise<PersonHit[]> => {
+    if (!supabase || q.trim().length < 2) return []
+    const { data } = await supabase.rpc('search_profiles', { q: q.trim() })
+    return ((data ?? []) as { id: string; full_name: string | null; email: string | null }[]).map(r => ({ id: String(r.id), name: r.full_name || nameFromEmail(r.email ?? ''), email: r.email ?? '' }))
+  }, [])
+
+  /** Find groups by name, with the caller's standing in each. */
+  const searchGroups = useCallback(async (q: string): Promise<GroupHit[]> => {
+    if (!supabase || q.trim().length < 2) return []
+    const { data } = await supabase.rpc('search_groups', { q: q.trim() })
+    return ((data ?? []) as { id: string; name: string; color: string | null; description: string | null; member_count: number; my_status: string | null }[]).map(r => ({
+      id: String(r.id),
+      name: String(r.name),
+      color: r.color ?? '#7C6FFF',
+      description: r.description ?? undefined,
+      memberCount: Number(r.member_count ?? 0),
+      myStatus: (r.my_status as MembershipStatus | null) ?? null,
+    }))
+  }, [])
+
+  const requestToJoinGroup = useCallback(
+    async (groupId: string): Promise<string | null> => {
+      if (!supabase) return 'Joining groups needs a signed-in account.'
+      const { error: err } = await supabase.rpc('request_to_join_group', { p_group: groupId })
+      if (err) return err.message.replace(/^.*?:\s*/, '')
+      await reload()
+      return null
     },
     [reload],
   )
@@ -256,6 +322,9 @@ export function useGroups() {
     removeMember,
     deleteGroup,
     requestToJoin,
+    requestToJoinGroup,
+    searchPeople,
+    searchGroups,
     respond,
     reload,
   }

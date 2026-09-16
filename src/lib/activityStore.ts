@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
+import { supabase } from './supabase'
 import { makeSyncedStore } from './syncedStore'
 
 /**
@@ -20,6 +21,9 @@ export type ActivityKind =
   | 'subscription.added'
   | 'subscription.removed'
   | 'plan.changed'
+  | 'group.invited'
+  | 'group.requested'
+  | 'group.approved'
 
 export interface ActivityEntry {
   id: string
@@ -48,6 +52,8 @@ const store = makeSyncedStore<ActivityEntry>({
     at: String(r.at ?? new Date().toISOString()),
   }),
   seed: [],
+  // The notify_membership trigger writes rows here too; never prune them.
+  pruneRemote: false,
 })
 
 export const activityStore = store
@@ -67,7 +73,7 @@ export function appendEntry(
 }
 
 /** Kinds that a person needs to *see* — they land unread in the Inbox. */
-const INBOX_KINDS: ActivityKind[] = ['reminder.due', 'reminder.escalated', 'plan.changed', 'subscription.added']
+export const INBOX_KINDS: ActivityKind[] = ['reminder.due', 'reminder.escalated', 'plan.changed', 'subscription.added', 'group.invited', 'group.requested', 'group.approved']
 
 export function logActivity(kind: ActivityKind, title: string, detail?: string, reminderId?: string) {
   // Things you did yourself (adding, acknowledging) are history, not news.
@@ -88,6 +94,15 @@ export function useActivity() {
   const markAllRead = useCallback(() => {
     if (store.get().some(e => !e.read)) store.set(store.get().map(e => ({ ...e, read: true })))
   }, [])
-  const clear = useCallback(() => store.set([]), [])
+  const clear = useCallback(() => {
+    const uid = store.ownerId()
+    store.set([])
+    if (uid) void supabase?.from('activity').delete().eq('owner_id', uid)
+  }, [])
   return { entries, unread, markRead, markAllRead, clear }
+}
+
+/** Pull server-written notifications (membership events) without a reload. */
+export async function refreshActivity() {
+  await store.refresh()
 }

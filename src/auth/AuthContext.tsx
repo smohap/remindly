@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { clearLocalData, lastLocalUser, wipeLocalDataForUserSwitch } from '../lib/cleanup'
 
 export interface AuthUser {
   id: string
@@ -61,7 +62,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(sessionToUser(data.session))
       setLoading(false)
     })
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      // A different account on this device: drop the previous user's local
+      // data and start clean, so nothing of theirs is adopted into this one.
+      if (event === 'SIGNED_IN' && session?.user.id && lastLocalUser() && lastLocalUser() !== session.user.id) {
+        wipeLocalDataForUserSwitch(session.user.id)
+        window.location.replace('/app')
+        return
+      }
+      if (event === 'SIGNED_IN' && session?.user.id) wipeLocalDataForUserSwitch(session.user.id)
+      if (event === 'SIGNED_OUT') clearLocalData()
       setUser(sessionToUser(session))
     })
     return () => sub.subscription.unsubscribe()
@@ -119,6 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signOut() {
         if (supabase) await supabase.auth.signOut()
         localStorage.removeItem(DEMO_KEY)
+        // Nothing of this person stays on a shared device.
+        clearLocalData()
         setUser(null)
       },
     }

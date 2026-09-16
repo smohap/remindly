@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { AlertTriangle, Bell, CalendarClock, Check, CheckCheck, History, Inbox, Repeat, Search, Sparkles, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AlertTriangle, Bell, CalendarClock, Check, CheckCheck, History, Inbox, Repeat, Search, Sparkles, Trash2, Users } from 'lucide-react'
 import { SegmentBar, useSegment } from '../components/SegmentBar'
-import { useActivity, type ActivityEntry, type ActivityKind } from '../lib/activityStore'
+import { INBOX_KINDS, refreshActivity, useActivity, type ActivityEntry, type ActivityKind } from '../lib/activityStore'
 import { cn } from '../lib/cn'
 import { useStore } from '../store'
 
@@ -17,6 +17,9 @@ const KIND_ICON: Partial<Record<ActivityKind, typeof Bell>> = {
   'reminder.removed': Trash2,
   'plan.changed': Sparkles,
   'subscription.added': Sparkles,
+  'group.invited': Users,
+  'group.requested': Users,
+  'group.approved': Check,
 }
 
 const KIND_LABEL: Record<ActivityKind, string> = {
@@ -30,6 +33,9 @@ const KIND_LABEL: Record<ActivityKind, string> = {
   'subscription.added': 'Subscribed',
   'subscription.removed': 'Unsubscribed',
   'plan.changed': 'Plan',
+  'group.invited': 'Invitation',
+  'group.requested': 'Join request',
+  'group.approved': 'Group',
 }
 
 const timeFmt = new Intl.DateTimeFormat('en-NZ', { hour: 'numeric', minute: '2-digit' })
@@ -79,7 +85,6 @@ function Empty({ icon: Icon, title, text }: { icon: typeof Inbox; title: string;
   )
 }
 
-const INBOX_KINDS: ActivityKind[] = ['reminder.due', 'reminder.escalated', 'plan.changed', 'subscription.added']
 const FILTERS: HistoryFilter[] = ['all', 'done', 'overdue', 'snoozed']
 
 export function InboxView() {
@@ -90,8 +95,17 @@ export function InboxView() {
   const [query, setQuery] = useState('')
 
   const openReminder = (e: ActivityEntry) => {
+    if (e.kind.startsWith('group.')) {
+      actions.setTab('groups')
+      return
+    }
     if (e.reminderId && state.reminders.some(r => r.id === e.reminderId)) actions.openEdit(e.reminderId)
   }
+
+  // Membership notifications are written by the server; pick them up on open.
+  useEffect(() => {
+    void refreshActivity()
+  }, [])
 
   const inbox = entries.filter(e => INBOX_KINDS.includes(e.kind))
   const unreadRows = inbox.filter(e => !e.read)
