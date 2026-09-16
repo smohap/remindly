@@ -42,6 +42,8 @@ export interface Group {
   myStatus: MembershipStatus
   /** Share this so people can ask to join. */
   joinCode?: string
+  /** False when the group is visible only through Super Admin rights. */
+  isMember?: boolean
   members: Member[]
 }
 
@@ -96,14 +98,20 @@ function subscribe(l: () => void) {
 type MemberRow = { id: string; user_id: string; member_role: 'admin' | 'member'; status: MembershipStatus; profiles: { full_name: string | null; email: string | null } | null }
 
 /** Pull the signed-in user's groups (as member or creator) with their members. */
-async function loadFromDb(uid: string): Promise<Group[]> {
-  if (!supabase) return []
-  const { data: gs } = await supabase.from('groups').select('id, name, color, description, join_code')
-  if (!gs || gs.length === 0) return []
+async function loadFromDb(uid: string): Promise<{ groups: Group[]; error: string | null }> {
+  if (!supabase) return { groups: [], error: null }
+  const { data: gs, error: gErr } = await supabase.from('groups').select('id, name, color, description, join_code')
+  if (gErr) return { groups: [], error: gErr.message }
+  if (!gs || gs.length === 0) return { groups: [], error: null }
   const ids = gs.map(g => String(g.id))
-  const { data: ms } = await supabase.from('group_members').select('id, group_id, user_id, member_role, status, profiles ( full_name, email )').in('group_id', ids)
-  const rows = ((ms ?? []) as unknown as (MemberRow & { group_id: string })[])
-  return gs.map(g => {
+  // group_members has two links to profiles (user_id, invited_by): name the one we mean.
+  const { data: ms, error: mErr } = await supabase
+    .from('group_members')
+    .select('id, group_id, user_id, member_role, status, profiles!user_id ( full_name, email )')
+    .in('group_id', ids)
+  if (mErr) return { groups: [], error: mErr.message }
+  const rows = (ms ?? []) as unknown as (MemberRow & { group_id: string })[]
+  const groups: Group[] = gs.map(g => {
     const members: Member[] = rows
       .filter(m => String(m.group_id) === String(g.id))
       .map(m => {
@@ -111,6 +119,7 @@ async function loadFromDb(uid: string): Promise<Group[]> {
         return { id: String(m.id), userId: String(m.user_id), name, email: m.profiles?.email ?? '', initials: initialsOf(name), role: m.member_role, status: m.status ?? 'active' }
       })
     const mine = members.find(m => m.userId === uid)
+    // No membership row at all means we only see this group as a Super Admin; treat as observer, not member.
     return {
       id: String(g.id),
       name: String(g.name),
@@ -118,10 +127,12 @@ async function loadFromDb(uid: string): Promise<Group[]> {
       description: (g.description as string | null) ?? undefined,
       role: mine?.status === 'active' ? mine.role : 'member',
       myStatus: mine?.status ?? 'active',
+      isMember: Boolean(mine),
       joinCode: (g.join_code as string | null) ?? undefined,
       members,
     }
   })
+  return { groups, error: null }
 }
 
 export function useGroups() {
@@ -135,7 +146,9 @@ export function useGroups() {
     if (!supabase) return
     const uid = await currentUserId()
     if (!uid) return
-    setDb(await loadFromDb(uid))
+    const { groups: loaded, error: err } = await loadFromDb(uid)
+    setDb(loaded)
+    if (err) setError(err)
   }, [])
 
   useEffect(() => {

@@ -244,7 +244,7 @@ export function useAdminData() {
     if (!supabase) return []
     const { data } = await supabase
       .from('group_members')
-      .select('id, user_id, member_role, status, profiles ( full_name, email )')
+      .select('id, user_id, member_role, status, profiles!user_id ( full_name, email )')
       .eq('group_id', groupId)
     type Row = {
       id: string

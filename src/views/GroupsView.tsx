@@ -260,33 +260,83 @@ export function GroupsView() {
             {selectedId === g.id && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden border-t border-[color:var(--border)]">
                 <div className="flex flex-col gap-2 px-[18px] py-4">
-                  {g.members.map(m => (
-                    <div key={m.id} className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.65rem] font-bold">{m.initials}</span>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-[0.82rem] font-semibold">{m.name}</div>
-                        <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">{m.email}</div>
+                  {(() => {
+                    const isAdmin = g.role === 'admin'
+                    const active = g.members.filter(m => m.status === 'active')
+                    const invited = g.members.filter(m => m.status === 'invited')
+                    const requested = g.members.filter(m => m.status === 'requested')
+                    const Row = ({ m, right }: { m: (typeof g.members)[number]; right: React.ReactNode }) => (
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.65rem] font-bold text-[color:var(--accent-ink)]">{m.initials}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[0.82rem] font-semibold">{m.name}</div>
+                          <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">{m.email}</div>
+                        </div>
+                        {right}
                       </div>
-                      {m.status === 'active' ? (
-                        <span className="shrink-0 text-[0.62rem] font-bold uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">{m.role}</span>
-                      ) : m.status === 'invited' ? (
-                        <span className="badge shrink-0 bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">Invited · awaiting reply</span>
-                      ) : g.role === 'admin' ? (
-                        <span className="flex shrink-0 gap-1.5">
-                          <button onClick={() => respond(g.id, m.id, true)} className="btn-primary px-2.5 py-1 text-[0.72rem]">Approve</button>
-                          <button onClick={() => respond(g.id, m.id, false)} className="btn-ghost px-2.5 py-1 text-[0.72rem]">Reject</button>
-                        </span>
-                      ) : (
-                        <span className="badge shrink-0 bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">Requested</span>
-                      )}
-                      {g.role === 'admin' && m.status === 'active' && g.members.length > 1 && (
-                        <button onClick={() => removeMember(g.id, m.id)} aria-label={`Remove ${m.name}`} className="shrink-0 cursor-pointer text-[color:var(--ink-faint)] transition hover:text-[color:var(--red)]">
-                          <X size={15} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                    )
+                    const label = (t: string, n: number) => (
+                      <div className="mt-1 text-[0.66rem] font-bold uppercase tracking-[0.1em] text-[color:var(--ink-faint)]">
+                        {t} · {n}
+                      </div>
+                    )
+                    return (
+                      <>
+                        {label('Members', active.length)}
+                        {active.map(m => (
+                          <Row
+                            key={m.id}
+                            m={m}
+                            right={
+                              <>
+                                <span className="shrink-0 text-[0.62rem] font-bold uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">{m.role}</span>
+                                {isAdmin && m.role !== 'admin' && (
+                                  <button onClick={() => removeMember(g.id, m.id)} aria-label={`Remove ${m.name} from the group`} title="Remove from group" className="btn-ghost btn-danger shrink-0 px-2 py-1 text-[0.7rem]">
+                                    <X size={13} /> Remove
+                                  </button>
+                                )}
+                              </>
+                            }
+                          />
+                        ))}
+                        {(isAdmin || invited.length > 0) && label('Invited', invited.length)}
+                        {invited.length === 0 && isAdmin && <p className="text-[0.72rem] text-[color:var(--ink-faint)]">No open invitations.</p>}
+                        {invited.map(m => (
+                          <Row
+                            key={m.id}
+                            m={m}
+                            right={
+                              <>
+                                <span className="badge shrink-0 bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">Awaiting reply</span>
+                                {isAdmin && (
+                                  <button onClick={() => removeMember(g.id, m.id)} aria-label={`Cancel invitation for ${m.name}`} className="btn-ghost shrink-0 px-2 py-1 text-[0.7rem]">
+                                    Cancel invite
+                                  </button>
+                                )}
+                              </>
+                            }
+                          />
+                        ))}
+                        {isAdmin && label('Requests to join', requested.length)}
+                        {isAdmin && requested.length === 0 && <p className="text-[0.72rem] text-[color:var(--ink-faint)]">No pending requests.</p>}
+                        {isAdmin &&
+                          requested.map(m => (
+                            <Row
+                              key={m.id}
+                              m={m}
+                              right={
+                                <span className="flex shrink-0 gap-1.5">
+                                  <button onClick={() => respond(g.id, m.id, true)} className="btn-primary px-2.5 py-1 text-[0.72rem]">Approve</button>
+                                  <button onClick={() => respond(g.id, m.id, false)} className="btn-ghost px-2.5 py-1 text-[0.72rem]">Reject</button>
+                                </span>
+                              }
+                            />
+                          ))}
+                      </>
+                    )
+                  })()}
 
+                  {g.role === 'admin' && (
                   <form
                     onSubmit={async e => {
                       e.preventDefault()
@@ -327,6 +377,7 @@ export function GroupsView() {
                       <UserPlus size={15} /> Invite
                     </button>
                   </form>
+                  )}
                   {inviteMsg && selectedId === g.id && <p className="text-[0.74rem] text-[color:var(--ink-dim)]">{inviteMsg}</p>}
                   {g.role === 'admin' && g.joinCode && (
                     <p className="text-[0.72rem] text-[color:var(--ink-faint)]">
