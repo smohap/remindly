@@ -56,7 +56,7 @@ export function GroupsView() {
         </div>
         <div className="flex shrink-0 gap-2">
           <button onClick={() => setJoining(v => !v)} className="btn-ghost">
-            <KeyRound size={14} /> Join with code
+            <KeyRound size={14} /> Join Group
           </button>
           <button
             onClick={() => setCreating(v => !v)}
