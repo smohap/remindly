@@ -3,19 +3,19 @@ import { RECURRENCES, describeRecurrence, nextOccurrence } from './recurrence'
 
 describe('nextOccurrence', () => {
   it('advances by the cadence', () => {
-    expect(nextOccurrence('2026-09-16', 'daily')).toBe('2026-09-17')
-    expect(nextOccurrence('2026-09-16', 'weekly')).toBe('2026-09-23')
-    expect(nextOccurrence('2026-09-16', 'fortnightly')).toBe('2026-09-30')
-    expect(nextOccurrence('2026-09-16', 'monthly')).toBe('2026-10-16')
-    expect(nextOccurrence('2026-09-16', 'yearly')).toBe('2027-09-16')
+    expect(nextOccurrence('2026-09-16', 'daily', '2026-09-16')).toBe('2026-09-17')
+    expect(nextOccurrence('2026-09-16', 'weekly', '2026-09-16')).toBe('2026-09-23')
+    expect(nextOccurrence('2026-09-16', 'fortnightly', '2026-09-16')).toBe('2026-09-30')
+    expect(nextOccurrence('2026-09-16', 'monthly', '2026-09-16')).toBe('2026-10-16')
+    expect(nextOccurrence('2026-09-16', 'yearly', '2026-09-16')).toBe('2027-09-16')
   })
   it('clamps month-end and leap days', () => {
     expect(nextOccurrence('2026-01-31', 'monthly', '2026-01-31')).toBe('2026-02-28')
     expect(nextOccurrence('2024-02-29', 'yearly', '2024-02-29')).toBe('2025-02-28')
   })
   it('weekdays skip the weekend', () => {
-    expect(nextOccurrence('2026-09-18', 'weekdays')).toBe('2026-09-21') // Fri -> Mon
-    expect(nextOccurrence('2026-09-16', 'weekdays')).toBe('2026-09-17')
+    expect(nextOccurrence('2026-09-18', 'weekdays', '2026-09-18')).toBe('2026-09-21') // Fri -> Mon
+    expect(nextOccurrence('2026-09-16', 'weekdays', '2026-09-16')).toBe('2026-09-17')
   })
   it('always lands strictly after from, even when the reminder was overdue', () => {
     expect(nextOccurrence('2026-08-01', 'weekly', '2026-09-16')).toBe('2026-09-19')
