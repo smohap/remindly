@@ -28,8 +28,28 @@ async function handler(req: VercelRequest, res: VercelResponse) {
   if (userId === me.user.id) return json(res, 400, { error: 'cannot_delete_self' })
 
   const { data: target } = await admin.from('profiles').select('full_name, email').eq('id', userId).maybeSingle()
-  const { error } = await admin.auth.admin.deleteUser(userId)
-  if (error) return json(res, 500, { error: error.message })
+
+  // Delete the auth account (the profile and everything owned cascade).
+  // Accounts that only exist as a profile — or whose auth row was inserted
+  // by hand (the seed's demo user) and the Auth API refuses to touch — are
+  // removed at the profile level instead so the admin isn't stuck.
+  const { data: authUser } = await admin.auth.admin.getUserById(userId)
+  let removedVia = 'auth'
+  if (authUser?.user) {
+    const { error } = await admin.auth.admin.deleteUser(userId)
+    if (error) {
+      const status = (error as { status?: number }).status
+      const code = (error as { code?: string }).code
+      console.error('[admin-delete-user] auth delete failed', { status, code, message: error.message })
+      const { error: pErr } = await admin.from('profiles').delete().eq('id', userId)
+      if (pErr) return json(res, 500, { error: `Auth: ${error.message || 'no detail'} (status ${status ?? '?'}${code ? `, ${code}` : ''}); profile: ${pErr.message}` })
+      removedVia = 'profile'
+    }
+  } else {
+    const { error: pErr } = await admin.from('profiles').delete().eq('id', userId)
+    if (pErr) return json(res, 500, { error: pErr.message })
+    removedVia = 'profile'
+  }
 
   await admin.from('audit_log').insert({
     actor_id: me.user.id,
@@ -37,9 +57,9 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     action: 'user.removed',
     entity: 'profile',
     entity_id: null,
-    detail: { name: target?.full_name, email: target?.email },
+    detail: { name: target?.full_name, email: target?.email, via: removedVia },
   })
-  return json(res, 200, { ok: true })
+  return json(res, 200, { ok: true, via: removedVia })
 }
 
 export default withErrors(handler)
