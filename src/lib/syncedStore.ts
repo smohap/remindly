@@ -23,12 +23,18 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
   /** Domain object -> DB row (id and the owner column are added for you). */
   toRow: (item: T) => Record<string, unknown>
   /** DB row -> domain object. */
-  fromRow: (row: Record<string, unknown>) => T
+  fromRow: (row: Record<string, unknown>, uid: string) => T
   /** Column holding the owner; defaults to owner_id. */
   ownerColumn?: string
   orderBy?: { column: string; ascending?: boolean }
   /** When false, rows missing locally are NOT deleted remotely — for tables the server also writes to. */
   pruneRemote?: boolean
+  /** 'owner' (default) loads only my rows; 'visible' loads whatever RLS lets me see (e.g. group reminders). */
+  scope?: 'owner' | 'visible'
+  /** Which items I may write. Others are kept locally but never pushed. Default: all. */
+  own?: (item: T) => boolean
+  /** Post-load hook, e.g. to overlay per-user state onto shared rows. */
+  afterLoad?: (items: T[], uid: string) => Promise<T[]>
 }) {
   const ownerCol = opts.ownerColumn ?? 'owner_id'
   let items: T[] = load()
@@ -94,13 +100,14 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
     ensureUuids()
     setState('saving')
     try {
-      const rows = items.map(i => ({ ...opts.toRow(i), id: i.id, [ownerCol]: ownerId }))
+      const mine = opts.own ? items.filter(opts.own) : items
+      const rows = mine.map(i => ({ ...opts.toRow(i), id: i.id, [ownerCol]: ownerId }))
       if (rows.length > 0) {
         const { error } = await supabase.from(opts.table).upsert(rows, { onConflict: 'id' })
         if (error) throw error
       }
       if (opts.pruneRemote !== false) {
-        const keep = items.map(i => i.id)
+        const keep = mine.map(i => i.id)
         let del = supabase.from(opts.table).delete().eq(ownerCol, ownerId)
         if (keep.length > 0) del = del.not('id', 'in', `(${keep.join(',')})`)
         const { error: delError } = await del
@@ -128,12 +135,14 @@ export function makeSyncedStore<T extends { id: string }>(opts: {
     ownerId = uid
     setState('loading')
     try {
-      let q = supabase.from(opts.table).select('*').eq(ownerCol, uid)
+      let q = supabase.from(opts.table).select('*')
+      if (opts.scope !== 'visible') q = q.eq(ownerCol, uid)
       if (opts.orderBy) q = q.order(opts.orderBy.column, { ascending: opts.orderBy.ascending ?? false })
       const { data, error } = await q
       if (error) throw error
 
-      const remote = (data ?? []).map(r => opts.fromRow(r as Record<string, unknown>))
+      let remote = (data ?? []).map(r => opts.fromRow(r as Record<string, unknown>, uid))
+      if (opts.afterLoad) remote = await opts.afterLoad(remote, uid)
       if (remote.length === 0 && items.length > 0 && !hydrated) {
         // First run on a fresh account: adopt whatever is already on this device.
         hydrated = true

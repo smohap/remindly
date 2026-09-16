@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { occurrencesInRange } from '../lib/recurrence'
+import { offsetToDate } from '../lib/remindersStore'
 import { motion } from 'motion/react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '../lib/cn'
@@ -37,19 +39,29 @@ export function CalendarView() {
   const [cursor, setCursor] = useState(() => startOfDay(new Date()))
   const today = startOfDay(new Date())
 
-  /** Reminders keyed by the actual calendar day they fall on. */
+  /**
+   * Reminders keyed by the calendar day they fall on. Recurring reminders are
+   * expanded across a window around the cursor (the whole visible year plus a
+   * month either side) so every repetition shows up, not just the next one.
+   */
   const byDay = useMemo(() => {
     const map = new Map<number, Reminder[]>()
+    const from = offsetToDate(Math.round((new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1).getTime() - today.getTime()) / 86400000))
+    const to = offsetToDate(Math.round((new Date(cursor.getFullYear() + 1, cursor.getMonth() + 1, 0).getTime() - today.getTime()) / 86400000))
     for (const r of derived.active) {
-      const key = startOfDay(addDays(today, r.dayOffset)).getTime()
-      map.set(key, [...(map.get(key) ?? []), r])
+      const due = offsetToDate(r.dayOffset)
+      const dates = r.recurrence ? occurrencesInRange(due, r.recurrence, from, to) : [due]
+      for (const iso of dates) {
+        const key = startOfDay(new Date(iso + 'T00:00:00')).getTime()
+        map.set(key, [...(map.get(key) ?? []), r])
+      }
     }
     for (const list of map.values()) {
       list.sort((a, b) => (parseClock(a.time) ?? -1) - (parseClock(b.time) ?? -1))
     }
     return map
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [derived.active, today.getTime()])
+  }, [derived.active, today.getTime(), cursor.getFullYear(), cursor.getMonth()])
 
   const onDay = (d: Date) => byDay.get(startOfDay(d).getTime()) ?? []
 

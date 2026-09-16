@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useReducer, useRef, type
 import { logActivity } from './lib/activityStore'
 import { parseReminder } from './lib/nlParse'
 import { nextOccurrence } from './lib/recurrence'
-import { dateToOffset, offsetToDate, remindersStore } from './lib/remindersStore'
+import { dateToOffset, offsetToDate, remindersStore, saveForeignStatus } from './lib/remindersStore'
 import { currentUserId } from './lib/invoicesDb'
 import { isSnoozed, snoozeLabel, snoozeUntil, type SnoozeKey } from './lib/snooze'
 import type { Feature } from './lib/plans'
@@ -76,14 +76,15 @@ function describeOffset(dayOffset: number): string {
  * recorded in the activity log so History still shows it was done.
  */
 export function acknowledgeOne(r: Reminder): Reminder {
-  if (!r.recurrence) return { ...r, acknowledged: true, snoozedUntil: undefined }
+  // Only the owner rolls a recurring reminder; a member's ack covers the current occurrence.
+  if (!r.recurrence || r.ownedByMe === false) return { ...r, acknowledged: true, snoozedUntil: undefined }
   const next = nextOccurrence(offsetToDate(r.dayOffset), r.recurrence)
   return { ...r, dayOffset: dateToOffset(next), acknowledged: false, snoozedUntil: undefined }
 }
 
 /** What the activity log should say when `r` is completed. */
 function completionDetail(r: Reminder): string | undefined {
-  return r.recurrence ? `Done — next ${describeOffset(acknowledgeOne(r).dayOffset)}` : r.meta
+  return r.recurrence && r.ownedByMe !== false ? `Done — next ${describeOffset(acknowledgeOne(r).dayOffset)}` : r.meta
 }
 
 function reducer(state: State, action: Action): State {
@@ -244,11 +245,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // Save: every change to the list is written through, on-device straight away
   // and to Postgres in the background.
+  const prevReminders = useRef(state.reminders)
   useEffect(() => {
     if (!hydrated.current) return
     if (state.reminders === remindersStore.get()) return
+    // Group reminders owned by others: my acknowledge/snooze goes to reminder_status.
+    const before = new Map(prevReminders.current.map(r => [r.id, r]))
+    for (const r of state.reminders) {
+      const b = before.get(r.id)
+      if (r.ownedByMe === false && b && (b.acknowledged !== r.acknowledged || b.snoozedUntil !== r.snoozedUntil)) void saveForeignStatus(r)
+    }
+    prevReminders.current = state.reminders
     remindersStore.set(state.reminders)
   }, [state.reminders])
+
+  // Pick up reminders other group members added since we loaded.
+  useEffect(() => {
+    if (state.tab === 'today' || state.tab === 'calendar') void remindersStore.refresh()
+  }, [state.tab])
 
   const derived = useMemo<Derived>(() => {
     const now = new Date(state.now)

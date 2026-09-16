@@ -9,6 +9,9 @@ export interface NewReminderInput {
   time?: string // free text: "5pm", "17:00", "5:00 PM"
   recurrence?: Recurrence
   category?: Category
+  /** Share with every active member of this group. */
+  groupId?: string
+  groupName?: string
 }
 
 const CATEGORY_ICON: Record<Category, string> = { personal: '✨', group: '👥', compliance: '📋' }
@@ -45,10 +48,10 @@ export function describeWhen(dayOffset: number, date: string): string {
 export function buildReminder(input: NewReminderInput, id = `r-${Date.now()}`): Reminder | null {
   const title = input.title.trim()
   if (!title || !input.date) return null
-  const category = input.category ?? 'personal'
+  const category: Category = input.groupId ? 'group' : (input.category ?? 'personal')
   const time = normaliseTime(input.time)
   const dayOffset = dateToOffset(input.date)
-  const parts = [CATEGORY_LABEL[category], time ? `${describeWhen(dayOffset, input.date)}, ${time}` : describeWhen(dayOffset, input.date)]
+  const parts = [input.groupId && input.groupName ? input.groupName : CATEGORY_LABEL[category], time ? `${describeWhen(dayOffset, input.date)}, ${time}` : describeWhen(dayOffset, input.date)]
   if (input.recurrence) parts.push(describeRecurrence(input.recurrence))
   return {
     id,
@@ -61,5 +64,6 @@ export function buildReminder(input: NewReminderInput, id = `r-${Date.now()}`): 
     acknowledged: false,
     ownedByMe: true,
     recurrence: input.recurrence,
+    groupId: input.groupId,
   }
 }

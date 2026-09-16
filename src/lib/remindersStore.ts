@@ -1,3 +1,4 @@
+import { supabase } from './supabase'
 import { makeSyncedStore } from './syncedStore'
 import { isRecurrence } from './recurrence'
 import type { Reminder } from '../types'
@@ -52,11 +53,12 @@ export const remindersStore = makeSyncedStore<Reminder>({
     daily: r.recurrence === 'daily',
     recurrence: r.recurrence ?? null,
     source_event_id: r.sourceEventId ?? null,
+    group_id: r.groupId ?? null,
     resolve_label: r.resolveLabel ?? null,
     is_compliance: r.category === 'compliance',
     all_day: !r.time,
   }),
-  fromRow: row => ({
+  fromRow: (row, uid) => ({
     id: String(row.id),
     title: String(row.title ?? ''),
     meta: String(row.meta ?? ''),
@@ -71,9 +73,49 @@ export const remindersStore = makeSyncedStore<Reminder>({
     recurrence: isRecurrence(row.recurrence) ? row.recurrence : row.daily ? 'daily' : undefined,
     sourceEventId: (row.source_event_id as string | null) ?? undefined,
     resolveLabel: (row.resolve_label as string | null) ?? undefined,
-    // Rows come back through RLS scoped to the signed-in user, so anything
-    // fetched here is theirs to edit.
-    ownedByMe: true,
+    groupId: (row.group_id as string | null) ?? undefined,
+    ownerId: (row.owner_id as string | null) ?? undefined,
+    // Group reminders are visible to every active member, but only the
+    // creator may edit or delete them.
+    ownedByMe: !row.owner_id || row.owner_id === uid,
   }),
   seed: [],
+  // Load everything RLS shows me (own + my groups'); only push my own rows.
+  scope: 'visible',
+  own: r => r.ownedByMe !== false,
+  afterLoad: overlayStatus,
 })
+
+/**
+ * Acknowledge / snooze on a reminder I don't own can't touch the event row
+ * (owner-only writes), so it lives per person in reminder_status.
+ */
+async function overlayStatus(items: Reminder[], uid: string): Promise<Reminder[]> {
+  if (!supabase) return items
+  const foreign = items.filter(r => r.ownedByMe === false)
+  if (foreign.length === 0) return items
+  const { data } = await supabase.from('reminder_status').select('event_id, state, snoozed_until, acknowledged_at').eq('user_id', uid).in('event_id', foreign.map(r => r.id))
+  const byEvent = new Map((data ?? []).map(r => [String(r.event_id), r]))
+  return items.map(r => {
+    if (r.ownedByMe !== false) return r
+    const st = byEvent.get(r.id)
+    if (!st) return { ...r, acknowledged: false, snoozedUntil: undefined }
+    // An ack made before the owner rolled the reminder to a later date belongs to the old occurrence.
+    const ackedAt = (st.acknowledged_at as string | null) ?? null
+    const stillCurrent = !ackedAt || ackedAt.slice(0, 10) >= offsetToDate(r.dayOffset)
+    return { ...r, acknowledged: st.state === 'acknowledged' && stillCurrent, snoozedUntil: (st.snoozed_until as string | null) ?? undefined }
+  })
+}
+
+/** Persist my own acknowledge/snooze state for a reminder someone else owns. */
+export async function saveForeignStatus(r: Reminder) {
+  if (!supabase) return
+  const { data } = await supabase.auth.getUser()
+  const uid = data.user?.id
+  if (!uid) return
+  const state = r.acknowledged ? 'acknowledged' : r.snoozedUntil ? 'snoozed' : 'pending'
+  await supabase.from('reminder_status').upsert(
+    { event_id: r.id, user_id: uid, state, snoozed_until: r.snoozedUntil ?? null, acknowledged_at: r.acknowledged ? new Date().toISOString() : null, updated_at: new Date().toISOString() },
+    { onConflict: 'event_id,user_id' },
+  )
+}

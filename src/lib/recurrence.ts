@@ -92,3 +92,21 @@ export function nextOccurrence(dueISO: string, r: Recurrence, from: string = tod
   }
   return next
 }
+
+/**
+ * Every date (YYYY-MM-DD) a recurring reminder falls on within [from, to],
+ * starting from its current due date. A one-off returns its due date if in range.
+ */
+export function occurrencesInRange(dueISO: string, r: Recurrence | undefined, from: string, to: string, limit = 400): string[] {
+  const out: string[] = []
+  if (!r) return dueISO >= from && dueISO <= to ? [dueISO] : []
+  let d = dueISO
+  let guard = 0
+  while (d <= to && guard < limit) {
+    if (d >= from) out.push(d)
+    // Always step from the original due date so a month-end anchor (31st) doesn't drift to the 28th.
+    d = nextOccurrence(dueISO, r, d)
+    guard++
+  }
+  return out
+}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'motion/react'
-import { AlarmClock, Check, Pencil, Repeat } from 'lucide-react'
+import { AlarmClock, Check, Pencil, Repeat, Users } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { describeRecurrence } from '../lib/recurrence'
 import { useIsMobile } from '../lib/useIsMobile'
@@ -83,6 +83,11 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[0.88rem] font-semibold">{reminder.title}</span>
               {reminder.category === 'compliance' && <span className="badge bg-[rgba(248,113,113,0.16)] text-[color:var(--danger)]">Ack required</span>}
+              {reminder.groupId && (
+                <span className="badge bg-[color:var(--accent-soft)] text-[color:var(--accent)]" title={reminder.ownedByMe === false ? 'Shared with you by a group member' : 'Shared with your group'}>
+                  <Users size={10} /> Group
+                </span>
+              )}
               {reminder.recurrence && (
                 <span className="badge bg-[color:var(--subtle)] text-[color:var(--ink-faint)]" title={describeRecurrence(reminder.recurrence)}>
                   <Repeat size={10} /> {describeRecurrence(reminder.recurrence).replace('Every ', '')}

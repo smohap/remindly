@@ -22,6 +22,10 @@ export interface Reminder {
   recurrence?: Recurrence
   /** Set when the reminder was created by subscribing to a Discover event. */
   sourceEventId?: string
+  /** Shared with every active member of this group. */
+  groupId?: string
+  /** Profile id of the creator (server rows only). */
+  ownerId?: string
 }
 
 export type Filter = 'today' | 'tomorrow' | 'week' | 'overdue'

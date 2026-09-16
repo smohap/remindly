@@ -4,6 +4,7 @@ import { buildReminder, normaliseTime } from '../lib/newReminder'
 import { RECURRENCES, type Recurrence } from '../lib/recurrence'
 import type { Category } from '../types'
 import { useStore } from '../store'
+import { useGroups } from '../lib/useGroups'
 import { BottomSheet } from './BottomSheet'
 import { DatePicker } from './DatePicker'
 import { SnoozeOptions } from './SnoozeOptions'
@@ -29,6 +30,18 @@ function RepeatSelect({ value, onChange }: { value: Recurrence | ''; onChange: (
   )
 }
 
+function GroupSelect({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  const { groups } = useGroups()
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)} className={FIELD}>
+      <option value="" className="bg-[color:var(--surface-2)]">Just me</option>
+      {groups.map(g => (
+        <option key={g.id} value={g.id} className="bg-[color:var(--surface-2)]">{g.name}</option>
+      ))}
+    </select>
+  )
+}
+
 /**
  * Structured "New reminder" form, opened by the + button (desktop top bar
  * and mobile FAB). The natural-language bar is the other way in.
@@ -44,6 +57,8 @@ function NewReminderForm() {
   const [time, setTime] = useState('')
   const [recurrence, setRecurrence] = useState<Recurrence | ''>('')
   const [category, setCategory] = useState<Category>('personal')
+  const [groupId, setGroupId] = useState('')
+  const { groups: myGroups } = useGroups()
   const [error, setError] = useState<string | null>(null)
 
   const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -56,7 +71,7 @@ function NewReminderForm() {
           setError('Time should look like "5pm" or "17:00".')
           return
         }
-        const r = buildReminder({ title, date: iso, time, recurrence: recurrence || undefined, category })
+        const r = buildReminder({ title, date: iso, time, recurrence: recurrence || undefined, category, groupId: groupId || undefined, groupName: myGroups.find(g => g.id === groupId)?.name })
         if (!r) {
           setError('Give the reminder a title.')
           return
@@ -85,6 +100,12 @@ function NewReminderForm() {
           <label className={LABEL}>Repeat</label>
           <RepeatSelect value={recurrence} onChange={setRecurrence} />
         </div>
+      </div>
+
+      <div className="mt-3">
+        <label className={LABEL}>Share with</label>
+        <GroupSelect value={groupId} onChange={setGroupId} />
+        {groupId && <p className="mt-1 text-[0.7rem] text-[color:var(--ink-faint)]">Everyone in the group will see this reminder; each person marks it done for themselves.</p>}
       </div>
 
       <div className="mt-3">
@@ -121,6 +142,7 @@ function EditReminderForm({ id }: { id: string }) {
   const [title, setTitle] = useState(reminder?.title ?? '')
   const [time, setTime] = useState(reminder?.time ?? '')
   const [recurrence, setRecurrence] = useState<Recurrence | ''>(reminder?.recurrence ?? '')
+  const [groupId, setGroupId] = useState(reminder?.groupId ?? '')
   const [date, setDate] = useState(() => {
     const d = new Date()
     d.setHours(0, 0, 0, 0)
@@ -150,6 +172,8 @@ function EditReminderForm({ id }: { id: string }) {
           time: normaliseTime(time) ?? undefined,
           dayOffset: offsetOf(date),
           recurrence: recurrence || undefined,
+          groupId: groupId || undefined,
+          category: groupId ? 'group' : reminder.category === 'group' ? 'personal' : reminder.category,
         })
       }}
     >
@@ -174,6 +198,11 @@ function EditReminderForm({ id }: { id: string }) {
           <label className={labelCls}>Repeat</label>
           <RepeatSelect value={recurrence} onChange={setRecurrence} />
         </div>
+      </div>
+
+      <div className="mt-3">
+        <label className={labelCls}>Share with</label>
+        <GroupSelect value={groupId} onChange={setGroupId} />
       </div>
 
       <div className="mt-4 flex gap-2">
