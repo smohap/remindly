@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type Stripe from 'stripe'
-import { applyStripeEvent, type BillingRow } from './_lib/webhook'
-import { planForPrice, readEnv } from './_lib/env'
+import { applyStripeEvent, type BillingRow } from './webhook.js'
+import { planForPrice, readEnv } from './env.js'
 
 const env = readEnv({
   STRIPE_SECRET_KEY: 'sk_test', STRIPE_WEBHOOK_SECRET: 'whsec', STRIPE_PRICE_PLUS: 'price_plus',

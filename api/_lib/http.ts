@@ -1,8 +1,24 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { readEnv, type BillingEnv } from './env'
+import { readEnv, type BillingEnv } from './env.js'
 
 export function json(res: VercelResponse, status: number, body: unknown) {
-  res.status(status).setHeader('Content-Type', 'application/json').send(JSON.stringify(body))
+  res.status(status)
+  res.setHeader('Content-Type', 'application/json')
+  res.send(JSON.stringify(body))
+}
+
+type Handler = (req: VercelRequest, res: VercelResponse) => Promise<unknown> | unknown
+
+/** Turn uncaught errors into a JSON 500 with the message, instead of an opaque platform error. */
+export function withErrors(handler: Handler): Handler {
+  return async (req, res) => {
+    try {
+      return await handler(req, res)
+    } catch (e) {
+      console.error('[remindly api]', e)
+      if (!res.headersSent) json(res, 500, { error: 'internal_error', message: e instanceof Error ? e.message : String(e) })
+    }
+  }
 }
 
 /** Common preamble: POST only, env present. Returns null after replying. */

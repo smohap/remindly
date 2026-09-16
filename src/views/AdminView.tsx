@@ -27,6 +27,8 @@ const ACTION_LABEL: Record<string, string> = {
   'member.role_changed': 'changed a member’s group role',
   'member.removed': 'removed a member',
   'member.invited': 'invited someone',
+  'user.removed': 'removed an account',
+  'group.deleted': 'deleted a group',
 }
 
 function fmtWhen(iso: string) {
@@ -35,7 +37,7 @@ function fmtWhen(iso: string) {
 
 export function AdminView() {
   const { role, isAdmin, isSuperAdmin, loading: roleLoading, dbMode } = useMyRole()
-  const { people, groups, audit, loading, error, setUserRole, removeUser, membersOf, setMemberRole, removeMember, inviteToGroup } = useAdminData()
+  const { people, groups, audit, loading, error, setUserRole, removeUser, deleteGroup, membersOf, setMemberRole, removeMember, inviteToGroup } = useAdminData()
   const { user } = useAuth()
   const [myId, setMyId] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
@@ -213,6 +215,7 @@ export function AdminView() {
               onSetRole={setMemberRole}
               onRemove={removeMember}
               onInvite={inviteToGroup}
+              onDelete={deleteGroup}
               onNotice={flash}
             />
           ))}
@@ -477,6 +480,7 @@ function GroupAdminRow({
   onSetRole,
   onRemove,
   onInvite,
+  onDelete,
   onNotice,
 }: {
   group: { id: string; name: string; color: string; memberCount: number; iAmAdmin: boolean }
@@ -485,9 +489,11 @@ function GroupAdminRow({
   onSetRole: (membershipId: string, groupId: string, role: 'admin' | 'member', name: string) => Promise<string | null>
   onRemove: (membershipId: string, groupId: string, name: string) => Promise<string | null>
   onInvite: (groupId: string, email: string, role: 'admin' | 'member') => Promise<string | null>
+  onDelete: (groupId: string, name: string) => Promise<string | null>
   onNotice: (m: string) => void
 }) {
   const [open, setOpen] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [members, setMembers] = useState<AdminMember[]>([])
   const [email, setEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'admin' | 'member'>('member')
@@ -500,7 +506,8 @@ function GroupAdminRow({
 
   return (
     <div className="card overflow-hidden">
-      <button onClick={() => setOpen(o => !o)} className="flex w-full items-center gap-3 px-[18px] py-3.5 text-left">
+      <div className="flex items-center gap-2 pr-3">
+      <button onClick={() => setOpen(o => !o)} className="flex min-w-0 flex-1 items-center gap-3 px-[18px] py-3.5 text-left">
         <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: group.color }} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -514,6 +521,25 @@ function GroupAdminRow({
           </div>
         </div>
       </button>
+      {canManage && (
+        <button
+          onClick={async () => {
+            if (!confirmDelete) {
+              setConfirmDelete(true)
+              return
+            }
+            setConfirmDelete(false)
+            const err = await onDelete(group.id, group.name)
+            onNotice(err ? `Couldn't delete ${group.name} — ${err}` : `${group.name} was deleted`)
+          }}
+          onBlur={() => setConfirmDelete(false)}
+          aria-label={`Delete group ${group.name}`}
+          className="btn-ghost btn-danger shrink-0 px-2.5 py-1.5 text-[0.72rem]"
+        >
+          <Trash2 size={13} /> {confirmDelete ? 'Confirm delete' : 'Delete'}
+        </button>
+      )}
+      </div>
 
       <AnimatePresence>
         {open && (

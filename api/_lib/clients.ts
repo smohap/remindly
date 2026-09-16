@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
-import type { BillingEnv } from './env'
+import type { BillingEnv } from './env.js'
 
 export function stripeClient(env: BillingEnv): Stripe {
   return new Stripe(env.stripeSecretKey)

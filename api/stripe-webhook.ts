@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import type Stripe from 'stripe'
-import { adminClient, stripeClient } from './_lib/clients'
-import { planForPrice, readEnv, type BillingEnv } from './_lib/env'
-import { json } from './_lib/http'
-import { applyStripeEvent } from './_lib/webhook'
+import { adminClient, stripeClient } from './_lib/clients.js'
+import { planForPrice, readEnv, type BillingEnv } from './_lib/env.js'
+import { json, withErrors } from './_lib/http.js'
+import { applyStripeEvent } from './_lib/webhook.js'
 
 // Stripe signs the raw body; Vercel must not parse it first.
 export const config = { api: { bodyParser: false } }
@@ -14,7 +14,7 @@ async function rawBody(req: VercelRequest): Promise<Buffer> {
   return Buffer.concat(chunks)
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return json(res, 405, { error: 'method_not_allowed' })
   const env: BillingEnv | null = readEnv()
   if (!env || !env.webhookSecret) return json(res, 503, { error: 'billing_not_configured' })
@@ -39,3 +39,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   })
   return json(res, 200, { received: true })
 }
+
+export default withErrors(handler)

@@ -1,5 +1,5 @@
 import type Stripe from 'stripe'
-import type { PlanId } from '../../src/lib/plans'
+import type { PlanId } from './plans.js'
 
 export interface BillingRow {
   user_id: string

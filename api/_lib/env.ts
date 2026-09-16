@@ -1,4 +1,4 @@
-import type { PlanId } from '../../src/lib/plans'
+import type { PlanId } from './plans.js'
 
 /**
  * Server-side configuration for the billing functions. Everything here is

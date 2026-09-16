@@ -226,6 +226,19 @@ export function useAdminData() {
     [load],
   )
 
+  /** Super Admins and the group's own admins (RLS: "groups admin all"). Members cascade. */
+  const deleteGroup = useCallback(
+    async (groupId: string, name: string): Promise<string | null> => {
+      if (!supabase) return 'Connect Supabase to manage groups.'
+      const { error: err } = await supabase.from('groups').delete().eq('id', groupId)
+      if (err) return err.message.replace(/^.*?:\s*/, '')
+      await recordAudit('group.deleted', 'group', groupId, { name })
+      await load()
+      return null
+    },
+    [load],
+  )
+
   const membersOf = useCallback(async (groupId: string): Promise<AdminMember[]> => {
     if (!supabase) return []
     const { data } = await supabase
@@ -288,5 +301,5 @@ export function useAdminData() {
     [load],
   )
 
-  return { people, groups, audit, loading, error, reload: load, setUserRole, removeUser, membersOf, setMemberRole, removeMember, inviteToGroup }
+  return { people, groups, audit, loading, error, reload: load, setUserRole, removeUser, deleteGroup, membersOf, setMemberRole, removeMember, inviteToGroup }
 }

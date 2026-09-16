@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { adminClient, stripeClient, userFromRequest } from './_lib/clients'
-import { guard, json, originOf } from './_lib/http'
+import { adminClient, stripeClient, userFromRequest } from './_lib/clients.js'
+import { guard, json, originOf, withErrors } from './_lib/http.js'
 
 /** POST { origin? } -> { url } of the Stripe Customer Portal for the signed-in user. */
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   const env = guard(req, res)
   if (!env) return
 
@@ -21,3 +21,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   })
   return json(res, 200, { url: session.url })
 }
+
+export default withErrors(handler)

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
-import { json } from './_lib/http'
+import { json, withErrors } from './_lib/http.js'
 
 /**
  * POST { userId } — permanently removes an account (auth user + profile via
@@ -8,7 +8,7 @@ import { json } from './_lib/http'
  * Needs SUPABASE_SERVICE_ROLE_KEY; deleting auth users is not possible from
  * the browser.
  */
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return json(res, 405, { error: 'method_not_allowed' })
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -41,3 +41,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   })
   return json(res, 200, { ok: true })
 }
+
+export default withErrors(handler)
