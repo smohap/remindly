@@ -33,6 +33,7 @@ export interface AdminMember {
   name: string
   email: string
   memberRole: 'admin' | 'member'
+  status: 'active' | 'invited' | 'requested'
 }
 
 export interface AuditEntry {
@@ -243,12 +244,13 @@ export function useAdminData() {
     if (!supabase) return []
     const { data } = await supabase
       .from('group_members')
-      .select('id, user_id, member_role, profiles ( full_name, email )')
+      .select('id, user_id, member_role, status, profiles ( full_name, email )')
       .eq('group_id', groupId)
     type Row = {
       id: string
       user_id: string
       member_role: 'admin' | 'member'
+      status?: 'active' | 'invited' | 'requested'
       profiles: { full_name: string | null; email: string | null } | null
     }
     return ((data ?? []) as unknown as Row[]).map(r => ({
@@ -257,6 +259,7 @@ export function useAdminData() {
       name: r.profiles?.full_name ?? '—',
       email: r.profiles?.email ?? '',
       memberRole: r.member_role,
+      status: r.status ?? 'active',
     }))
   }, [])
 
@@ -289,11 +292,13 @@ export function useAdminData() {
       if (!supabase) return 'Connect Supabase to send invites.'
       const clean = email.trim().toLowerCase()
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean)) return 'Enter a valid email address.'
-      const uid = await currentUserId()
-      const { error: err } = await supabase
-        .from('group_invites')
-        .upsert({ group_id: groupId, email: clean, invited_by: uid, member_role: memberRole }, { onConflict: 'group_id,email' })
-      if (err) return err.message
+      // Same path as the Groups tab: creates a pending invitation the person must accept.
+      const { error: err } = await supabase.rpc('add_group_member', { p_group: groupId, p_email: clean })
+      if (err) return err.message.replace(/^.*?:\s*/, '')
+      if (memberRole === 'admin') {
+        const { data: prof } = await supabase.from('profiles').select('id').ilike('email', clean).maybeSingle()
+        if (prof) await supabase.from('group_members').update({ member_role: 'admin' }).eq('group_id', groupId).eq('user_id', String(prof.id))
+      }
       await recordAudit('member.invited', 'group', groupId, { email: clean, memberRole })
       await load()
       return null

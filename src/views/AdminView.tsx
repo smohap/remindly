@@ -557,7 +557,12 @@ function GroupAdminRow({
                     {m.name.slice(0, 2).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[0.82rem] font-semibold">{m.name}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-[0.82rem] font-semibold">{m.name}</span>
+                      {m.status !== 'active' && (
+                        <span className="badge bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]">{m.status === 'invited' ? 'Invited' : 'Requested'}</span>
+                      )}
+                    </div>
                     <div className="truncate text-[0.68rem] text-[color:var(--ink-faint)]">{m.email}</div>
                   </div>
                   {canManage ? (

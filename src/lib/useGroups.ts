@@ -11,7 +11,11 @@ export interface Member {
   email: string
   initials: string
   role: 'admin' | 'member'
+  /** active = member; invited = waiting on them; requested = waiting on an admin. */
+  status: MembershipStatus
 }
+
+export type MembershipStatus = 'active' | 'invited' | 'requested'
 
 export interface Group {
   id: string
@@ -19,6 +23,10 @@ export interface Group {
   color: string
   description?: string
   role: 'admin' | 'member'
+  /** My own membership status in this group. */
+  myStatus: MembershipStatus
+  /** Share this so people can ask to join. */
+  joinCode?: string
   members: Member[]
 }
 
@@ -70,25 +78,34 @@ function subscribe(l: () => void) {
 }
 
 
-type MemberRow = { id: string; user_id: string; member_role: 'admin' | 'member'; profiles: { full_name: string | null; email: string | null } | null }
+type MemberRow = { id: string; user_id: string; member_role: 'admin' | 'member'; status: MembershipStatus; profiles: { full_name: string | null; email: string | null } | null }
 
 /** Pull the signed-in user's groups (as member or creator) with their members. */
 async function loadFromDb(uid: string): Promise<Group[]> {
   if (!supabase) return []
-  const { data: gs } = await supabase.from('groups').select('id, name, color, description')
+  const { data: gs } = await supabase.from('groups').select('id, name, color, description, join_code')
   if (!gs || gs.length === 0) return []
   const ids = gs.map(g => String(g.id))
-  const { data: ms } = await supabase.from('group_members').select('id, group_id, user_id, member_role, profiles ( full_name, email )').in('group_id', ids)
+  const { data: ms } = await supabase.from('group_members').select('id, group_id, user_id, member_role, status, profiles ( full_name, email )').in('group_id', ids)
   const rows = ((ms ?? []) as unknown as (MemberRow & { group_id: string })[])
   return gs.map(g => {
     const members: Member[] = rows
       .filter(m => String(m.group_id) === String(g.id))
       .map(m => {
         const name = m.profiles?.full_name || nameFromEmail(m.profiles?.email ?? 'member')
-        return { id: String(m.id), userId: String(m.user_id), name, email: m.profiles?.email ?? '', initials: initialsOf(name), role: m.member_role }
+        return { id: String(m.id), userId: String(m.user_id), name, email: m.profiles?.email ?? '', initials: initialsOf(name), role: m.member_role, status: m.status ?? 'active' }
       })
     const mine = members.find(m => m.userId === uid)
-    return { id: String(g.id), name: String(g.name), color: String(g.color ?? '#7C6FFF'), description: (g.description as string | null) ?? undefined, role: mine?.role ?? 'member', members }
+    return {
+      id: String(g.id),
+      name: String(g.name),
+      color: String(g.color ?? '#7C6FFF'),
+      description: (g.description as string | null) ?? undefined,
+      role: mine?.status === 'active' ? mine.role : 'member',
+      myStatus: mine?.status ?? 'active',
+      joinCode: (g.join_code as string | null) ?? undefined,
+      members,
+    }
   })
 }
 
@@ -129,7 +146,9 @@ export function useGroups() {
         color,
         description: description?.trim() || undefined,
         role: 'admin',
-        members: [{ id: `me-${Date.now()}`, name: me, email: user?.email ?? '', initials: initialsOf(me), role: 'admin' }],
+        myStatus: 'active',
+        joinCode: Math.random().toString(36).slice(2, 10).toUpperCase(),
+        members: [{ id: `me-${Date.now()}`, name: me, email: user?.email ?? '', initials: initialsOf(me), role: 'admin', status: 'active' }],
       }
       commit([g, ...groups])
     },
@@ -150,7 +169,8 @@ export function useGroups() {
       const isEmail = value.includes('@')
       const email = isEmail ? value : `${value.toLowerCase().replace(/\s+/g, '.')}@example.com`
       const name = isEmail ? nameFromEmail(value) : value
-      const member: Member = { id: `m-${Date.now()}`, name, email, initials: initialsOf(name), role: 'member' }
+      // Demo: invitations stay pending until the invitee accepts (nobody else is signed in here).
+      const member: Member = { id: `m-${Date.now()}`, name, email, initials: initialsOf(name), role: 'member', status: 'invited' }
       commit(groups.map(g => (g.id === groupId ? { ...g, members: [...g.members, member] } : g)))
     },
     [reload],
@@ -169,6 +189,42 @@ export function useGroups() {
     [reload],
   )
 
+  /** Ask to join a group by its code; an admin has to approve. */
+  const requestToJoin = useCallback(
+    async (code: string): Promise<string | null> => {
+      const clean = code.trim()
+      if (!clean) return 'Enter the group code.'
+      setError(null)
+      if (supabase) {
+        const { error: err } = await supabase.rpc('request_to_join', { p_code: clean })
+        if (err) return err.message.replace(/^.*?:\s*/, '')
+        await reload()
+        return null
+      }
+      return 'Joining by code needs a signed-in account.'
+    },
+    [reload],
+  )
+
+  /** Accept/decline an invitation (invitee) or approve/reject a request (admin). */
+  const respond = useCallback(
+    async (groupId: string, membershipId: string, accept: boolean) => {
+      setError(null)
+      if (supabase) {
+        const { error: err } = await supabase.rpc('respond_membership', { p_membership: membershipId, p_accept: accept })
+        if (err) setError(err.message.replace(/^.*?:\s*/, ''))
+        await reload()
+        return
+      }
+      commit(
+        groups.map(g =>
+          g.id !== groupId ? g : { ...g, members: accept ? g.members.map(m => (m.id === membershipId ? { ...m, status: 'active' as const } : m)) : g.members.filter(m => m.id !== membershipId) },
+        ),
+      )
+    },
+    [reload],
+  )
+
   const deleteGroup = useCallback(
     async (groupId: string) => {
       if (supabase) {
@@ -182,5 +238,25 @@ export function useGroups() {
     [reload],
   )
 
-  return { groups: dbMode ? (db ?? []) : local, loading: dbMode && db === null, error, createGroup, addMember, removeMember, deleteGroup, reload }
+  const all = dbMode ? (db ?? []) : local
+  // Groups I'm actually in, invitations waiting on me, and requests waiting on me as an admin.
+  const groupsList = all.filter(g => g.myStatus === 'active')
+  const invitations = all.filter(g => g.myStatus === 'invited')
+  const awaiting = all.filter(g => g.myStatus === 'requested')
+  const pendingRequests = groupsList.filter(g => g.role === 'admin').reduce((n, g) => n + g.members.filter(m => m.status === 'requested').length, 0)
+  return {
+    groups: groupsList,
+    invitations,
+    awaiting,
+    pendingCount: invitations.length + pendingRequests,
+    loading: dbMode && db === null,
+    error,
+    createGroup,
+    addMember,
+    removeMember,
+    deleteGroup,
+    requestToJoin,
+    respond,
+    reload,
+  }
 }

@@ -5,6 +5,7 @@ import { useActivity } from '../lib/activityStore'
 import { cn } from '../lib/cn'
 import type { Feature } from '../lib/plans'
 import { useMyRole } from '../lib/useAdmin'
+import { useGroups } from '../lib/useGroups'
 import { usePlan } from '../lib/usePlan'
 import { useStore } from '../store'
 import type { Tab } from '../types'
@@ -30,6 +31,7 @@ export function Sidebar() {
   const { isAdmin } = useMyRole()
   const { can } = usePlan()
   const { unread } = useActivity()
+  const { pendingCount } = useGroups()
   const navigate = useNavigate()
 
   // Admins get one extra entry. This only controls visibility — the server
@@ -45,7 +47,7 @@ export function Sidebar() {
       <nav className="flex flex-col gap-0.5" aria-label="Main">
         {nav.map(item => {
           const active = state.tab === item.key || (state.tab === 'upgrade' && state.upgradeReturnTab === item.key)
-          const count = item.key === 'today' ? derived.counts.today : item.key === 'inbox' ? unread : 0
+          const count = item.key === 'today' ? derived.counts.today : item.key === 'inbox' ? unread : item.key === 'groups' ? pendingCount : 0
           const locked = 'feature' in item && item.feature ? !can(item.feature) : false
           return (
             <button
