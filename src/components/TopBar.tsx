@@ -47,6 +47,9 @@ export function TopBar() {
         />
         <button type="submit" className="sr-only">Add reminder</button>
       </form>
+      <button onClick={() => actions.setQuickAdd(true)} className="btn-primary h-10 shrink-0 px-3.5" aria-label="New reminder">
+        <Plus size={16} /> <span className="hidden sm:inline">New</span>
+      </button>
       <IconButton label="Inbox" onClick={() => actions.setTab('inbox')} badge={unread} active={state.tab === 'inbox'}>
         <Bell size={17} />
       </IconButton>

@@ -76,7 +76,7 @@ export function BusinessView() {
               {active && (
                 <motion.span
                   layoutId="biz-tab"
-                  className="absolute inset-0 rounded-full bg-[color:var(--card-strong)] "
+                  className="absolute inset-0 rounded-full bg-[color:var(--surface-2)] "
                   transition={{ type: 'spring', stiffness: 400, damping: 34 }}
                 />
               )}
@@ -144,7 +144,7 @@ function CertsTab() {
                 <label className={labelCls}>Certification</label>
                 <select value={certType} onChange={e => setCertType(e.target.value)} className={field}>
                   {CERT_TYPES.map(t => (
-                    <option key={t} value={t} className="bg-[color:var(--indigo)]">{t}</option>
+                    <option key={t} value={t} className="bg-[color:var(--surface-2)]">{t}</option>
                   ))}
                 </select>
               </div>
@@ -317,7 +317,7 @@ function FinanceTab() {
                 <label className={labelCls}>Filing type</label>
                 <select value={preset} onChange={e => setPreset(e.target.value as FilingType)} className={field}>
                   {FILING_PRESETS.map(p => (
-                    <option key={p.type} value={p.type} className="bg-[color:var(--indigo)]">{p.label}</option>
+                    <option key={p.type} value={p.type} className="bg-[color:var(--surface-2)]">{p.label}</option>
                   ))}
                 </select>
                 <p className="mt-1 text-[0.68rem] text-[color:var(--ink-faint)]">{chosen.hint}</p>

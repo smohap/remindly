@@ -55,7 +55,7 @@ export function GroupsView() {
                 onChange={e => setName(e.target.value)}
                 placeholder="Group name (e.g. North Shore Crew)"
                 required
-                className="w-full rounded-[14px] border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                className="w-full rounded-[14px] border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
               />
               <div className="flex items-center gap-2">
                 <span className="text-[0.75rem] text-[color:var(--ink-dim)]">Colour</span>
@@ -74,7 +74,7 @@ export function GroupsView() {
                 <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">
                   Create group
                 </button>
-                <button type="button" onClick={() => setCreating(false)} className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">
+                <button type="button" onClick={() => setCreating(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">
                   Cancel
                 </button>
               </div>
@@ -106,7 +106,7 @@ export function GroupsView() {
               {g.members.slice(0, 4).map(m => (
                 <span
                   key={m.id}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--indigo)] bg-[color:var(--accent)] text-[0.6rem] font-bold"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--surface)] bg-[color:var(--accent)] text-[0.6rem] font-bold"
                   title={m.name}
                 >
                   {m.initials}
@@ -147,7 +147,7 @@ export function GroupsView() {
                       value={selectedId === g.id ? memberInput : ''}
                       onChange={e => setMemberInput(e.target.value)}
                       placeholder="Add member by email…"
-                      className="min-w-0 flex-1 rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.82rem]"
+                      className="min-w-0 flex-1 rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.82rem]"
                     />
                     <button type="submit" className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-white/[0.12] px-4 py-2.5 text-[0.78rem] font-bold text-white transition hover:bg-white/[0.2]">
                       <UserPlus size={15} /> Add

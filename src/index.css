@@ -21,9 +21,9 @@
   --gold: #fbbf24;
 
   /* App (dashboard) tokens — solid surfaces, one accent. */
-  --bg: #0f1119;
-  --surface: #171a26;
-  --surface-2: #1e2233;
+  --bg: #12141f;
+  --surface: #191c2a;
+  --surface-2: #212537;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
   --accent: #7c6fff;
@@ -37,7 +37,13 @@
 /* Inside the dashboard the aurora is replaced by a flat background; text
    tokens shift to a slightly cooler white that reads better on solid ink. */
 html[data-app] body {
-  background: var(--bg);
+  /* Calm but not dead: two faint accent washes over the base, fixed so they
+     don't scroll with content. No blur, no animated blobs. */
+  background:
+    radial-gradient(900px 600px at 0% 0%, rgba(124, 111, 255, 0.16), transparent 70%),
+    radial-gradient(800px 600px at 100% 100%, rgba(79, 209, 255, 0.08), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   --ink: #f3f4f8;
   --ink-dim: rgba(243, 244, 248, 0.66);
   --ink-faint: rgba(243, 244, 248, 0.42);

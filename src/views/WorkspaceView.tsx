@@ -77,7 +77,7 @@ function ShareRow({ title, text }: { title: string; text: string }) {
           setState(r === 'copied' ? 'Copied to clipboard' : r === 'shared' ? 'Shared' : 'Share unavailable')
           setTimeout(() => setState(null), 2200)
         }}
-        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
       >
         <Share2 size={13} /> Share
       </button>
@@ -87,7 +87,7 @@ function ShareRow({ title, text }: { title: string; text: string }) {
           href={t.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-full border border-[color:var(--card-border)] bg-white/[0.06] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-faint)] transition hover:text-white"
+          className="rounded-full border border-[color:var(--border-strong)] bg-white/[0.06] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-faint)] transition hover:text-white"
         >
           {t.name}
         </a>

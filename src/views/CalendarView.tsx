@@ -97,20 +97,20 @@ export function CalendarView() {
           <button
             onClick={() => move(-1)}
             aria-label={`Previous ${scale}`}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--card-border)] bg-white/[0.08] transition hover:bg-white/[0.16]"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] transition hover:bg-white/[0.16]"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={() => setCursor(today)}
-            className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/[0.16]"
+            className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/[0.16]"
           >
             Today
           </button>
           <button
             onClick={() => move(1)}
             aria-label={`Next ${scale}`}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--card-border)] bg-white/[0.08] transition hover:bg-white/[0.16]"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] transition hover:bg-white/[0.16]"
           >
             <ChevronRight size={16} />
           </button>

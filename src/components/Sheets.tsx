@@ -1,46 +1,115 @@
 import { useState } from 'react'
+import { cn } from '../lib/cn'
+import { buildReminder, normaliseTime } from '../lib/newReminder'
+import { RECURRENCES, type Recurrence } from '../lib/recurrence'
+import type { Category } from '../types'
 import { useStore } from '../store'
 import { BottomSheet } from './BottomSheet'
 import { DatePicker } from './DatePicker'
 import { SnoozeOptions } from './SnoozeOptions'
 
-function QuickAddForm() {
+const FIELD =
+  'w-full rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-2.5 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:text-[0.85rem]'
+const LABEL = 'mb-1.5 block text-[0.72rem] font-semibold text-[color:var(--ink-dim)]'
+
+const CATEGORIES: { value: Category; label: string }[] = [
+  { value: 'personal', label: 'Personal' },
+  { value: 'group', label: 'Group' },
+  { value: 'compliance', label: 'Compliance' },
+]
+
+function RepeatSelect({ value, onChange }: { value: Recurrence | ''; onChange: (r: Recurrence | '') => void }) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value as Recurrence | '')} className={FIELD}>
+      <option value="" className="bg-[color:var(--surface-2)]">Does not repeat</option>
+      {RECURRENCES.map(r => (
+        <option key={r.value} value={r.value} className="bg-[color:var(--surface-2)]">{r.label}</option>
+      ))}
+    </select>
+  )
+}
+
+/**
+ * Structured "New reminder" form, opened by the + button (desktop top bar
+ * and mobile FAB). The natural-language bar is the other way in.
+ */
+function NewReminderForm() {
   const { actions } = useStore()
-  const [text, setText] = useState('')
+  const [title, setTitle] = useState('')
+  const [date, setDate] = useState(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  })
+  const [time, setTime] = useState('')
+  const [recurrence, setRecurrence] = useState<Recurrence | ''>('')
+  const [category, setCategory] = useState<Category>('personal')
+  const [error, setError] = useState<string | null>(null)
+
+  const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
   return (
     <form
       onSubmit={e => {
         e.preventDefault()
-        actions.add(text)
-        setText('')
+        if (time.trim() && !normaliseTime(time)) {
+          setError('Time should look like "5pm" or "17:00".')
+          return
+        }
+        const r = buildReminder({ title, date: iso, time, recurrence: recurrence || undefined, category })
+        if (!r) {
+          setError('Give the reminder a title.')
+          return
+        }
+        actions.addReminder(r)
       }}
     >
       <h3 className="font-display mb-3 text-base font-bold">New reminder</h3>
-      <input
-        autoFocus
-        value={text}
-        onChange={e => setText(e.target.value)}
-        placeholder="Remind me to…"
-        className="w-full rounded-[14px] border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-3 text-base text-white outline-none placeholder:text-[color:var(--ink-faint)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-      />
-      <div className="mt-3 flex flex-wrap gap-2">
-        {['tomorrow 9am', 'every Monday', 'in 1 hour'].map(chip => (
-          <button
-            key={chip}
-            type="button"
-            onClick={() => setText(t => (t ? `${t} ${chip}` : `Remind me ${chip} — `))}
-            className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--ink-dim)]"
-          >
-            {chip}
-          </button>
-        ))}
+
+      <label className={LABEL}>Title</label>
+      <input autoFocus value={title} onChange={e => setTitle(e.target.value)} placeholder="What do you need to remember?" className={FIELD} />
+
+      <div className="mt-3">
+        <label className={LABEL}>
+          Date — <span className="text-white">{new Intl.DateTimeFormat('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' }).format(date)}</span>
+        </label>
+        <DatePicker value={date} onChange={setDate} />
       </div>
-      <button
-        type="submit"
-        className="mt-4 w-full cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-white"
-      >
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={LABEL}>Time</label>
+          <input value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 5pm — blank for all day" className={FIELD} />
+        </div>
+        <div>
+          <label className={LABEL}>Repeat</label>
+          <RepeatSelect value={recurrence} onChange={setRecurrence} />
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <label className={LABEL}>Category</label>
+        <div className="flex gap-1.5">
+          {CATEGORIES.map(c => (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => setCategory(c.value)}
+              aria-pressed={category === c.value}
+              className={cn('rounded-[10px] px-3 py-1.5 text-[0.78rem] font-semibold transition', category === c.value ? 'bg-[color:var(--accent-soft)] text-[color:var(--accent)]' : 'bg-white/[0.06] text-[color:var(--ink-dim)] hover:text-white')}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {error && <p className="mt-3 text-[0.78rem] text-[color:var(--danger)]">{error}</p>}
+
+      <button type="submit" className="mt-4 w-full cursor-pointer rounded-full bg-[color:var(--accent)] py-3 text-[0.85rem] font-bold text-white">
         Add reminder
       </button>
+      <p className="mt-2 text-center text-[0.7rem] text-[color:var(--ink-faint)]">Or type it naturally in the bar at the top — "gym every weekday at 6am".</p>
     </form>
   )
 }
@@ -51,6 +120,7 @@ function EditReminderForm({ id }: { id: string }) {
   const reminder = state.reminders.find(r => r.id === id)
   const [title, setTitle] = useState(reminder?.title ?? '')
   const [time, setTime] = useState(reminder?.time ?? '')
+  const [recurrence, setRecurrence] = useState<Recurrence | ''>(reminder?.recurrence ?? '')
   const [date, setDate] = useState(() => {
     const d = new Date()
     d.setHours(0, 0, 0, 0)
@@ -77,8 +147,9 @@ function EditReminderForm({ id }: { id: string }) {
         e.preventDefault()
         actions.edit(id, {
           title: title.trim() || reminder.title,
-          time: time.trim() || undefined,
+          time: normaliseTime(time) ?? undefined,
           dayOffset: offsetOf(date),
+          recurrence: recurrence || undefined,
         })
       }}
     >
@@ -94,9 +165,15 @@ function EditReminderForm({ id }: { id: string }) {
         <DatePicker value={date} onChange={setDate} />
       </div>
 
-      <div className="mt-3">
-        <label className={labelCls}>Time</label>
-        <input value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 5:00 PM — leave blank for all day" className={field} />
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={labelCls}>Time</label>
+          <input value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 5:00 PM — leave blank for all day" className={field} />
+        </div>
+        <div>
+          <label className={labelCls}>Repeat</label>
+          <RepeatSelect value={recurrence} onChange={setRecurrence} />
+        </div>
       </div>
 
       <div className="mt-4 flex gap-2">
@@ -121,7 +198,7 @@ export function GlobalSheets() {
   return (
     <>
       <BottomSheet open={state.quickAddOpen} onClose={() => actions.setQuickAdd(false)} label="Add a reminder">
-        <QuickAddForm />
+        <NewReminderForm />
       </BottomSheet>
 
       <BottomSheet open={state.editTargetId !== null} onClose={() => actions.openEdit(null)} label="Edit reminder">

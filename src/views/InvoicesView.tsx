@@ -119,7 +119,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
         <div className="relative">
           <span className={labelCls}>Send to</span>
           {picked ? (
-            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-2">
+            <div className="flex items-center gap-2 rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] px-3 py-2">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.6rem] font-bold">
                 {picked.name.slice(0, 2).toUpperCase()}
               </span>
@@ -199,7 +199,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
         <label>
           <span className={labelCls}>Currency</span>
           <select value={currency} onChange={e => setCurrency(e.target.value)} className={field}>
-            {CURRENCIES.map(c => <option key={c} value={c} className="bg-[color:var(--indigo)]">{c}</option>)}
+            {CURRENCIES.map(c => <option key={c} value={c} className="bg-[color:var(--surface-2)]">{c}</option>)}
           </select>
         </label>
       </div>
@@ -331,7 +331,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice; onBack: () => vo
         )}
 
         {invoice.resolutionComment && (
-          <div className="rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.06] p-3 text-[0.8rem]">
+          <div className="rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.06] p-3 text-[0.8rem]">
             <span className="font-semibold">{invoice.status === 'rejected' ? 'Reason for rejection: ' : 'Note: '}</span>
             <span className="text-[color:var(--ink-dim)]">{invoice.resolutionComment}</span>
           </div>

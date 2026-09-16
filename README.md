@@ -32,6 +32,7 @@ The app runs out of the box in **demo mode** (simulated auth, no backend). To en
    - `supabase/migrations/0001_initial_schema.sql`
    - `supabase/migrations/0002_premium_features.sql` … `0006_business_compliance.sql`
    - `supabase/migrations/0007_billing_recurrence_admin.sql`  *(billing, activity log, recurring reminders, admin bootstrap)*
+   - `supabase/migrations/0008_role_guard_service_role.sql`  *(lets the SQL editor change roles)*
    - `supabase/seed.sql`  *(optional — creates demo user `demo@remindly.app` / `Password123!`; no sample data)*
 3. Enable **Google** as an auth provider: Supabase Dashboard → Authentication → Providers → Google (add your Google OAuth client ID & secret, and set the authorised redirect to your Supabase callback URL).
 4. Add the redirect URLs for your app (e.g. `http://localhost:5173/app` and your Vercel domain `/app`) under Authentication → URL Configuration.
@@ -46,7 +47,7 @@ With these set, the login page uses real Supabase auth (email/password + Google)
 
 ## Who is admin?
 
-Roles live in `profiles.role` (`user`, `group_admin`, `super_admin`) and are enforced by RLS — the UI only decides what to show. After migration 0007, **the first account to sign up becomes Super Admin** automatically. To promote any existing account, run in the SQL editor:
+Roles live in `profiles.role` (`user`, `group_admin`, `super_admin`) and are enforced by RLS — the UI only decides what to show. After migration 0007, **the first account to sign up becomes Super Admin** automatically. To promote any existing account, run migration 0008 once (it lets the SQL editor bypass the in-app role guard), then:
 
 ```sql
 update public.profiles set role = 'super_admin' where email = 'you@example.com';

@@ -29,7 +29,7 @@ export function DatePicker({ value, onChange }: { value: Date; onChange: (d: Dat
   const shift = (n: number) => setMonth(new Date(month.getFullYear(), month.getMonth() + n, 1))
 
   return (
-    <div className="rounded-[14px] border border-[color:var(--card-border)] bg-white/[0.06] p-3">
+    <div className="rounded-[14px] border border-[color:var(--border-strong)] bg-white/[0.06] p-3">
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"

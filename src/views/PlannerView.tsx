@@ -207,7 +207,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                 <button
                   onClick={() => setLinkFor(linkFor === t.id ? null : t.id)}
                   title="Dependencies"
-                  className="flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-[color:var(--card-border)] bg-white/[0.06] px-2.5 py-1 text-[0.68rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+                  className="flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-[color:var(--border-strong)] bg-white/[0.06] px-2.5 py-1 text-[0.68rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
                 >
                   <Link2 size={12} /> {t.dependsOn.length || 'Link'}
                 </button>
@@ -220,13 +220,13 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                 <input
                   type="date" value={t.start} onChange={e => updateTask(plan.id, t.id, { start: e.target.value })}
                   aria-label="Start date"
-                  className="rounded-[9px] border border-[color:var(--card-border)] bg-white/[0.08] px-2 py-1 text-white outline-none"
+                  className="rounded-[9px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2 py-1 text-white outline-none"
                 />
                 <span className="text-[color:var(--ink-faint)]">→</span>
                 <input
                   type="date" value={t.end} min={t.start} onChange={e => updateTask(plan.id, t.id, { end: e.target.value })}
                   aria-label="End date"
-                  className="rounded-[9px] border border-[color:var(--card-border)] bg-white/[0.08] px-2 py-1 text-white outline-none"
+                  className="rounded-[9px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2 py-1 text-white outline-none"
                 />
                 <span className="text-[color:var(--ink-faint)]">{taskDays(t)}d</span>
                 <label className="ml-auto flex items-center gap-1.5 text-[color:var(--ink-dim)]">

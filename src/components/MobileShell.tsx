@@ -53,7 +53,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
         <button
           aria-label="Inbox"
           onClick={() => actions.setTab('inbox')}
-          className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.08]"
+          className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08]"
         >
           <Bell size={17} />
           {unread > 0 && (
@@ -66,7 +66,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
             await signOut()
             navigate('/')
           }}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--card-border)] bg-white/[0.08] text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[12px] border border-[color:var(--border-strong)] bg-white/[0.08] text-[color:var(--ink-dim)] transition hover:text-[color:var(--red)]"
         >
           <LogOut size={17} />
         </button>

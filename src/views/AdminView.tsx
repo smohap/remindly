@@ -115,7 +115,7 @@ export function AdminView() {
               {active && (
                 <motion.span
                   layoutId="admin-tab"
-                  className="absolute inset-0 rounded-full bg-[color:var(--card-strong)] "
+                  className="absolute inset-0 rounded-full bg-[color:var(--surface-2)] "
                   transition={{ type: 'spring', stiffness: 400, damping: 34 }}
                 />
               )}
@@ -158,11 +158,11 @@ export function AdminView() {
                     flash(err ? `Couldn't change ${p.name}'s role — ${err}` : `${p.name} is now ${ROLE_LABEL[next]}`)
                   }}
                   aria-label={`Role for ${p.name}`}
-                  className="shrink-0 rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-white outline-none"
+                  className="shrink-0 rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-white outline-none"
                 >
-                  <option value="user" className="bg-[color:var(--indigo)]">User</option>
-                  <option value="group_admin" className="bg-[color:var(--indigo)]">Group Admin</option>
-                  <option value="super_admin" className="bg-[color:var(--indigo)]">Super Admin</option>
+                  <option value="user" className="bg-[color:var(--surface-2)]">User</option>
+                  <option value="group_admin" className="bg-[color:var(--surface-2)]">Group Admin</option>
+                  <option value="super_admin" className="bg-[color:var(--surface-2)]">Super Admin</option>
                 </select>
               )}
             </div>
@@ -282,7 +282,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                       escalateFurther(e.id)
                       onNotice(`${e.reminderTitle} escalated to Super Admin`)
                     }}
-                    className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
+                    className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3.5 py-1.5 text-[0.75rem] font-semibold text-[color:var(--ink-dim)] transition hover:text-white"
                   >
                     Escalate further
                   </button>
@@ -320,7 +320,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                   type="number" min={1} max={168} value={p.escalateAfterHours}
                   onChange={e => updatePolicy(p.groupId, { escalateAfterHours: Number(e.target.value) })}
                   disabled={!p.complianceEnabled}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
                 />
               </label>
               <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
@@ -329,7 +329,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                   type="number" min={1} max={336} value={p.secondHopHours}
                   onChange={e => updatePolicy(p.groupId, { secondHopHours: Number(e.target.value) })}
                   disabled={!p.complianceEnabled}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none disabled:opacity-50"
                 />
               </label>
               <label className="text-[0.72rem] text-[color:var(--ink-dim)]">
@@ -337,7 +337,7 @@ function CompliancePanel({ onNotice }: { onNotice: (m: string) => void }) {
                 <input
                   type="number" min={0} max={10080} value={p.defaultLeadMinutes}
                   onChange={e => updatePolicy(p.groupId, { defaultLeadMinutes: Number(e.target.value) })}
-                  className="mt-1 w-full rounded-[10px] border border-[color:var(--card-border)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none"
+                  className="mt-1 w-full rounded-[10px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2.5 py-1.5 text-white outline-none"
                 />
               </label>
             </div>
@@ -519,10 +519,10 @@ function GroupAdminRow({
                           refresh()
                         }}
                         aria-label={`Group role for ${m.name}`}
-                        className="shrink-0 rounded-[9px] border border-[color:var(--card-border)] bg-white/[0.08] px-2 py-1 text-[0.7rem] text-white outline-none"
+                        className="shrink-0 rounded-[9px] border border-[color:var(--border-strong)] bg-white/[0.08] px-2 py-1 text-[0.7rem] text-white outline-none"
                       >
-                        <option value="member" className="bg-[color:var(--indigo)]">Member</option>
-                        <option value="admin" className="bg-[color:var(--indigo)]">Admin</option>
+                        <option value="member" className="bg-[color:var(--surface-2)]">Member</option>
+                        <option value="admin" className="bg-[color:var(--surface-2)]">Admin</option>
                       </select>
                       <button
                         onClick={async () => {
@@ -564,10 +564,10 @@ function GroupAdminRow({
                     value={inviteRole}
                     onChange={e => setInviteRole(e.target.value as 'admin' | 'member')}
                     aria-label="Invite as"
-                    className="rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-3 py-2 text-[0.75rem] text-white outline-none"
+                    className="rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-3 py-2 text-[0.75rem] text-white outline-none"
                   >
-                    <option value="member" className="bg-[color:var(--indigo)]">as Member</option>
-                    <option value="admin" className="bg-[color:var(--indigo)]">as Admin</option>
+                    <option value="member" className="bg-[color:var(--surface-2)]">as Member</option>
+                    <option value="admin" className="bg-[color:var(--surface-2)]">as Admin</option>
                   </select>
                   <button type="submit" className={cn(primaryBtn, 'flex items-center gap-1.5')}>
                     <Mail size={14} /> Invite

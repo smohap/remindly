@@ -92,7 +92,7 @@ function VaultSection() {
                 <label className={labelClass}>Type</label>
                 <select value={itemType} onChange={e => setItemType(e.target.value as VaultType)} className={fieldClass}>
                   {VAULT_TYPES.map(t => (
-                    <option key={t.value} value={t.value} className="bg-[color:var(--indigo)]">{t.icon} {t.label}</option>
+                    <option key={t.value} value={t.value} className="bg-[color:var(--surface-2)]">{t.icon} {t.label}</option>
                   ))}
                 </select>
               </div>
@@ -106,7 +106,7 @@ function VaultSection() {
               </div>
               <div className="flex gap-2 sm:col-span-2">
                 <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">Save to vault</button>
-                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
+                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
               </div>
             </div>
           </motion.form>
@@ -189,9 +189,9 @@ function SubscriptionsSection() {
               <div>
                 <label className={labelClass}>Billing cycle</label>
                 <select value={cycle} onChange={e => setCycle(e.target.value as Cycle)} className={fieldClass}>
-                  <option value="weekly" className="bg-[color:var(--indigo)]">Weekly</option>
-                  <option value="monthly" className="bg-[color:var(--indigo)]">Monthly</option>
-                  <option value="yearly" className="bg-[color:var(--indigo)]">Yearly</option>
+                  <option value="weekly" className="bg-[color:var(--surface-2)]">Weekly</option>
+                  <option value="monthly" className="bg-[color:var(--surface-2)]">Monthly</option>
+                  <option value="yearly" className="bg-[color:var(--surface-2)]">Yearly</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
@@ -200,7 +200,7 @@ function SubscriptionsSection() {
               </div>
               <div className="flex gap-2 sm:col-span-2">
                 <button type="submit" className="flex-1 cursor-pointer rounded-full bg-[color:var(--accent)] py-2.5 text-[0.82rem] font-bold text-white">Track subscription</button>
-                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--card-border)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
+                <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-full border border-[color:var(--border-strong)] bg-white/[0.08] px-4 py-2.5 text-[0.82rem] font-semibold text-[color:var(--ink-dim)]">Cancel</button>
               </div>
             </div>
           </motion.form>

@@ -150,7 +150,7 @@ export function ProfileView() {
               <span className={labelCls}>Timezone</span>
               <select value={f.timezone} onChange={e => set('timezone', e.target.value)} className={field}>
                 {TIMEZONES.map(tz => (
-                  <option key={tz} value={tz} className="bg-[color:var(--indigo)]">{tz.replace('_', ' ')}</option>
+                  <option key={tz} value={tz} className="bg-[color:var(--surface-2)]">{tz.replace('_', ' ')}</option>
                 ))}
               </select>
             </label>
@@ -162,7 +162,7 @@ export function ProfileView() {
               <span className={labelCls}>Language</span>
               <select value={f.language} onChange={e => set('language', e.target.value)} className={field}>
                 {LANGUAGES.map(l => (
-                  <option key={l} value={l} className="bg-[color:var(--indigo)]">{l}</option>
+                  <option key={l} value={l} className="bg-[color:var(--surface-2)]">{l}</option>
                 ))}
               </select>
             </label>
