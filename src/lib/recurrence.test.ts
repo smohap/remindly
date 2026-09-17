@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { RECURRENCES, describeRecurrence, nextOccurrence, occurrencesInRange } from './recurrence'
+import { RECURRENCES, describeRecurrence, effectiveDueDate, nextOccurrence, occurrencesInRange } from './recurrence'
 
 describe('nextOccurrence', () => {
   it('advances by the cadence', () => {
@@ -38,5 +38,25 @@ describe('occurrencesInRange', () => {
   it('one-off reminders appear once, and only if inside the window', () => {
     expect(occurrencesInRange('2026-09-16', undefined, '2026-09-01', '2026-09-30')).toEqual(['2026-09-16'])
     expect(occurrencesInRange('2026-09-16', undefined, '2026-10-01', '2026-10-31')).toEqual([])
+  })
+})
+
+describe('effectiveDueDate', () => {
+  const today = '2026-09-17'
+  it('leaves future and one-off dates alone', () => {
+    expect(effectiveDueDate('2026-09-20', 'weekly', today)).toBe('2026-09-20')
+    expect(effectiveDueDate('2026-01-01', undefined, today)).toBe('2026-01-01')
+  })
+  it('a missed occurrence inside the grace window is still overdue', () => {
+    expect(effectiveDueDate('2026-09-16', 'daily', today)).toBe('2026-09-17') // an occurrence falls today, so today wins
+    expect(effectiveDueDate('2026-09-16', 'weekly', today)).toBe('2026-09-16')
+    expect(effectiveDueDate('2026-09-12', 'monthly', today)).toBe('2026-09-12') // 5 days ago, 7-day grace
+    expect(effectiveDueDate('2025-09-14', 'yearly', today)).toBe('2026-09-14') // this year's, 3 days ago
+  })
+  it('past the grace window it moves on to the next occurrence', () => {
+    expect(effectiveDueDate('2026-09-10', 'weekly', today)).toBe('2026-09-17') // a week ago: this week's is today
+    expect(effectiveDueDate('2026-09-08', 'weekly', today)).toBe('2026-09-22') // 09-15 missed by 2 days > grace → 09-22
+    expect(effectiveDueDate('2026-01-05', 'monthly', today)).toBe('2026-10-05') // 09-05 missed by 12 days → 10-05
+    expect(effectiveDueDate('2026-03-01', 'daily', today)).toBe('2026-09-17') // today's occurrence
   })
 })

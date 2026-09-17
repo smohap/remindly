@@ -24,8 +24,8 @@ function LiveRegion() {
 
 /** Runs the due-reminder notification loop for as long as the app is open. */
 function NotificationRunner() {
-  const { state } = useStore()
-  useNotifications(state.reminders)
+  const { derived } = useStore()
+  useNotifications(derived.active)
   return null
 }
 

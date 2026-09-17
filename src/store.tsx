@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { logActivity } from './lib/activityStore'
 import { parseReminder } from './lib/nlParse'
-import { nextOccurrence } from './lib/recurrence'
+import { effectiveDueDate, nextOccurrence, todayISO } from './lib/recurrence'
 import { dateToOffset, offsetToDate, remindersStore, saveForeignStatus } from './lib/remindersStore'
 import { currentUserId } from './lib/invoicesDb'
 import { isSnoozed, snoozeLabel, snoozeUntil, type SnoozeKey } from './lib/snooze'
@@ -78,7 +78,12 @@ function describeOffset(dayOffset: number): string {
 export function acknowledgeOne(r: Reminder): Reminder {
   // Only the owner rolls a recurring reminder; a member's ack covers the current occurrence.
   if (!r.recurrence || r.ownedByMe === false) return { ...r, acknowledged: true, snoozedUntil: undefined }
-  const next = nextOccurrence(offsetToDate(r.dayOffset), r.recurrence)
+  // Roll past the occurrence currently being shown (which may already be a
+  // future one if earlier dates were missed), never to one still in the past.
+  const due = offsetToDate(r.dayOffset)
+  const shown = effectiveDueDate(due, r.recurrence)
+  const from = shown > todayISO() ? shown : todayISO()
+  const next = nextOccurrence(due, r.recurrence, from)
   return { ...r, dayOffset: dateToOffset(next), acknowledged: false, snoozedUntil: undefined }
 }
 
@@ -266,15 +271,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const derived = useMemo<Derived>(() => {
     const now = new Date(state.now)
-    const snoozed = state.reminders.filter(r => !r.acknowledged && isSnoozed(r.snoozedUntil, now))
-    const active = state.reminders.filter(r => !r.acknowledged && !isSnoozed(r.snoozedUntil, now))
+    const today = todayISO()
+    // Recurring reminders are shown for their *effective* occurrence: a missed
+    // one only within its grace window, otherwise the next date on or after
+    // today. The stored due date is untouched; this is a view of it.
+    const effective = (r: Reminder): Reminder => {
+      if (!r.recurrence) return r
+      const eff = dateToOffset(effectiveDueDate(offsetToDate(r.dayOffset), r.recurrence, today))
+      return eff === r.dayOffset ? r : { ...r, dayOffset: eff }
+    }
+    const snoozed = state.reminders.filter(r => !r.acknowledged && isSnoozed(r.snoozedUntil, now)).map(effective)
+    const active = state.reminders.filter(r => !r.acknowledged && !isSnoozed(r.snoozedUntil, now)).map(effective)
     const counts = {
       today: active.filter(r => r.dayOffset === 0).length,
       tomorrow: active.filter(r => r.dayOffset === 1).length,
       week: active.filter(r => r.dayOffset >= 0 && r.dayOffset <= 6).length,
       overdue: active.filter(r => r.dayOffset < 0).length,
     }
-    const todayAll = state.reminders.filter(r => r.dayOffset === 0)
+    const todayAll = state.reminders.map(effective).filter(r => r.dayOffset === 0)
     const total = todayAll.length
     const done = todayAll.filter(r => r.acknowledged).length
     const nextUp =

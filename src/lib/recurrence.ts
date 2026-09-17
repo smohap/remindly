@@ -110,3 +110,42 @@ export function occurrencesInRange(dueISO: string, r: Recurrence | undefined, fr
   }
   return out
 }
+
+/** How long a missed occurrence stays "overdue" before the reminder moves on. */
+export function graceDays(r: Recurrence): number {
+  switch (r) {
+    case 'daily':
+    case 'weekdays':
+    case 'weekly':
+      return 1
+    case 'fortnightly':
+      return 3
+    case 'monthly':
+    case 'yearly':
+      return 7
+  }
+}
+
+function daysBetween(a: string, b: string): number {
+  return Math.round((new Date(b + 'T00:00:00').getTime() - new Date(a + 'T00:00:00').getTime()) / 86400000)
+}
+
+/**
+ * The occurrence a recurring reminder should currently be shown for.
+ * - Due today or later: that date.
+ * - Missed within its grace window (1 day for daily/weekly, 3 for fortnightly,
+ *   7 for monthly/yearly): the missed date, so it reads as overdue.
+ * - Missed longer ago: the next occurrence on or after today.
+ */
+export function effectiveDueDate(dueISO: string, r: Recurrence | undefined, today: string = todayISO()): string {
+  if (!r || dueISO >= today) return dueISO
+  let last = dueISO
+  let next = nextOccurrence(dueISO, r, dueISO)
+  let guard = 0
+  while (next <= today && guard < 5000) {
+    last = next
+    next = nextOccurrence(dueISO, r, last)
+    guard++
+  }
+  return daysBetween(last, today) <= graceDays(r) ? last : next
+}
