@@ -30,23 +30,26 @@ create table if not exists public.group_note_access (
 );
 
 -- Carry over 0014: members who had "write" on the whole group keep write on
--- every list and note that exists today.
-insert into public.group_list_access (list_id, user_id, access)
-select l.id, m.user_id, 'write'
-  from public.group_lists l
-  join public.group_members m on m.group_id = l.group_id and m.status = 'active' and m.member_role <> 'admin'
- where m.workspace_access = 'write'
-on conflict do nothing;
-insert into public.group_note_access (note_id, user_id, access)
-select n.id, m.user_id, 'write'
-  from public.group_notes n
-  join public.group_members m on m.group_id = n.group_id and m.status = 'active' and m.member_role <> 'admin'
- where m.workspace_access = 'write'
-on conflict do nothing;
-
-alter table public.group_members drop column if exists workspace_access;
-drop function if exists public.can_read_group_workspace(uuid);
-drop function if exists public.can_edit_group_workspace(uuid);
+-- every list and note that exists today. Skipped when 0014's column is
+-- already gone, so this file can be re-run.
+do $$
+begin
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'group_members' and column_name = 'workspace_access') then
+    insert into public.group_list_access (list_id, user_id, access)
+    select l.id, m.user_id, 'write'
+      from public.group_lists l
+      join public.group_members m on m.group_id = l.group_id and m.status = 'active' and m.member_role <> 'admin'
+     where m.workspace_access = 'write'
+    on conflict do nothing;
+    insert into public.group_note_access (note_id, user_id, access)
+    select n.id, m.user_id, 'write'
+      from public.group_notes n
+      join public.group_members m on m.group_id = n.group_id and m.status = 'active' and m.member_role <> 'admin'
+     where m.workspace_access = 'write'
+    on conflict do nothing;
+    alter table public.group_members drop column workspace_access;
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- What may the caller do with one list / note?  'none' | 'read' | 'write'
@@ -149,3 +152,9 @@ drop policy if exists "group docs objects delete" on storage.objects;
 create policy "group docs objects delete" on storage.objects
   for delete to authenticated
   using (bucket_id = 'group-docs' and (public.is_group_admin((storage.foldername(name))[1]::uuid) or owner = auth.uid()));
+
+-- ---------------------------------------------------------------------------
+-- 0014's group-wide predicates: nothing references them any more.
+-- ---------------------------------------------------------------------------
+drop function if exists public.can_read_group_workspace(uuid);
+drop function if exists public.can_edit_group_workspace(uuid);
