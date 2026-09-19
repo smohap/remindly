@@ -9,7 +9,8 @@ describe('planAllows', () => {
   it('plus unlocks personal premium but not team features', () => {
     expect(planAllows('plus', 'vault')).toBe(true)
     expect(planAllows('plus', 'invoices')).toBe(true)
-    expect(planAllows('plus', 'group_chat')).toBe(false)
+    expect(planAllows('plus', 'group_chat')).toBe(true)
+    expect(planAllows('plus', 'admin_console')).toBe(false)
   })
   it('team unlocks group features but not business', () => {
     expect(planAllows('team', 'group_chat')).toBe(true)
@@ -24,7 +25,8 @@ describe('planAllows', () => {
 describe('planForFeature', () => {
   it('names the cheapest plan that includes a feature', () => {
     expect(planForFeature('vault')).toBe('plus')
-    expect(planForFeature('group_chat')).toBe('team')
+    expect(planForFeature('group_chat')).toBe('plus')
+    expect(planForFeature('admin_console')).toBe('team')
     expect(planForFeature('business')).toBe('growth')
   })
 })

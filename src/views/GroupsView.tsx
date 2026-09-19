@@ -423,7 +423,7 @@ export function GroupsView() {
                     {can('group_chat') ? (
                       <GroupChat groupId={g.id} groupColor={g.color} />
                     ) : (
-                      <UpgradeGate feature="group_chat" description="Chat with the members of this group right where the reminders are. Included in Team and above." />
+                      <UpgradeGate feature="group_chat" description="Chat with the members of this group right where the reminders are. Included in Personal Plus and all business plans." />
                     )}
                   </div>
 

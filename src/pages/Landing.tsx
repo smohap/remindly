@@ -51,10 +51,10 @@ const audiences = [
       'GST / PAYE filing deadlines with NZ IRD cycles built in',
       'Compliance mode with mandatory acknowledgement & audit log',
       'Invoicing — issue, chase and settle invoices with a full audit log',
-      'Group chat — discuss reminders where the work happens',
-      'Calendar sync — Google, Outlook & Apple across the team',
-      'Shift & roster reminders + customer appointment reminders',
-      'Analytics, white-label branding & REST API',
+      'Group workspace & chat — shared lists, notes, documents and discussion',
+      'Group reminders everyone sees, marked done per person',
+      'Admin console — people, roles, plans and an audit log',
+      'Analytics dashboard',
     ],
   },
 ]
@@ -100,7 +100,7 @@ const businessPlans: Plan[] = [
     price: '$49',
     unit: 'per org / month',
     cta: 'Start Team',
-    features: ['Core team reminders', 'Groups, roles & shared calendars', 'Group chat', 'Calendar sync (Google, Outlook, Apple)', 'Multi-channel delivery', 'Up to 100 users'],
+    features: ['Everything in Personal Plus', 'Admin console and roles', 'Shared group calendars', 'Group workspace and chat', 'Audit log', 'Up to 100 users'],
   },
   {
     name: 'Growth',
