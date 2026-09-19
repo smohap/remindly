@@ -42,7 +42,10 @@ export function Sidebar() {
     <aside className="card flex flex-col gap-6 px-3 py-6 xl:px-4">
       <div className="flex items-center justify-center px-1.5 xl:justify-start">
         <img src="/neuroli-icon.png" alt="" className="h-9 w-9 xl:hidden" />
-        <img src="/neuroli-logo.png" alt="Neuroli" className="logo-theme hidden h-9 w-auto xl:block" />
+        <picture className="hidden xl:block">
+          <img src="/neuroli-logo-light.png" alt="Neuroli" className="logo-dark-only h-9 w-auto" />
+          <img src="/neuroli-logo-dark.png" alt="" className="logo-light-only h-9 w-auto" />
+        </picture>
       </div>
       <nav className="flex flex-col gap-0.5" aria-label="Main">
         {nav.map(item => {
