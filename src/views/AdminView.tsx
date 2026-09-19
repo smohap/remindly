@@ -5,6 +5,7 @@ import { cn } from '../lib/cn'
 import { ROLE_LABEL, useAdminData, useMyRole, type AdminMember, type UserRole } from '../lib/useAdmin'
 import { useCompliance } from '../lib/useBusiness'
 import { useStore } from '../store'
+import { PLANS, type PlanId } from '../lib/plans'
 import { useAuth } from '../auth/AuthContext'
 import { currentUserId } from '../lib/invoicesDb'
 import { AdminDiscoverPanel } from './AdminDiscoverPanel'
@@ -29,6 +30,7 @@ const ACTION_LABEL: Record<string, string> = {
   'member.invited': 'invited someone',
   'user.removed': 'removed an account',
   'group.deleted': 'deleted a group',
+  'plan.granted': 'changed a plan',
 }
 
 function fmtWhen(iso: string) {
@@ -37,7 +39,7 @@ function fmtWhen(iso: string) {
 
 export function AdminView() {
   const { role, isAdmin, isSuperAdmin, loading: roleLoading, dbMode } = useMyRole()
-  const { people, groups, audit, loading, error, setUserRole, removeUser, deleteGroup, membersOf, setMemberRole, removeMember, inviteToGroup } = useAdminData()
+  const { people, groups, audit, loading, error, setUserRole, setUserPlan, removeUser, deleteGroup, membersOf, setMemberRole, removeMember, inviteToGroup } = useAdminData()
   const { user } = useAuth()
   const [myId, setMyId] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
@@ -173,6 +175,23 @@ export function AdminView() {
                   <option value="user" className="bg-[color:var(--surface-2)]">User</option>
                   <option value="group_admin" className="bg-[color:var(--surface-2)]">Group Admin</option>
                   <option value="super_admin" className="bg-[color:var(--surface-2)]">Super Admin</option>
+                </select>
+              )}
+              {isSuperAdmin && (
+                <select
+                  value={p.plan}
+                  onChange={async e => {
+                    const next = e.target.value as PlanId
+                    const err = await setUserPlan(p.id, next, p.name)
+                    flash(err ? `Couldn't change ${p.name}'s plan — ${err}` : `${p.name} is now on ${PLANS.find(x => x.id === next)?.name ?? next}`)
+                  }}
+                  aria-label={`Plan for ${p.name}`}
+                  title={p.planStatus === 'granted' ? 'Set by an admin' : p.planStatus !== 'none' ? `Stripe: ${p.planStatus}` : 'Free'}
+                  className="shrink-0 rounded-[10px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2.5 py-1.5 text-[0.72rem] text-[color:var(--ink)] outline-none"
+                >
+                  {PLANS.map(pl => (
+                    <option key={pl.id} value={pl.id} className="bg-[color:var(--surface-2)]">{pl.name}{p.plan === pl.id && p.planStatus === 'granted' ? ' (granted)' : ''}</option>
+                  ))}
                 </select>
               )}
               {isSuperAdmin && p.id !== myId && (

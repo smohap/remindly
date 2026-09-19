@@ -12,7 +12,7 @@ import { GROUP_COLORS, useGroups, type GroupHit, type PersonHit } from '../lib/u
 
 export function GroupsView() {
   const { can } = usePlan()
-  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, setMembersCanEdit, searchPeople, searchGroups, respond, error, loading } = useGroups()
+  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, setMembersCanEdit, setMemberRole, searchPeople, searchGroups, respond, error, loading } = useGroups()
   const [inviteMsg, setInviteMsg] = useState<string | null>(null)
   const [people, setPeople] = useState<PersonHit[]>([])
   const [groupQuery, setGroupQuery] = useState('')
@@ -292,6 +292,15 @@ export function GroupsView() {
                             right={
                               <>
                                 <span className="shrink-0 text-[0.62rem] font-bold uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">{m.role}</span>
+                                {isAdmin && m.email.toLowerCase() !== (user?.email ?? '').toLowerCase() && (
+                                  <button
+                                    onClick={() => void setMemberRole(g.id, m.id, m.role === 'admin' ? 'member' : 'admin')}
+                                    className="btn-ghost shrink-0 px-2 py-1 text-[0.7rem]"
+                                    title={m.role === 'admin' ? 'Step down to member' : 'Make a group admin'}
+                                  >
+                                    {m.role === 'admin' ? 'Remove admin' : 'Make admin'}
+                                  </button>
+                                )}
                                 {isAdmin && m.role !== 'admin' && (
                                   <button onClick={() => removeMember(g.id, m.id)} aria-label={`Remove ${m.name} from the group`} title="Remove from group" className="btn-ghost btn-danger shrink-0 px-2 py-1 text-[0.7rem]">
                                     <X size={13} /> Remove

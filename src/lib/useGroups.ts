@@ -308,6 +308,21 @@ export function useGroups() {
     [reload],
   )
 
+  /** Group admins (and Super Admins) may make any member an admin, or step them back down. */
+  const setMemberRole = useCallback(
+    async (groupId: string, memberId: string, role: 'admin' | 'member') => {
+      setError(null)
+      if (supabase) {
+        const { error: err } = await supabase.from('group_members').update({ member_role: role }).eq('id', memberId)
+        if (err) setError(err.message.replace(/^.*?:\s*/, ''))
+        await reload()
+        return
+      }
+      commit(groups.map(g => (g.id === groupId ? { ...g, members: g.members.map(m => (m.id === memberId ? { ...m, role } : m)) } : g)))
+    },
+    [reload],
+  )
+
   /** Admin switch for the shared workspace. */
   const setMembersCanEdit = useCallback(
     async (groupId: string, on: boolean) => {
@@ -356,6 +371,7 @@ export function useGroups() {
     requestToJoin,
     requestToJoinGroup,
     setMembersCanEdit,
+    setMemberRole,
     searchPeople,
     searchGroups,
     respond,

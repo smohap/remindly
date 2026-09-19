@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase'
 import { currentUserId } from './invoicesDb'
+import { isPlanId, type PlanId } from './plans'
 
 /**
  * The three-tier role system, read from the server.
@@ -17,6 +18,9 @@ export interface AdminProfile {
   name: string
   email: string
   role: UserRole
+  plan: PlanId
+  /** 'granted' when set by an admin, a Stripe status otherwise, 'none' on free. */
+  planStatus: string
 }
 
 export interface AdminGroup {
@@ -134,7 +138,7 @@ export function useAdminData() {
     setLoading(true)
     try {
       const uid = await currentUserId()
-      const [profilesRes, groupsRes, membersRes, auditRes] = await Promise.all([
+      const [profilesRes, groupsRes, membersRes, auditRes, billingRes] = await Promise.all([
         supabase.from('profiles').select('id, full_name, email, role').order('full_name'),
         supabase.from('groups').select('id, name, color'),
         supabase.from('group_members').select('id, group_id, user_id, member_role'),
@@ -143,16 +147,24 @@ export function useAdminData() {
           .select('id, actor_name, action, entity, detail, created_at')
           .order('created_at', { ascending: false })
           .limit(50),
+        supabase.from('billing_subscriptions').select('user_id, plan, status'),
       ])
       if (profilesRes.error) throw profilesRes.error
 
+      // Only Super Admins may read others' plans (0013); everyone else gets free/none here.
+      const plans = new Map(((billingRes.data ?? []) as { user_id: string; plan: string; status: string }[]).map(b => [String(b.user_id), b]))
       setPeople(
-        (profilesRes.data ?? []).map(p => ({
-          id: String(p.id),
-          name: (p.full_name as string) ?? '—',
-          email: (p.email as string) ?? '',
-          role: (p.role as UserRole) ?? 'user',
-        })),
+        (profilesRes.data ?? []).map(p => {
+          const b = plans.get(String(p.id))
+          return {
+            id: String(p.id),
+            name: (p.full_name as string) ?? '—',
+            email: (p.email as string) ?? '',
+            role: (p.role as UserRole) ?? 'user',
+            plan: b && isPlanId(b.plan) ? b.plan : 'free',
+            planStatus: b?.status ?? 'none',
+          }
+        }),
       )
 
       const members = (membersRes.data ?? []) as { group_id: string; user_id: string; member_role: string }[]
@@ -195,6 +207,32 @@ export function useAdminData() {
       const { error: err } = await supabase.from('profiles').update({ role }).eq('id', userId)
       if (err) return err.message.replace(/^.*?:\s*/, '')
       await recordAudit('role.changed', 'profile', userId, { name, role })
+      await load()
+      return null
+    },
+    [load],
+  )
+
+  /** Super Admin only: set someone's plan without Stripe (server function, service role). */
+  const setUserPlan = useCallback(
+    async (userId: string, plan: PlanId, name: string): Promise<string | null> => {
+      if (!supabase) return 'Connect Supabase to manage plans.'
+      const { data } = await supabase.auth.getSession()
+      const token = data.session?.access_token
+      if (!token) return 'Sign in again to continue.'
+      try {
+        const res = await fetch('/api/admin-set-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ userId, plan }),
+        })
+        const body = (await res.json().catch(() => ({}))) as { error?: string }
+        if (res.status === 503) return 'Plan changes need SUPABASE_SERVICE_ROLE_KEY on the server.'
+        if (!res.ok) return body.error ?? `Request failed (${res.status})`
+      } catch (e) {
+        return e instanceof Error ? e.message : 'Network error'
+      }
+      await recordAudit('plan.granted', 'profile', userId, { name, plan })
       await load()
       return null
     },
@@ -306,5 +344,5 @@ export function useAdminData() {
     [load],
   )
 
-  return { people, groups, audit, loading, error, reload: load, setUserRole, removeUser, deleteGroup, membersOf, setMemberRole, removeMember, inviteToGroup }
+  return { people, groups, audit, loading, error, reload: load, setUserRole, setUserPlan, removeUser, deleteGroup, membersOf, setMemberRole, removeMember, inviteToGroup }
 }
