@@ -4,8 +4,8 @@ import { cn } from '../lib/cn'
 export function Brand({ className, to = '/' }: { className?: string; to?: string }) {
   return (
     <Link to={to} aria-label="Neuroli home" className={cn('flex items-center', className)}>
-      {/* The wordmark is dark navy; on the aurora pages it sits in a soft light pill so it stays legible. */}
-      <img src="/neuroli-logo.png" alt="Neuroli" className="h-12 w-auto rounded-2xl bg-white/92 px-3.5 py-1.5 shadow-[0_6px_24px_rgba(20,10,60,0.25)]" />
+      {/* Marketing pages are dark: show the wordmark in white. */}
+      <img src="/neuroli-logo.png" alt="Neuroli" className="logo-on-dark h-10 w-auto" />
     </Link>
   )
 }

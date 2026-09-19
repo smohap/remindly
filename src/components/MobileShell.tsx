@@ -47,7 +47,7 @@ function MobileHeader({ compact }: { compact: boolean }) {
         <Avatar size={34} />
       </button>
       <div className="flex items-center">
-        <img src="/neuroli-logo.png" alt="Neuroli" className="h-7 w-auto rounded-lg bg-white/90 px-2 py-0.5" />
+        <img src="/neuroli-logo.png" alt="Neuroli" className="logo-theme h-7 w-auto" />
       </div>
       <div className="flex items-center gap-2">
         <button

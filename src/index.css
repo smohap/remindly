@@ -121,6 +121,18 @@ body {
    panels on some displays, so the background is now a clean gradient. */
 
 @layer components {
+  /* The wordmark is navy. Until a light-on-dark version exists, render it
+     white wherever the background is dark; keep the original in light mode. */
+  .logo-on-dark {
+    filter: brightness(0) invert(1);
+  }
+  .logo-theme {
+    filter: brightness(0) invert(1);
+  }
+  html[data-app][data-theme='light'] .logo-theme {
+    filter: none;
+  }
+
   /* Dashboard surfaces: solid, bordered, no blur. */
   .card {
     background: var(--surface);
