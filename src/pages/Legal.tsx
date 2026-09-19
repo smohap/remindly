@@ -40,13 +40,13 @@ export function Terms() {
     <PageShell title="Terms & Conditions" subtitle={UPDATED}>
       <Section heading="1. Acceptance of terms">
         <p>
-          By accessing or using Remindly ("the Service"), you agree to be bound by these Terms & Conditions. If you are
+          By accessing or using Neuroli ("the Service"), you agree to be bound by these Terms & Conditions. If you are
           using the Service on behalf of an organisation, you represent that you have authority to bind that organisation.
         </p>
       </Section>
       <Section heading="2. Use of the Service">
         <p>
-          Remindly provides reminder scheduling, notification delivery, and coordination tools. You agree to use the Service
+          Neuroli provides reminder scheduling, notification delivery, and coordination tools. You agree to use the Service
           only for lawful purposes and not to misuse notification channels or send unsolicited messages through the platform.
         </p>
       </Section>
@@ -65,13 +65,13 @@ export function Terms() {
       <Section heading="5. Availability & liability">
         <p>
           We work hard to keep the Service reliable but do not guarantee uninterrupted availability. To the maximum extent
-          permitted by law, Remindly is not liable for missed reminders arising from third-party channel outages, device
+          permitted by law, Neuroli is not liable for missed reminders arising from third-party channel outages, device
           settings, or events beyond our reasonable control.
         </p>
       </Section>
       <Section heading="6. Contact">
         <p>
-          Questions about these terms? Reach us at <a className="text-white underline" href="mailto:legal@remindly.app">legal@remindly.app</a>.
+          Questions about these terms? Reach us at <a className="text-white underline" href="mailto:legal@neuroli.app">legal@neuroli.app</a>.
         </p>
       </Section>
     </PageShell>
@@ -113,7 +113,7 @@ export function Privacy() {
       </Section>
       <Section heading="6. Contact">
         <p>
-          Privacy questions? Email <a className="text-white underline" href="mailto:privacy@remindly.app">privacy@remindly.app</a>.
+          Privacy questions? Email <a className="text-white underline" href="mailto:privacy@neuroli.app">privacy@neuroli.app</a>.
         </p>
       </Section>
     </PageShell>
@@ -126,7 +126,7 @@ const COMPANY = 'AIDO Technologies Ltd'
 export function About() {
   return (
     <PageShell
-      title="About Remindly"
+      title="About Neuroli"
       subtitle="We build the reminder platform we wanted ourselves — one that works for a single person keeping life together, and for a team keeping a business compliant."
     >
       <Section heading="Why we built it">
@@ -136,7 +136,7 @@ export function About() {
           a five-person business.
         </p>
         <p>
-          Remindly sits in the middle. The same engine that nudges you about your passport renewal also escalates an
+          Neuroli sits in the middle. The same engine that nudges you about your passport renewal also escalates an
           unacknowledged safety checklist to a site manager.
         </p>
       </Section>
@@ -152,12 +152,12 @@ export function About() {
       </Section>
       <Section heading="The company">
         <p>
-          Remindly is a product of <b className="text-white">{COMPANY}</b>. We're a small team that believes software
+          Neuroli is a product of <b className="text-white">{COMPANY}</b>. We're a small team that believes software
           should be honest about what it does — which is why our roadmap is public and our limitations are written down.
         </p>
         <p>
           Questions, feedback or partnership ideas:{' '}
-          <a className="text-white underline" href="mailto:hello@remindly.app">hello@remindly.app</a>
+          <a className="text-white underline" href="mailto:hello@neuroli.app">hello@neuroli.app</a>
         </p>
       </Section>
     </PageShell>
@@ -212,7 +212,7 @@ const FEATURE_GROUPS: { title: string; items: [string, string][] }[] = [
 export function Features() {
   return (
     <PageShell
-      title="Everything Remindly does"
+      title="Everything Neuroli does"
       subtitle="One reminder engine, two ways to use it. Start free and add the toolkit that matches your world."
     >
       {FEATURE_GROUPS.map(g => (
@@ -270,7 +270,7 @@ const ROADMAP: { stage: string; tone: string; items: [string, string][] }[] = [
       ['Voice assistants', 'Siri Shortcuts and Google Assistant for hands-free reminders.'],
       ['Shift and roster reminders', 'Rosters, swap requests and no-show escalation.'],
       ['Customer appointment reminders', 'Branded SMS and email reminders to your customers, with confirm and reschedule links.'],
-      ['REST API and webhooks', 'Integrate Remindly with your own systems.'],
+      ['REST API and webhooks', 'Integrate Neuroli with your own systems.'],
       ['Zapier and HRIS integrations', 'Connect to thousands of apps and sync staff lists automatically.'],
       ['White-label branding', 'Your logo and colours on customer-facing notifications.'],
       ['Multi-location broadcast', 'Franchise-wide announcements with per-location acknowledgement tracking.'],
@@ -345,7 +345,7 @@ export function Pricing() {
           <p>
             Need white-labelling, an API, data residency or an SLA? Those are on our{' '}
             <Link to="/roadmap" className="text-white underline">roadmap</Link>. Talk to us about early access at{' '}
-            <a className="text-white underline" href="mailto:sales@remindly.app">sales@remindly.app</a>.
+            <a className="text-white underline" href="mailto:sales@neuroli.app">sales@neuroli.app</a>.
           </p>
         </Section>
       </div>
@@ -372,7 +372,7 @@ export function Security() {
       </Section>
       <Section heading="Roles and permissions">
         <p>
-          Remindly has three tiers: User, Group Admin and Super Admin. Role changes can only be made by a Super Admin, and
+          Neuroli has three tiers: User, Group Admin and Super Admin. Role changes can only be made by a Super Admin, and
           never to their own account — a rule enforced by a database trigger, not just hidden buttons.
         </p>
       </Section>
@@ -396,7 +396,7 @@ export function Security() {
         </p>
         <p>
           Found a vulnerability? Email{' '}
-          <a className="text-white underline" href="mailto:security@remindly.app">security@remindly.app</a> — we'll
+          <a className="text-white underline" href="mailto:security@neuroli.app">security@neuroli.app</a> — we'll
           acknowledge within two business days.
         </p>
       </Section>
@@ -406,12 +406,12 @@ export function Security() {
 
 // ===========================================================================
 const FAQS: [string, string][] = [
-  ['Is Remindly free?', 'Yes. The core reminder engine — smart lists, natural-language adding, recurring reminders, calendar views, snooze and quiet hours — is free forever, including 5 lists, 10 notes and 50 bookmarks. Personal Plus, Team and Growth add unlimited items plus the individual and business toolkits.'],
+  ['Is Neuroli free?', 'Yes. The core reminder engine — smart lists, natural-language adding, recurring reminders, calendar views, snooze and quiet hours — is free forever, including 5 lists, 10 notes and 50 bookmarks. Personal Plus, Team and Growth add unlimited items plus the individual and business toolkits.'],
   ['Do I need an account for my whole family or team?', 'Each person signs up individually, then you invite them to a group. Group members see shared reminders and group chat; personal reminders stay private to each person.'],
-  ['How do notifications work?', 'Remindly sends browser notifications on laptops and Android. A reminder with a specific time starts nudging an hour beforehand; an all-day reminder starts that morning. Either way it repeats every 15 minutes until you acknowledge it.'],
-  ['Why am I not getting notifications on my iPhone?', 'Safari only delivers web notifications when a site has been added to the Home Screen. Open Remindly in Safari, tap Share, then "Add to Home Screen", and enable notifications from Settings inside the app.'],
-  ['Does Remindly sync with Google or Outlook calendars?', 'Not yet — calendar sync is on the roadmap. We would rather say so than let you assume your calendar is syncing.'],
-  ['Can I use Remindly on my phone?', 'Yes. Remindly is a responsive web app with a native-feeling mobile layout — bottom tab bar, swipe to acknowledge or snooze, and bottom sheets. Native app store apps are on the roadmap.'],
+  ['How do notifications work?', 'Neuroli sends browser notifications on laptops and Android. A reminder with a specific time starts nudging an hour beforehand; an all-day reminder starts that morning. Either way it repeats every 15 minutes until you acknowledge it.'],
+  ['Why am I not getting notifications on my iPhone?', 'Safari only delivers web notifications when a site has been added to the Home Screen. Open Neuroli in Safari, tap Share, then "Add to Home Screen", and enable notifications from Settings inside the app.'],
+  ['Does Neuroli sync with Google or Outlook calendars?', 'Not yet — calendar sync is on the roadmap. We would rather say so than let you assume your calendar is syncing.'],
+  ['Can I use Neuroli on my phone?', 'Yes. Neuroli is a responsive web app with a native-feeling mobile layout — bottom tab bar, swipe to acknowledge or snooze, and bottom sheets. Native app store apps are on the roadmap.'],
   ['What happens to my data if I stop paying?', 'Your data is never deleted because a subscription lapses. You keep read access to everything and revert to the free limits for creating new items.'],
   ['Can I export my data?', 'You can delete your account and its data at any time from Settings. A full self-service export is on our roadmap; in the meantime email us and we will send you your data.'],
   ['Who can see my diary and personal notes?', 'Only you. Diary entries, personal notes and private lists are scoped to your account at the database level. Sharing is always something you turn on deliberately.'],
@@ -421,7 +421,7 @@ const FAQS: [string, string][] = [
 export function FAQ() {
   const [open, setOpen] = useState<number | null>(0)
   return (
-    <PageShell title="Help & FAQ" subtitle="Straight answers about how Remindly works — including what it can't do yet.">
+    <PageShell title="Help & FAQ" subtitle="Straight answers about how Neuroli works — including what it can't do yet.">
       <div className="flex flex-col gap-2">
         {FAQS.map(([q, a], i) => (
           <div key={q} className="glass overflow-hidden">
@@ -436,7 +436,7 @@ export function FAQ() {
       <div className="mt-4">
         <Section heading="Still stuck?">
           <p>
-            Email <a className="text-white underline" href="mailto:hello@remindly.app">hello@remindly.app</a> or use the{' '}
+            Email <a className="text-white underline" href="mailto:hello@neuroli.app">hello@neuroli.app</a> or use the{' '}
             <Link to="/contact" className="text-white underline">contact form</Link>. We reply within one business day.
           </p>
         </Section>
@@ -451,7 +451,7 @@ export function Cookies() {
     <PageShell title="Cookie Policy" subtitle={UPDATED}>
       <Section heading="1. What we use">
         <p>
-          Remindly uses the minimum storage needed to work. We do not use advertising cookies, and we do not sell data to
+          Neuroli uses the minimum storage needed to work. We do not use advertising cookies, and we do not sell data to
           anyone.
         </p>
       </Section>
@@ -486,10 +486,10 @@ export function AcceptableUse() {
   return (
     <PageShell title="Acceptable Use Policy" subtitle={UPDATED}>
       <Section heading="1. The short version">
-        <p>Use Remindly to organise your life and your work. Don't use it to harm, deceive or spam anyone.</p>
+        <p>Use Neuroli to organise your life and your work. Don't use it to harm, deceive or spam anyone.</p>
       </Section>
       <Section heading="2. You must not">
-        <p>— Send unsolicited bulk messages, marketing or spam through any Remindly channel.</p>
+        <p>— Send unsolicited bulk messages, marketing or spam through any Neuroli channel.</p>
         <p>— Impersonate another person or organisation, including in invoices and group messages.</p>
         <p>— Upload or share unlawful, harassing, hateful or infringing content.</p>
         <p>— Attempt to access another user's account or data, or probe our systems without written permission.</p>
@@ -508,7 +508,7 @@ export function AcceptableUse() {
           authorities. Where practical we will contact you first.
         </p>
         <p>
-          Report abuse to <a className="text-white underline" href="mailto:abuse@remindly.app">abuse@remindly.app</a>.
+          Report abuse to <a className="text-white underline" href="mailto:abuse@neuroli.app">abuse@neuroli.app</a>.
         </p>
       </Section>
     </PageShell>
@@ -526,14 +526,14 @@ export function Contact() {
             <Mail size={18} className="mt-0.5 shrink-0 text-[color:var(--cyan)]" />
             <div>
               <div className="text-[0.85rem] font-bold text-white">Email</div>
-              <a className="text-[0.85rem] text-[color:var(--ink-dim)] hover:text-white" href="mailto:hello@remindly.app">hello@remindly.app</a>
+              <a className="text-[0.85rem] text-[color:var(--ink-dim)] hover:text-white" href="mailto:hello@neuroli.app">hello@neuroli.app</a>
             </div>
           </div>
           <div className="glass flex items-start gap-3 p-5">
             <MessageSquare size={18} className="mt-0.5 shrink-0 text-[color:var(--violet)]" />
             <div>
               <div className="text-[0.85rem] font-bold text-white">Sales &amp; demos</div>
-              <a className="text-[0.85rem] text-[color:var(--ink-dim)] hover:text-white" href="mailto:sales@remindly.app">sales@remindly.app</a>
+              <a className="text-[0.85rem] text-[color:var(--ink-dim)] hover:text-white" href="mailto:sales@neuroli.app">sales@neuroli.app</a>
             </div>
           </div>
           <div className="glass flex items-start gap-3 p-5">

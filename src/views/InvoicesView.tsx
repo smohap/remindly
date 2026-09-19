@@ -169,7 +169,7 @@ function CreateInvoiceForm({ onDone }: { onDone: () => void }) {
               )}
               {dbMode && !searching && query.trim().length >= 3 && results.length === 0 && (
                 <p className="mt-1 text-[0.7rem] text-[color:var(--ink-faint)]">
-                  No one found. They need a Remindly account before you can invoice them.
+                  No one found. They need a Neuroli account before you can invoice them.
                 </p>
               )}
             </>

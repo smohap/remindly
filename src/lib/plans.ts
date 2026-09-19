@@ -21,6 +21,7 @@ export type Feature =
   | 'admin_console'
   | 'business'
   | 'analytics'
+  | 'group_workspace'
 
 /** The cheapest plan that includes each feature. */
 export const FEATURE_MIN_PLAN: Record<Feature, PlanId> = {
@@ -35,6 +36,7 @@ export const FEATURE_MIN_PLAN: Record<Feature, PlanId> = {
   admin_console: 'team',
   business: 'growth',
   analytics: 'growth',
+  group_workspace: 'plus',
 }
 
 export const FEATURE_LABEL: Record<Feature, string> = {
@@ -49,6 +51,7 @@ export const FEATURE_LABEL: Record<Feature, string> = {
   admin_console: 'Admin console',
   business: 'Business compliance suite',
   analytics: 'Analytics dashboard',
+  group_workspace: 'Group workspace',
 }
 
 export interface Plan {
@@ -91,6 +94,7 @@ export const PLANS: Plan[] = [
       'Event planner with Gantt charts',
       'Invoicing',
       'Shared lists',
+      'Group workspace — shared lists, notes and documents',
     ],
   },
   {

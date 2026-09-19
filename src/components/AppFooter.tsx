@@ -6,7 +6,7 @@ export function AppFooter() {
     <footer className="mt-2 flex flex-col items-center justify-between gap-2 border-t border-[color:var(--border)] px-2 pb-2 pt-4 text-[0.72rem] text-[color:var(--ink-faint)] sm:flex-row">
       <span className="flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--accent)]" />
-        © {new Date().getFullYear()} Remindly by AIDO Technologies Ltd
+        © {new Date().getFullYear()} Neuroli by AIDO Technologies Ltd
       </span>
       <nav className="flex items-center gap-4" aria-label="Footer">
         <Link to="/terms" className="transition hover:text-[color:var(--ink)]">Terms</Link>

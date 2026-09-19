@@ -11,7 +11,7 @@ import { Footer } from '../components/Footer'
 
 // The essentials — free on every plan
 const features = [
-  { icon: Bot, title: 'AI natural-language add', body: 'Type "remind me to submit the safety audit tomorrow at 9am". Remindly parses the date, time, and category for you.' },
+  { icon: Bot, title: 'AI natural-language add', body: 'Type "remind me to submit the safety audit tomorrow at 9am". Neuroli parses the date, time, and category for you.' },
   { icon: BellRing, title: 'Nudges until it’s done', body: 'Browser and installed-app notifications every 15 minutes until you acknowledge — starting an hour before timed reminders.' },
   { icon: AlarmClock, title: 'Snooze that comes back', body: 'An hour, this evening, tomorrow or next week — snoozed reminders return on their own and show up in your history.' },
   { icon: MoonStar, title: 'Quiet hours', body: 'Batch non-urgent reminders during your quiet hours — while critical items always break through.' },
@@ -26,7 +26,7 @@ const audiences = [
     color: '#2DD4BF',
     kicker: 'For individuals & families',
     title: 'Keep your whole life on track',
-    body: 'Never miss a renewal, a payment, or a birthday. Remindly watches the deadlines you forget about.',
+    body: 'Never miss a renewal, a payment, or a birthday. Neuroli watches the deadlines you forget about.',
     premium: [
       'Renewal Vault — passports, licences, WOF & insurance before they lapse',
       'Subscription tracker — see total spend, get warned before each charge',
@@ -213,7 +213,7 @@ export default function Landing() {
             Never let a deadline,<br />renewal, or payment slip
           </h1>
           <p className="mx-auto mt-5 max-w-[640px] text-[1rem] leading-relaxed text-[color:var(--ink-dim)] sm:text-[1.1rem]">
-            Remindly tracks the things you forget about — passport renewals, subscriptions and birthdays for
+            Neuroli tracks the things you forget about — passport renewals, subscriptions and birthdays for
             <span className="text-white"> individuals</span>, and certifications, contracts and filing deadlines for
             <span className="text-white"> businesses</span> — with smart escalation and a personal alarm that cuts through the noise.
           </p>
@@ -347,7 +347,7 @@ export default function Landing() {
           <Gift size={38} className="text-[color:var(--cyan)]" />
           <h2 className="font-display text-[1.8rem] font-bold text-white sm:text-[2.2rem]">Ready to never miss what matters?</h2>
           <p className="max-w-[520px] text-[0.95rem] text-[color:var(--ink-dim)]">
-            Whether it's your passport renewal or your team's compliance deadline — Remindly has it covered. Free to start.
+            Whether it's your passport renewal or your team's compliance deadline — Neuroli has it covered. Free to start.
           </p>
           <Link to="/login" className="rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] px-8 py-3.5 text-[0.95rem] font-bold text-[#1a1240] transition hover:brightness-110">
             Create your free account

@@ -114,7 +114,7 @@ export function SettingsView() {
           <NotificationsCard />
           <QuietHoursCard />
           <p className="flex items-start gap-2 text-[0.74rem] text-[color:var(--ink-faint)] md:col-span-2">
-            <Moon size={13} className="mt-0.5 shrink-0" /> Email, SMS and Slack delivery are on the roadmap — for now Remindly nudges you in the browser and on installed mobile web apps.
+            <Moon size={13} className="mt-0.5 shrink-0" /> Email, SMS and Slack delivery are on the roadmap — for now Neuroli nudges you in the browser and on installed mobile web apps.
           </p>
         </div>
       )}

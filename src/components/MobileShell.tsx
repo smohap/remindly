@@ -46,9 +46,8 @@ function MobileHeader({ compact }: { compact: boolean }) {
       <button aria-label="Profile" onClick={() => actions.openTab('settings', 'profile')} className="cursor-pointer">
         <Avatar size={34} />
       </button>
-      <div className="font-display flex items-center gap-2 text-base font-extrabold">
-        <span className="h-2 w-2 rounded-full bg-[color:var(--accent)]" />
-        Remindly
+      <div className="flex items-center">
+        <img src="/neuroli-logo.png" alt="Neuroli" className="h-7 w-auto rounded-lg bg-white/90 px-2 py-0.5" />
       </div>
       <div className="flex items-center gap-2">
         <button

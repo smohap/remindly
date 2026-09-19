@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Check, KeyRound, MessageSquare, Plus, Trash2, UserPlus, X } from 'lucide-react'
+import { Check, FolderOpen, KeyRound, MessageSquare, Plus, Trash2, UserPlus, X } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { GroupChat } from '../components/GroupChat'
+import { GroupWorkspace } from '../components/GroupWorkspace'
+import { ToggleSwitch } from '../components/ToggleSwitch'
 import { UpgradeGate } from '../components/UpgradeGate'
 import { usePlan } from '../lib/usePlan'
 import { useAuth } from '../auth/AuthContext'
@@ -10,7 +12,7 @@ import { GROUP_COLORS, useGroups, type GroupHit, type PersonHit } from '../lib/u
 
 export function GroupsView() {
   const { can } = usePlan()
-  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, searchPeople, searchGroups, respond, error, loading } = useGroups()
+  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, setMembersCanEdit, searchPeople, searchGroups, respond, error, loading } = useGroups()
   const [inviteMsg, setInviteMsg] = useState<string | null>(null)
   const [people, setPeople] = useState<PersonHit[]>([])
   const [groupQuery, setGroupQuery] = useState('')
@@ -384,6 +386,25 @@ export function GroupsView() {
                       Group code <span className="font-mono font-bold text-[color:var(--ink)]">{g.joinCode}</span> — share it so people can ask to join; you approve each request here.
                     </p>
                   )}
+
+                  <div className="mt-3 border-t border-[color:var(--border)] pt-3">
+                    <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                      <FolderOpen size={14} className="text-[color:var(--ink-dim)]" />
+                      <span className="text-[0.8rem] font-bold">Workspace</span>
+                      <span className="text-[0.7rem] text-[color:var(--ink-faint)]">shared lists, notes and documents</span>
+                      {g.role === 'admin' && (
+                        <label className="ml-auto flex items-center gap-2 text-[0.72rem] text-[color:var(--ink-dim)]">
+                          Members can edit
+                          <ToggleSwitch on={g.membersCanEdit} onChange={() => void setMembersCanEdit(g.id, !g.membersCanEdit)} label="Members can edit the workspace" />
+                        </label>
+                      )}
+                    </div>
+                    {g.role === 'admin' || can('group_workspace') ? (
+                      <GroupWorkspace groupId={g.id} canEdit={g.role === 'admin' || g.membersCanEdit} />
+                    ) : (
+                      <UpgradeGate feature="group_workspace" description="Shared lists, notes and documents for this group. Included in Personal Plus and all business plans." />
+                    )}
+                  </div>
 
                   <div className="mt-3 border-t border-[color:var(--border)] pt-3">
                     <div className="mb-2.5 flex items-center gap-2">

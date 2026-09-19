@@ -114,7 +114,7 @@ function VaultSection() {
       </AnimatePresence>
 
       {items.length === 0 ? (
-        <EmptyState icon="🗄️" title="Your vault is empty" text="Add a passport, licence, WOF or policy and Remindly will remind you before it expires." />
+        <EmptyState icon="🗄️" title="Your vault is empty" text="Add a passport, licence, WOF or policy and Neuroli will remind you before it expires." />
       ) : (
         items.map(item => {
           const meta = vaultMeta(item.itemType)
@@ -256,7 +256,7 @@ export function FinanceView() {
       />
       {segment === 'invoices' && <InvoicesView />}
       {segment === 'subscriptions' && (can('subscriptions') ? <SubscriptionsSection /> : <UpgradeGate feature="subscriptions" description="See what your recurring payments add up to and get a nudge before every charge." />)}
-      {segment === 'renewals' && (can('vault') ? <VaultSection /> : <UpgradeGate feature="vault" description="Track passports, licences, WOF and policies — Remindly reminds you before each one expires." />)}
+      {segment === 'renewals' && (can('vault') ? <VaultSection /> : <UpgradeGate feature="vault" description="Track passports, licences, WOF and policies — Neuroli reminds you before each one expires." />)}
     </div>
   )
 }

@@ -44,6 +44,8 @@ export interface Group {
   joinCode?: string
   /** False when the group is visible only through Super Admin rights. */
   isMember?: boolean
+  /** Admin switch: may members edit the shared workspace? */
+  membersCanEdit: boolean
   members: Member[]
 }
 
@@ -100,7 +102,7 @@ type MemberRow = { id: string; user_id: string; member_role: 'admin' | 'member';
 /** Pull the signed-in user's groups (as member or creator) with their members. */
 async function loadFromDb(uid: string): Promise<{ groups: Group[]; error: string | null }> {
   if (!supabase) return { groups: [], error: null }
-  const { data: gs, error: gErr } = await supabase.from('groups').select('id, name, color, description, join_code')
+  const { data: gs, error: gErr } = await supabase.from('groups').select('id, name, color, description, join_code, members_can_edit')
   if (gErr) return { groups: [], error: gErr.message }
   if (!gs || gs.length === 0) return { groups: [], error: null }
   const ids = gs.map(g => String(g.id))
@@ -129,6 +131,7 @@ async function loadFromDb(uid: string): Promise<{ groups: Group[]; error: string
       myStatus: mine?.status ?? 'active',
       isMember: Boolean(mine),
       joinCode: (g.join_code as string | null) ?? undefined,
+      membersCanEdit: Boolean(g.members_can_edit),
       members,
     }
   })
@@ -175,6 +178,7 @@ export function useGroups() {
         description: description?.trim() || undefined,
         role: 'admin',
         myStatus: 'active',
+        membersCanEdit: false,
         joinCode: Math.random().toString(36).slice(2, 10).toUpperCase(),
         members: [{ id: `me-${Date.now()}`, name: me, email: user?.email ?? '', initials: initialsOf(me), role: 'admin', status: 'active' }],
       }
@@ -304,6 +308,21 @@ export function useGroups() {
     [reload],
   )
 
+  /** Admin switch for the shared workspace. */
+  const setMembersCanEdit = useCallback(
+    async (groupId: string, on: boolean) => {
+      setError(null)
+      if (supabase) {
+        const { error: err } = await supabase.from('groups').update({ members_can_edit: on }).eq('id', groupId)
+        if (err) setError(err.message)
+        await reload()
+        return
+      }
+      commit(groups.map(g => (g.id === groupId ? { ...g, membersCanEdit: on } : g)))
+    },
+    [reload],
+  )
+
   const deleteGroup = useCallback(
     async (groupId: string) => {
       if (supabase) {
@@ -336,6 +355,7 @@ export function useGroups() {
     deleteGroup,
     requestToJoin,
     requestToJoinGroup,
+    setMembersCanEdit,
     searchPeople,
     searchGroups,
     respond,

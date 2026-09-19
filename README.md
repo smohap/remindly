@@ -1,4 +1,4 @@
-# Remindly
+# Neuroli
 
 The intelligent reminder platform — a multi-tenant reminder & event-notification app with three user tiers (Super Admin, Group Admin, User), recurring reminders, smart grouping, compliance acknowledgement with escalation, quiet hours, and paid plans (Personal Plus, Team, Growth) billed through Stripe.
 
@@ -36,7 +36,8 @@ The app runs out of the box in **demo mode** (simulated auth, no backend). To en
    - `supabase/migrations/0009_groups_rpc.sql`  *(groups created in-app; creator becomes group admin)*
    - `supabase/migrations/0010_membership_approval.sql`  *(invitations must be accepted; join requests must be approved)*
    - `supabase/migrations/0011_search_and_notifications.sql`  *(search people/groups; membership notifications in the Inbox)*
-   - `supabase/seed.sql`  *(optional — creates demo user `demo@remindly.app` / `Password123!`; no sample data)*
+   - `supabase/migrations/0012_group_workspace.sql`  *(group workspace: shared lists, notes, documents + the private `group-docs` bucket)*
+   - `supabase/seed.sql`  *(optional — creates demo user `demo@neuroli.app` / `Password123!`; no sample data)*
 3. Enable **Google** as an auth provider: Supabase Dashboard → Authentication → Providers → Google (add your Google OAuth client ID & secret, and set the authorised redirect to your Supabase callback URL).
 4. Add the redirect URLs for your app (e.g. `http://localhost:5173/app` and your Vercel domain `/app`) under Authentication → URL Configuration.
 5. Copy `.env.example` to `.env.local` and fill in:
@@ -56,7 +57,7 @@ Roles live in `profiles.role` (`user`, `group_admin`, `super_admin`) and are enf
 update public.profiles set role = 'super_admin' where email = 'you@example.com';
 ```
 
-Super Admins see the **Admin** tab: people and roles (including **removing accounts** — this calls `/api/admin-delete-user`, which needs `SUPABASE_SERVICE_ROLE_KEY` on Vercel), groups, the **Discover events** catalogue (public events anyone can subscribe to), compliance policy, analytics and the audit log. Whoever creates a group is its Group Admin by default. Membership needs consent on both sides: inviting someone by email creates an invitation they accept or decline under Groups, and anyone can find a group by name (or enter its code) and ask to join, which an admin approves or rejects. Invitations, requests and approvals show up in the Inbox. Inviting an email with no account yet sends a Supabase Auth invitation email (`/api/invite-user`; needs the service-role key, and `https://<your-domain>/app` in Supabase → Authentication → URL Configuration → Redirect URLs). Local data is per device: signing in as a different account on the same browser clears the previous account's on-device data. In local demo mode (no Supabase) everyone is treated as Super Admin so the console is explorable.
+Super Admins see the **Admin** tab: people and roles (including **removing accounts** — this calls `/api/admin-delete-user`, which needs `SUPABASE_SERVICE_ROLE_KEY` on Vercel), groups, the **Discover events** catalogue (public events anyone can subscribe to), compliance policy, analytics and the audit log. Whoever creates a group is its Group Admin by default. Membership needs consent on both sides: inviting someone by email creates an invitation they accept or decline under Groups, and anyone can find a group by name (or enter its code) and ask to join, which an admin approves or rejects. Invitations, requests and approvals show up in the Inbox. Each group also has a **workspace** (shared lists, notes and documents up to 20 MB): admins always have full access, members on Personal Plus / Team / Growth can view it, and they can edit only when the admin switches on *Members can edit*. Inviting an email with no account yet sends a Supabase Auth invitation email (`/api/invite-user`; needs the service-role key, and `https://<your-domain>/app` in Supabase → Authentication → URL Configuration → Redirect URLs). Local data is per device: signing in as a different account on the same browser clears the previous account's on-device data. In local demo mode (no Supabase) everyone is treated as Super Admin so the console is explorable.
 
 ## Plans and billing (Stripe)
 

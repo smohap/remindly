@@ -3,9 +3,9 @@ import { cn } from '../lib/cn'
 
 export function Brand({ className, to = '/' }: { className?: string; to?: string }) {
   return (
-    <Link to={to} className={cn('font-display flex items-center gap-[9px] text-[1.3rem] font-extrabold text-white', className)}>
-      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[linear-gradient(135deg,var(--cyan),var(--violet))] shadow-[0_0_14px_var(--cyan)]" />
-      Remindly
+    <Link to={to} aria-label="Neuroli home" className={cn('flex items-center', className)}>
+      {/* The wordmark is dark navy; on the aurora pages it sits in a soft light pill so it stays legible. */}
+      <img src="/neuroli-logo.png" alt="Neuroli" className="h-12 w-auto rounded-2xl bg-white/92 px-3.5 py-1.5 shadow-[0_6px_24px_rgba(20,10,60,0.25)]" />
     </Link>
   )
 }

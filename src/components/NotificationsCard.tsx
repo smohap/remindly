@@ -10,7 +10,7 @@ export function NotificationsCard() {
     !supported ? "This browser can't show notifications."
     : permission === 'granted' ? 'On — you\'ll be nudged every 15 minutes until you acknowledge. Timed reminders start an hour before; all-day ones start that morning.'
     : permission === 'denied' ? 'Blocked. Re-enable notifications for this site in your browser settings.'
-    : 'Get nudged when a reminder is due, even when Remindly is in another tab.'
+    : 'Get nudged when a reminder is due, even when Neuroli is in another tab.'
 
   return (
     <div className="card flex flex-col gap-2 p-5">
@@ -25,7 +25,7 @@ export function NotificationsCard() {
         )}
       </div>
       <p className="text-[0.72rem] leading-relaxed text-[color:var(--ink-dim)]">{body}</p>
-      <p className="text-[0.68rem] text-[color:var(--ink-faint)]">On iPhone, add Remindly to your Home Screen first — Safari only allows notifications for installed apps.</p>
+      <p className="text-[0.68rem] text-[color:var(--ink-faint)]">On iPhone, add Neuroli to your Home Screen first — Safari only allows notifications for installed apps.</p>
     </div>
   )
 }

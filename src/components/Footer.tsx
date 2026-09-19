@@ -76,7 +76,7 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-[1100px] flex-col items-center justify-between gap-3 px-6 py-5 text-[0.75rem] text-[color:var(--ink-faint)] sm:flex-row">
-          <span>© {new Date().getFullYear()} Remindly — a product of AIDO Technologies Ltd. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Neuroli — a product of AIDO Technologies Ltd. All rights reserved.</span>
           <span className="flex gap-4">
             <Link to="/terms" className="hover:text-white">Terms</Link>
             <Link to="/privacy" className="hover:text-white">Privacy</Link>

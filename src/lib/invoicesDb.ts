@@ -127,7 +127,7 @@ export async function fetchDirectory(myId: string): Promise<DirectoryUser[]> {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
- * Look up anyone with a Remindly account by name, email or user ID.
+ * Look up anyone with a Neuroli account by name, email or user ID.
  * Requires at least 3 characters so the whole user base can't be enumerated
  * from a single keystroke, and caps results.
  */

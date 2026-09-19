@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async signInWithGoogle() {
         if (!supabase) {
-          setDemoUser('Priya Nair', 'demo@remindly.app')
+          setDemoUser('Priya Nair', 'demo@neuroli.app')
           return {}
         }
         const { error } = await supabase.auth.signInWithOAuth({
@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Never bypass a real backend: when Supabase is configured the only
         // ways in are email/password and Google.
         if (isSupabaseConfigured) return
-        setDemoUser('Priya Nair', 'demo@remindly.app')
+        setDemoUser('Priya Nair', 'demo@neuroli.app')
       },
       async signOut() {
         if (supabase) await supabase.auth.signOut()

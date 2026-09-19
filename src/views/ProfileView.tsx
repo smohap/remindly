@@ -71,7 +71,7 @@ export function ProfileView() {
               </span>
             )}
           </div>
-          <p className="truncate text-[0.85rem] text-[color:var(--ink-dim)]">{user?.email ?? 'demo@remindly.app'}</p>
+          <p className="truncate text-[0.85rem] text-[color:var(--ink-dim)]">{user?.email ?? 'demo@neuroli.app'}</p>
           {(f.jobTitle || f.company) && (
             <p className="mt-0.5 truncate text-[0.8rem] text-[color:var(--ink-faint)]">
               {[f.jobTitle, f.company].filter(Boolean).join(' · ')}
@@ -109,7 +109,7 @@ export function ProfileView() {
           </label>
           <label>
             <span className={labelCls}>Email</span>
-            <input value={user?.email ?? 'demo@remindly.app'} readOnly disabled className={cn(field, 'cursor-not-allowed opacity-60')} />
+            <input value={user?.email ?? 'demo@neuroli.app'} readOnly disabled className={cn(field, 'cursor-not-allowed opacity-60')} />
           </label>
           <label>
             <span className={labelCls}>Phone</span>

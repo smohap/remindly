@@ -280,7 +280,7 @@ export function useInvoices() {
   const awaitingCents = sent.filter(i => i.status === 'sent').reduce((s, i) => s + i.amountCents, 0)
 
   /**
-   * Find someone to invoice. In DB mode this searches every Remindly account
+   * Find someone to invoice. In DB mode this searches every Neuroli account
    * by name, email or user ID; locally it filters the seeded directory.
    */
   const searchRecipients = async (query: string): Promise<DirectoryUser[]> => {

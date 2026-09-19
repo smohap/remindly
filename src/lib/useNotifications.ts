@@ -76,7 +76,7 @@ export function useNotifications(reminders: Reminder[]) {
     const result = await Notification.requestPermission()
     setPermission(result)
     if (result === 'granted') {
-      new Notification('Remindly notifications are on', {
+      new Notification('Neuroli notifications are on', {
         body: "We'll nudge you when something needs you.",
         tag: 'remindly-welcome',
       })

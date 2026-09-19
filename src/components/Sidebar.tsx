@@ -40,9 +40,9 @@ export function Sidebar() {
 
   return (
     <aside className="card flex flex-col gap-6 px-3 py-6 xl:px-4">
-      <div className="font-display flex items-center justify-center gap-2 px-1.5 text-[1.15rem] font-bold xl:justify-start">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--accent)]" />
-        <span className="hidden xl:inline">Remindly</span>
+      <div className="flex items-center justify-center px-1.5 xl:justify-start">
+        <img src="/neuroli-icon.webp" alt="" className="h-8 w-8 rounded-[9px] xl:hidden" />
+        <img src="/neuroli-logo.png" alt="Neuroli" className="hidden h-11 w-auto rounded-xl bg-white/92 px-3 py-1 xl:block" />
       </div>
       <nav className="flex flex-col gap-0.5" aria-label="Main">
         {nav.map(item => {
