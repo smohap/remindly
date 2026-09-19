@@ -12,10 +12,11 @@ describe('planAllows', () => {
     expect(planAllows('plus', 'group_chat')).toBe(true)
     expect(planAllows('plus', 'admin_console')).toBe(false)
   })
-  it('team unlocks group features but not business', () => {
+  it('team and growth unlock everything, including business tools', () => {
     expect(planAllows('team', 'group_chat')).toBe(true)
     expect(planAllows('team', 'admin_console')).toBe(true)
-    expect(planAllows('team', 'business')).toBe(false)
+    expect(planAllows('team', 'business')).toBe(true)
+    expect(planAllows('plus', 'business')).toBe(false)
   })
   it('growth unlocks everything', () => {
     for (const f of Object.keys(FEATURE_MIN_PLAN) as Feature[]) expect(planAllows('growth', f)).toBe(true)
@@ -27,7 +28,7 @@ describe('planForFeature', () => {
     expect(planForFeature('vault')).toBe('plus')
     expect(planForFeature('group_chat')).toBe('plus')
     expect(planForFeature('admin_console')).toBe('team')
-    expect(planForFeature('business')).toBe('growth')
+    expect(planForFeature('business')).toBe('team')
   })
 })
 

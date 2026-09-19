@@ -19,7 +19,7 @@ const primaryBtn =
 
 const ROLE_STYLE: Record<UserRole, string> = {
   super_admin: 'bg-[rgba(251,191,36,0.18)] text-[#FCD770]',
-  group_admin: 'bg-[rgba(124,111,255,0.22)] text-[#C6BFFF]',
+  group_admin: 'bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]',
   user: 'bg-[color:var(--subtle-2)] text-[color:var(--ink-dim)]',
 }
 
@@ -66,7 +66,7 @@ export function AdminView() {
         </span>
         <h3 className="font-display text-[1.1rem] font-bold">Admin access required</h3>
         <p className="max-w-sm text-[0.85rem] text-[color:var(--ink-dim)]">
-          You're signed in as {ROLE_LABEL[role ?? 'user']}. Ask a Super Admin to grant you an admin role.
+          The admin console is for Super Admins. Group admins manage their groups from the Groups tab.
         </p>
       </div>
     )
@@ -89,7 +89,7 @@ export function AdminView() {
         </h2>
         <p className="text-[0.78rem] text-[color:var(--ink-dim)]">
           You are {ROLE_LABEL[role ?? 'user']}
-          {isSuperAdmin ? ' — you can manage every person and group.' : ' — you can manage the groups you administer.'}
+          {' — you can manage every person, group and plan.'}
         </p>
       </div>
 
@@ -163,7 +163,7 @@ export function AdminView() {
               </span>
               {isSuperAdmin && (
                 <select
-                  value={p.role}
+                  value={p.role === 'super_admin' ? 'super_admin' : 'user'}
                   onChange={async e => {
                     const next = e.target.value as UserRole
                     const err = await setUserRole(p.id, next, p.name)
@@ -173,7 +173,6 @@ export function AdminView() {
                   className="shrink-0 rounded-[10px] border border-[color:var(--border-strong)] bg-[color:var(--subtle-2)] px-2.5 py-1.5 text-[0.72rem] text-[color:var(--ink)] outline-none"
                 >
                   <option value="user" className="bg-[color:var(--surface-2)]">User</option>
-                  <option value="group_admin" className="bg-[color:var(--surface-2)]">Group Admin</option>
                   <option value="super_admin" className="bg-[color:var(--surface-2)]">Super Admin</option>
                 </select>
               )}

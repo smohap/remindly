@@ -1,6 +1,6 @@
 # Neuroli
 
-The intelligent reminder platform — a multi-tenant reminder & event-notification app with three user tiers (Super Admin, Group Admin, User), recurring reminders, smart grouping, compliance acknowledgement with escalation, quiet hours, and paid plans (Personal Plus, Team, Growth) billed through Stripe.
+The intelligent reminder platform — a multi-tenant reminder & event-notification app with two account roles (User, Super Admin) plus per-group admins, recurring reminders, smart grouping, compliance acknowledgement with escalation, quiet hours, and paid plans (Personal Plus, Team, Growth) billed through Stripe.
 
 Built with **Vite + React + TypeScript + Tailwind CSS v4 + Motion**, with **Supabase** (PostgreSQL + Auth) as the backend and **Stripe** (via Vercel functions in `api/`) for billing. Responsive: a three-column dashboard on desktop that becomes a native-feeling mobile app (bottom tab bar, bottom sheets, swipe gestures) on phones.
 
@@ -52,7 +52,7 @@ With these set, the login page uses real Supabase auth (email/password + Google)
 
 ## Who is admin?
 
-Roles live in `profiles.role` (`user`, `group_admin`, `super_admin`) and are enforced by RLS — the UI only decides what to show. After migration 0007, **the first account to sign up becomes Super Admin** automatically. To promote any existing account, run migration 0008 once (it lets the SQL editor bypass the in-app role guard), then:
+Account roles live in `profiles.role` (`user`, `super_admin`; the legacy `group_admin` value is treated as `user`) and are enforced by RLS. Group admin is a per-group membership (`group_members.member_role`), not an account role — the UI only decides what to show. After migration 0007, **the first account to sign up becomes Super Admin** automatically. To promote any existing account, run migration 0008 once (it lets the SQL editor bypass the in-app role guard), then:
 
 ```sql
 update public.profiles set role = 'super_admin' where email = 'you@example.com';

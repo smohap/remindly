@@ -51,7 +51,8 @@ export interface AuditEntry {
 
 export const ROLE_LABEL: Record<UserRole, string> = {
   super_admin: 'Super Admin',
-  group_admin: 'Group Admin',
+  // Legacy value: being a group admin is a membership, not an account role.
+  group_admin: 'User',
   user: 'User',
 }
 
@@ -94,7 +95,8 @@ export function useMyRole() {
   }, [])
 
   const isSuperAdmin = role === 'super_admin'
-  const isAdmin = role === 'super_admin' || role === 'group_admin'
+  // The console is for Super Admins; group admins manage their groups from the Groups tab.
+  const isAdmin = role === 'super_admin'
   return { role, isAdmin, isSuperAdmin, loading, dbMode }
 }
 

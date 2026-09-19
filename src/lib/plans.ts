@@ -34,8 +34,8 @@ export const FEATURE_MIN_PLAN: Record<Feature, PlanId> = {
   list_sharing: 'plus',
   group_chat: 'plus',
   admin_console: 'team',
-  business: 'growth',
-  analytics: 'growth',
+  business: 'team',
+  analytics: 'team',
   group_workspace: 'plus',
 }
 
@@ -104,7 +104,15 @@ export const PLANS: Plan[] = [
     priceLabel: '$49',
     unit: 'per org / month',
     who: 'Small teams and clubs',
-    features: ['Everything in Personal Plus', 'Admin console and roles', 'Up to 100 members', 'Audit log'],
+    features: [
+      'Everything in Personal Plus',
+      'Compliance mode and escalation',
+      'Certification and contract tracking',
+      'GST / PAYE filing deadlines',
+      'Analytics dashboard',
+      'Admin console, roles and audit log',
+      'Up to 100 members',
+    ],
   },
   {
     id: 'growth',
@@ -112,14 +120,7 @@ export const PLANS: Plan[] = [
     priceLabel: '$149',
     unit: 'per org / month',
     who: 'Compliance-driven businesses',
-    features: [
-      'Everything in Team',
-      'Compliance mode and escalation',
-      'Certification and contract tracking',
-      'GST / PAYE filing deadlines',
-      'Analytics dashboard',
-      'Unlimited members',
-    ],
+    features: ['Everything in Team', 'Unlimited members', 'Priority support', 'Data export on request'],
   },
 ]
 

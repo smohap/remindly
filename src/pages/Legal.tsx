@@ -52,7 +52,7 @@ export function Terms() {
       </Section>
       <Section heading="3. Accounts & roles">
         <p>
-          Accounts are organised into three tiers — Super Admin, Group Admin, and User. You are responsible for maintaining
+          Accounts have two roles — User and Super Admin — and any user may additionally administer specific groups. You are responsible for maintaining
           the confidentiality of your credentials and for all activity that occurs under your account.
         </p>
       </Section>
@@ -372,7 +372,7 @@ export function Security() {
       </Section>
       <Section heading="Roles and permissions">
         <p>
-          Neuroli has three tiers: User, Group Admin and Super Admin. Role changes can only be made by a Super Admin, and
+          Neuroli has two account roles, User and Super Admin, plus per-group admins (whoever creates a group, and anyone they promote). Account role changes can only be made by a Super Admin, and
           never to their own account — a rule enforced by a database trigger, not just hidden buttons.
         </p>
       </Section>
