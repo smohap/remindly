@@ -162,7 +162,7 @@ export function useGroupWorkspace(groupId: string) {
         commitLocal({ ...ws, docs: [{ id: newWorkspaceId(), name: file.name, path: '', size: file.size, mime: file.type, createdAt: new Date().toISOString() }, ...ws.docs] })
         return null
       }
-      const safe = file.name.replace(/[^\w.\-]+/g, '_')
+      const safe = file.name.replace(/[^\w.-]+/g, '_')
       const path = `${groupId}/${newWorkspaceId()}-${safe}`
       const up = await supabase.storage.from('group-docs').upload(path, file, { contentType: file.type || undefined, upsert: false })
       if (up.error) return /policy|permission|denied|row-level/i.test(up.error.message) ? NO_ACCESS : clean(up.error)
