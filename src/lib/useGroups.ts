@@ -13,9 +13,15 @@ export interface Member {
   role: 'admin' | 'member'
   /** active = member; invited = waiting on them; requested = waiting on an admin. */
   status: MembershipStatus
+  /** What this member may do in the shared workspace; admins always have full access. */
+  workspaceAccess: WorkspaceAccess
 }
 
 export type MembershipStatus = 'active' | 'invited' | 'requested'
+
+/** none = sees no lists/notes; read = view; write = tick items, write notes, upload docs. */
+export type WorkspaceAccess = 'none' | 'read' | 'write'
+export const WORKSPACE_ACCESS_LABEL: Record<WorkspaceAccess, string> = { none: 'No access', read: 'Read', write: 'Read & write' }
 
 export interface PersonHit {
   id: string
@@ -44,8 +50,8 @@ export interface Group {
   joinCode?: string
   /** False when the group is visible only through Super Admin rights. */
   isMember?: boolean
-  /** Admin switch: may members edit the shared workspace? */
-  membersCanEdit: boolean
+  /** My own workspace access: admins get write; observers (Super Admin, not a member) get none. */
+  myWorkspaceAccess: WorkspaceAccess
   members: Member[]
 }
 
@@ -75,7 +81,13 @@ const listeners = new Set<() => void>()
 function load(): Group[] {
   try {
     const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Group[]) : []
+    if (!raw) return []
+    // Groups saved before per-member access existed: admins write, everyone else reads.
+    return (JSON.parse(raw) as Group[]).map(g => ({
+      ...g,
+      myWorkspaceAccess: g.myWorkspaceAccess ?? (g.role === 'admin' ? 'write' : 'read'),
+      members: g.members.map(m => ({ ...m, workspaceAccess: m.workspaceAccess ?? (m.role === 'admin' ? 'write' : 'read') })),
+    }))
   } catch {
     return []
   }
@@ -97,19 +109,19 @@ function subscribe(l: () => void) {
 }
 
 
-type MemberRow = { id: string; user_id: string; member_role: 'admin' | 'member'; status: MembershipStatus; profiles: { full_name: string | null; email: string | null } | null }
+type MemberRow = { id: string; user_id: string; member_role: 'admin' | 'member'; status: MembershipStatus; workspace_access: WorkspaceAccess | null; profiles: { full_name: string | null; email: string | null } | null }
 
 /** Pull the signed-in user's groups (as member or creator) with their members. */
 async function loadFromDb(uid: string): Promise<{ groups: Group[]; error: string | null }> {
   if (!supabase) return { groups: [], error: null }
-  const { data: gs, error: gErr } = await supabase.from('groups').select('id, name, color, description, join_code, members_can_edit')
+  const { data: gs, error: gErr } = await supabase.from('groups').select('id, name, color, description, join_code')
   if (gErr) return { groups: [], error: gErr.message }
   if (!gs || gs.length === 0) return { groups: [], error: null }
   const ids = gs.map(g => String(g.id))
   // group_members has two links to profiles (user_id, invited_by): name the one we mean.
   const { data: ms, error: mErr } = await supabase
     .from('group_members')
-    .select('id, group_id, user_id, member_role, status, profiles!user_id ( full_name, email )')
+    .select('id, group_id, user_id, member_role, status, workspace_access, profiles!user_id ( full_name, email )')
     .in('group_id', ids)
   if (mErr) return { groups: [], error: mErr.message }
   const rows = (ms ?? []) as unknown as (MemberRow & { group_id: string })[]
@@ -118,7 +130,7 @@ async function loadFromDb(uid: string): Promise<{ groups: Group[]; error: string
       .filter(m => String(m.group_id) === String(g.id))
       .map(m => {
         const name = m.profiles?.full_name || nameFromEmail(m.profiles?.email ?? 'member')
-        return { id: String(m.id), userId: String(m.user_id), name, email: m.profiles?.email ?? '', initials: initialsOf(name), role: m.member_role, status: m.status ?? 'active' }
+        return { id: String(m.id), userId: String(m.user_id), name, email: m.profiles?.email ?? '', initials: initialsOf(name), role: m.member_role, status: m.status ?? 'active', workspaceAccess: m.workspace_access ?? 'read' }
       })
     const mine = members.find(m => m.userId === uid)
     // No membership row at all means we only see this group as a Super Admin; treat as observer, not member.
@@ -131,7 +143,7 @@ async function loadFromDb(uid: string): Promise<{ groups: Group[]; error: string
       myStatus: mine?.status ?? 'active',
       isMember: Boolean(mine),
       joinCode: (g.join_code as string | null) ?? undefined,
-      membersCanEdit: Boolean(g.members_can_edit),
+      myWorkspaceAccess: !mine || mine.status !== 'active' ? 'none' : mine.role === 'admin' ? 'write' : mine.workspaceAccess,
       members,
     }
   })
@@ -178,9 +190,9 @@ export function useGroups() {
         description: description?.trim() || undefined,
         role: 'admin',
         myStatus: 'active',
-        membersCanEdit: false,
+        myWorkspaceAccess: 'write',
         joinCode: Math.random().toString(36).slice(2, 10).toUpperCase(),
-        members: [{ id: `me-${Date.now()}`, name: me, email: user?.email ?? '', initials: initialsOf(me), role: 'admin', status: 'active' }],
+        members: [{ id: `me-${Date.now()}`, name: me, email: user?.email ?? '', initials: initialsOf(me), role: 'admin', status: 'active', workspaceAccess: 'write' }],
       }
       commit([g, ...groups])
     },
@@ -220,7 +232,7 @@ export function useGroups() {
       const email = isEmail ? value : `${value.toLowerCase().replace(/\s+/g, '.')}@example.com`
       const name = isEmail ? nameFromEmail(value) : value
       // Demo: invitations stay pending until the invitee accepts (nobody else is signed in here).
-      const member: Member = { id: `m-${Date.now()}`, name, email, initials: initialsOf(name), role: 'member', status: 'invited' }
+      const member: Member = { id: `m-${Date.now()}`, name, email, initials: initialsOf(name), role: 'member', status: 'invited', workspaceAccess: 'read' }
       commit(groups.map(g => (g.id === groupId ? { ...g, members: [...g.members, member] } : g)))
       return `Invitation sent to ${email}.`
     },
@@ -323,17 +335,17 @@ export function useGroups() {
     [reload],
   )
 
-  /** Admin switch for the shared workspace. */
-  const setMembersCanEdit = useCallback(
-    async (groupId: string, on: boolean) => {
+  /** Group admins decide what each member may do in the shared workspace. */
+  const setWorkspaceAccess = useCallback(
+    async (groupId: string, memberId: string, access: WorkspaceAccess) => {
       setError(null)
       if (supabase) {
-        const { error: err } = await supabase.from('groups').update({ members_can_edit: on }).eq('id', groupId)
-        if (err) setError(err.message)
+        const { error: err } = await supabase.from('group_members').update({ workspace_access: access }).eq('id', memberId)
+        if (err) setError(err.message.replace(/^.*?:\s*/, ''))
         await reload()
         return
       }
-      commit(groups.map(g => (g.id === groupId ? { ...g, membersCanEdit: on } : g)))
+      commit(groups.map(g => (g.id === groupId ? { ...g, members: g.members.map(m => (m.id === memberId ? { ...m, workspaceAccess: access } : m)) } : g)))
     },
     [reload],
   )
@@ -370,7 +382,7 @@ export function useGroups() {
     deleteGroup,
     requestToJoin,
     requestToJoinGroup,
-    setMembersCanEdit,
+    setWorkspaceAccess,
     setMemberRole,
     searchPeople,
     searchGroups,

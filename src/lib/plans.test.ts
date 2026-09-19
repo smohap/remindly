@@ -10,6 +10,8 @@ describe('planAllows', () => {
     expect(planAllows('plus', 'vault')).toBe(true)
     expect(planAllows('plus', 'invoices')).toBe(true)
     expect(planAllows('plus', 'group_chat')).toBe(true)
+    expect(planAllows('plus', 'group_docs')).toBe(true)
+    expect(planAllows('free', 'group_docs')).toBe(false)
     expect(planAllows('plus', 'admin_console')).toBe(false)
   })
   it('team and growth unlock everything, including business tools', () => {

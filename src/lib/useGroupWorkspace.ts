@@ -5,9 +5,9 @@ import { supabase } from './supabase'
 
 /**
  * A group's shared workspace: lists, notes and documents. Admins always have
- * full access; members read, and write only when the admin has switched on
- * "members can edit" (enforced by RLS — see 0012). Whether a member may see
- * it at all depends on their plan, which the view checks.
+ * full access; each member has the access level an admin gave them (none /
+ * read / write — enforced by RLS, see 0014). Docs additionally need a
+ * Personal Plus or business plan, which the view checks.
  */
 
 export interface GroupListItem {
@@ -125,6 +125,17 @@ export function useGroupWorkspace(groupId: string) {
       ),
     [write, ws],
   )
+  const renameList = useCallback(
+    (listId: string, name: string) => {
+      const trimmed = name.trim()
+      if (!trimmed) return Promise.resolve()
+      return write(
+        () => supabase!.from('group_lists').update({ name: trimmed, updated_at: new Date().toISOString() }).eq('id', listId),
+        () => ({ ...ws, lists: ws.lists.map(l => (l.id === listId ? { ...l, name: trimmed, updatedAt: new Date().toISOString() } : l)) }),
+      )
+    },
+    [write, ws],
+  )
   const deleteList = useCallback(
     (listId: string) => write(() => supabase!.from('group_lists').delete().eq('id', listId), () => ({ ...ws, lists: ws.lists.filter(l => l.id !== listId) })),
     [write, ws],
@@ -187,5 +198,5 @@ export function useGroupWorkspace(groupId: string) {
     return data?.signedUrl ?? null
   }, [])
 
-  return { ...ws, loading, error, reload, createList, saveListItems, deleteList, saveNote, deleteNote, uploadDoc, deleteDoc, docUrl }
+  return { ...ws, loading, error, reload, createList, renameList, saveListItems, deleteList, saveNote, deleteNote, uploadDoc, deleteDoc, docUrl }
 }

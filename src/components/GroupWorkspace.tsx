@@ -1,19 +1,32 @@
 import { useRef, useState } from 'react'
-import { Check, Download, FileText, ListChecks, Plus, StickyNote, Trash2, Upload, X } from 'lucide-react'
+import { Check, Download, FileText, ListChecks, Pencil, Plus, StickyNote, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '../lib/cn'
+import { usePlan } from '../lib/usePlan'
+import type { WorkspaceAccess } from '../lib/useGroups'
 import { formatBytes, useGroupWorkspace, newWorkspaceId, type GroupDoc, type GroupNote } from '../lib/useGroupWorkspace'
 import { SegmentBar } from './SegmentBar'
+import { UpgradeGate } from './UpgradeGate'
 
 type Seg = 'lists' | 'notes' | 'docs'
 
 /**
- * Shared lists, notes and documents for one group. `canEdit` is decided by
- * the caller (admin, or member with the group's edit switch on); RLS is the
- * real gate.
+ * Shared lists, notes and documents for one group.
+ *
+ * - `isAdmin`: group admins create, rename and delete lists, delete notes,
+ *   and decide every member's `access`.
+ * - `access`: what the viewer may do — `none` (nothing shown), `read`, or
+ *   `write` (tick / add items, write notes, upload docs).
+ * - Docs additionally need Personal Plus or a business plan.
+ * RLS (0014) is the real gate; this only shapes the UI.
  */
-export function GroupWorkspace({ groupId, canEdit }: { groupId: string; canEdit: boolean }) {
+export function GroupWorkspace({ groupId, isAdmin, access }: { groupId: string; isAdmin: boolean; access: WorkspaceAccess }) {
   const ws = useGroupWorkspace(groupId)
+  const { can } = usePlan()
   const [seg, setSeg] = useState<Seg>('lists')
+  if (access === 'none' && !isAdmin) {
+    return <p className="text-[0.76rem] text-[color:var(--ink-faint)]">A group admin hasn't given you access to this group's lists and notes yet.</p>
+  }
+  const canWrite = isAdmin || access === 'write'
   return (
     <div className="flex flex-col gap-3">
       <SegmentBar
@@ -28,22 +41,28 @@ export function GroupWorkspace({ groupId, canEdit }: { groupId: string; canEdit:
       />
       {ws.error && <p className="text-[0.76rem] text-[color:var(--danger)]">{ws.error}</p>}
       {ws.loading && <p className="text-[0.76rem] text-[color:var(--ink-faint)]">Loading…</p>}
-      {seg === 'lists' && <Lists ws={ws} canEdit={canEdit} />}
-      {seg === 'notes' && <Notes ws={ws} canEdit={canEdit} />}
-      {seg === 'docs' && <Docs ws={ws} canEdit={canEdit} />}
-      {!canEdit && <p className="text-[0.7rem] text-[color:var(--ink-faint)]">View only — a group admin can allow members to edit.</p>}
+      {seg === 'lists' && <Lists ws={ws} isAdmin={isAdmin} canWrite={canWrite} />}
+      {seg === 'notes' && <Notes ws={ws} isAdmin={isAdmin} canWrite={canWrite} />}
+      {seg === 'docs' &&
+        (can('group_docs') ? (
+          <Docs ws={ws} canWrite={canWrite} />
+        ) : (
+          <UpgradeGate feature="group_docs" description="Upload and share documents (up to 20 MB each) with this group. Included in Personal Plus and all business plans." />
+        ))}
+      {!canWrite && <p className="text-[0.7rem] text-[color:var(--ink-faint)]">View only — a group admin can give you write access.</p>}
     </div>
   )
 }
 
 type WS = ReturnType<typeof useGroupWorkspace>
 
-function Lists({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
+function Lists({ ws, isAdmin, canWrite }: { ws: WS; isAdmin: boolean; canWrite: boolean }) {
   const [name, setName] = useState('')
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [renaming, setRenaming] = useState<{ id: string; name: string } | null>(null)
   return (
     <div className="flex flex-col gap-2">
-      {canEdit && (
+      {isAdmin && (
         <form
           onSubmit={e => {
             e.preventDefault()
@@ -61,23 +80,41 @@ function Lists({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
         const done = l.items.filter(i => i.done).length
         return (
           <div key={l.id} className="card-2 flex flex-col gap-2 p-3">
-            <div className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 truncate text-[0.84rem] font-semibold">{l.name}</span>
-              <span className="text-[0.68rem] text-[color:var(--ink-faint)]">{done}/{l.items.length} done</span>
-              {canEdit && (
-                <button onClick={() => void ws.deleteList(l.id)} aria-label={`Delete list ${l.name}`} className="text-[color:var(--ink-faint)] hover:text-[color:var(--danger)]"><Trash2 size={13} /></button>
-              )}
-            </div>
+            {renaming?.id === l.id ? (
+              <form
+                onSubmit={e => {
+                  e.preventDefault()
+                  void ws.renameList(l.id, renaming.name)
+                  setRenaming(null)
+                }}
+                className="flex gap-2"
+              >
+                <input autoFocus value={renaming.name} onChange={e => setRenaming({ id: l.id, name: e.target.value })} aria-label="List name" className="field flex-1 py-1.5 text-[0.82rem]" />
+                <button type="submit" className="btn-primary shrink-0 px-2.5 py-1.5"><Check size={13} /></button>
+                <button type="button" onClick={() => setRenaming(null)} className="btn-ghost shrink-0 px-2.5 py-1.5"><X size={13} /></button>
+              </form>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate text-[0.84rem] font-semibold">{l.name}</span>
+                <span className="text-[0.68rem] text-[color:var(--ink-faint)]">{done}/{l.items.length} done</span>
+                {isAdmin && (
+                  <>
+                    <button onClick={() => setRenaming({ id: l.id, name: l.name })} aria-label={`Rename list ${l.name}`} title="Rename" className="text-[color:var(--ink-faint)] hover:text-[color:var(--ink)]"><Pencil size={13} /></button>
+                    <button onClick={() => void ws.deleteList(l.id)} aria-label={`Delete list ${l.name}`} title="Delete" className="text-[color:var(--ink-faint)] hover:text-[color:var(--danger)]"><Trash2 size={13} /></button>
+                  </>
+                )}
+              </div>
+            )}
             {l.items.map(it => (
               <label key={it.id} className={cn('flex items-center gap-2 text-[0.8rem]', it.done && 'text-[color:var(--ink-faint)] line-through')}>
-                <input type="checkbox" checked={it.done} disabled={!canEdit} onChange={e => void ws.saveListItems(l.id, l.items.map(x => (x.id === it.id ? { ...x, done: e.target.checked } : x)))} className="accent-[color:var(--accent)]" />
+                <input type="checkbox" checked={it.done} disabled={!canWrite} onChange={e => void ws.saveListItems(l.id, l.items.map(x => (x.id === it.id ? { ...x, done: e.target.checked } : x)))} className="accent-[color:var(--accent)]" />
                 <span className="flex-1">{it.text}</span>
-                {canEdit && (
+                {canWrite && (
                   <button onClick={() => void ws.saveListItems(l.id, l.items.filter(x => x.id !== it.id))} aria-label={`Remove ${it.text}`} className="text-[color:var(--ink-faint)] hover:text-[color:var(--danger)]"><X size={12} /></button>
                 )}
               </label>
             ))}
-            {canEdit && (
+            {canWrite && (
               <form
                 onSubmit={e => {
                   e.preventDefault()
@@ -99,7 +136,7 @@ function Lists({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
   )
 }
 
-function Notes({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
+function Notes({ ws, isAdmin, canWrite }: { ws: WS; isAdmin: boolean; canWrite: boolean }) {
   const [editing, setEditing] = useState<GroupNote | null>(null)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -108,9 +145,11 @@ function Notes({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
     setTitle(n?.title ?? '')
     setBody(n?.body ?? '')
   }
+  // Writers may name a new note; renaming an existing one is an admin job.
+  const canRename = isAdmin || !editing?.id
   return (
     <div className="flex flex-col gap-2">
-      {canEdit && !editing && (
+      {canWrite && !editing && (
         <button onClick={() => open()} className="btn-primary self-start"><Plus size={14} /> Note</button>
       )}
       {editing && (
@@ -122,8 +161,8 @@ function Notes({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
           }}
           className="card-2 flex flex-col gap-2 p-3"
         >
-          <input autoFocus value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" className="field" />
-          <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Write the note…" rows={5} className="field resize-y" />
+          <input autoFocus={canRename} value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" disabled={!canRename} title={canRename ? undefined : 'Only a group admin can rename a note'} className="field disabled:opacity-60" />
+          <textarea autoFocus={!canRename} value={body} onChange={e => setBody(e.target.value)} placeholder="Write the note…" rows={5} className="field resize-y" />
           <div className="flex gap-2">
             <button type="submit" className="btn-primary"><Check size={14} /> Save</button>
             <button type="button" onClick={() => setEditing(null)} className="btn-ghost">Cancel</button>
@@ -136,11 +175,9 @@ function Notes({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
           <div className="flex items-center gap-2">
             <span className="min-w-0 flex-1 truncate text-[0.84rem] font-semibold">{n.title}</span>
             <span className="text-[0.66rem] text-[color:var(--ink-faint)]">{new Date(n.updatedAt).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' })}</span>
-            {canEdit && (
-              <>
-                <button onClick={() => open(n)} className="btn-ghost px-2 py-1 text-[0.7rem]">Edit</button>
-                <button onClick={() => void ws.deleteNote(n.id)} aria-label={`Delete note ${n.title}`} className="text-[color:var(--ink-faint)] hover:text-[color:var(--danger)]"><Trash2 size={13} /></button>
-              </>
+            {canWrite && <button onClick={() => open(n)} className="btn-ghost px-2 py-1 text-[0.7rem]">Edit</button>}
+            {isAdmin && (
+              <button onClick={() => void ws.deleteNote(n.id)} aria-label={`Delete note ${n.title}`} title="Delete" className="text-[color:var(--ink-faint)] hover:text-[color:var(--danger)]"><Trash2 size={13} /></button>
             )}
           </div>
           {n.body && <p className="whitespace-pre-wrap text-[0.8rem] leading-relaxed text-[color:var(--ink-dim)]">{n.body}</p>}
@@ -150,7 +187,7 @@ function Notes({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
   )
 }
 
-function Docs({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
+function Docs({ ws, canWrite }: { ws: WS; canWrite: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -161,7 +198,7 @@ function Docs({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
   }
   return (
     <div className="flex flex-col gap-2">
-      {canEdit && (
+      {canWrite && (
         <div className="flex items-center gap-2">
           <input
             ref={fileRef}
@@ -191,7 +228,7 @@ function Docs({ ws, canEdit }: { ws: WS; canEdit: boolean }) {
             <div className="text-[0.66rem] text-[color:var(--ink-faint)]">{formatBytes(d.size)} · {new Date(d.createdAt).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' })}</div>
           </div>
           <button onClick={() => void openDoc(d)} aria-label={`Download ${d.name}`} className="btn-ghost px-2 py-1 text-[0.7rem]"><Download size={13} /></button>
-          {canEdit && (
+          {canWrite && (
             <button onClick={() => void ws.deleteDoc(d)} aria-label={`Delete ${d.name}`} className="text-[color:var(--ink-faint)] hover:text-[color:var(--danger)]"><Trash2 size={13} /></button>
           )}
         </div>

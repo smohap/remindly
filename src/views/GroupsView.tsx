@@ -4,15 +4,14 @@ import { Check, FolderOpen, KeyRound, MessageSquare, Plus, Trash2, UserPlus, X }
 import { cn } from '../lib/cn'
 import { GroupChat } from '../components/GroupChat'
 import { GroupWorkspace } from '../components/GroupWorkspace'
-import { ToggleSwitch } from '../components/ToggleSwitch'
 import { UpgradeGate } from '../components/UpgradeGate'
 import { usePlan } from '../lib/usePlan'
 import { useAuth } from '../auth/AuthContext'
-import { GROUP_COLORS, useGroups, type GroupHit, type PersonHit } from '../lib/useGroups'
+import { GROUP_COLORS, useGroups, WORKSPACE_ACCESS_LABEL, type GroupHit, type PersonHit, type WorkspaceAccess } from '../lib/useGroups'
 
 export function GroupsView() {
   const { can } = usePlan()
-  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, setMembersCanEdit, setMemberRole, searchPeople, searchGroups, respond, error, loading } = useGroups()
+  const { groups, invitations, awaiting, createGroup, addMember, removeMember, deleteGroup, requestToJoin, requestToJoinGroup, setWorkspaceAccess, setMemberRole, searchPeople, searchGroups, respond, error, loading } = useGroups()
   const [inviteMsg, setInviteMsg] = useState<string | null>(null)
   const [people, setPeople] = useState<PersonHit[]>([])
   const [groupQuery, setGroupQuery] = useState('')
@@ -268,13 +267,14 @@ export function GroupsView() {
                     const invited = g.members.filter(m => m.status === 'invited')
                     const requested = g.members.filter(m => m.status === 'requested')
                     const Row = ({ m, right }: { m: (typeof g.members)[number]; right: React.ReactNode }) => (
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-[0.65rem] font-bold text-[color:var(--accent-ink)]">{m.initials}</span>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-[9rem] flex-1">
                           <div className="truncate text-[0.82rem] font-semibold">{m.name}</div>
                           <div className="truncate text-[0.7rem] text-[color:var(--ink-faint)]">{m.email}</div>
                         </div>
-                        {right}
+                        {/* Controls wrap under the name when the row is tight. */}
+                        <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">{right}</div>
                       </div>
                     )
                     const label = (t: string, n: number) => (
@@ -292,6 +292,23 @@ export function GroupsView() {
                             right={
                               <>
                                 <span className="shrink-0 text-[0.62rem] font-bold uppercase tracking-[0.06em] text-[color:var(--ink-faint)]">{m.role}</span>
+                                {m.role === 'admin' ? (
+                                  <span className="hidden shrink-0 text-[0.66rem] text-[color:var(--ink-faint)] sm:inline" title="Group admins have full workspace access">Full access</span>
+                                ) : isAdmin ? (
+                                  <select
+                                    value={m.workspaceAccess}
+                                    onChange={e => void setWorkspaceAccess(g.id, m.id, e.target.value as WorkspaceAccess)}
+                                    aria-label={`Workspace access for ${m.name}`}
+                                    title="What this member may do with the group's lists, notes and documents"
+                                    className="field w-auto shrink-0 px-2 py-1 text-[0.7rem]"
+                                  >
+                                    {(Object.keys(WORKSPACE_ACCESS_LABEL) as WorkspaceAccess[]).map(a => (
+                                      <option key={a} value={a} className="bg-[color:var(--surface-2)]">{WORKSPACE_ACCESS_LABEL[a]}</option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <span className="shrink-0 text-[0.66rem] text-[color:var(--ink-faint)]">{WORKSPACE_ACCESS_LABEL[m.workspaceAccess]}</span>
+                                )}
                                 {isAdmin && m.email.toLowerCase() !== (user?.email ?? '').toLowerCase() && (
                                   <button
                                     onClick={() => void setMemberRole(g.id, m.id, m.role === 'admin' ? 'member' : 'admin')}
@@ -401,18 +418,9 @@ export function GroupsView() {
                       <FolderOpen size={14} className="text-[color:var(--ink-dim)]" />
                       <span className="text-[0.8rem] font-bold">Workspace</span>
                       <span className="text-[0.7rem] text-[color:var(--ink-faint)]">shared lists, notes and documents</span>
-                      {g.role === 'admin' && (
-                        <label className="ml-auto flex items-center gap-2 text-[0.72rem] text-[color:var(--ink-dim)]">
-                          Members can edit
-                          <ToggleSwitch on={g.membersCanEdit} onChange={() => void setMembersCanEdit(g.id, !g.membersCanEdit)} label="Members can edit the workspace" />
-                        </label>
-                      )}
+                      {g.role === 'admin' && <span className="ml-auto text-[0.68rem] text-[color:var(--ink-faint)]">Set each member's access in the list above</span>}
                     </div>
-                    {g.role === 'admin' || can('group_workspace') ? (
-                      <GroupWorkspace groupId={g.id} canEdit={g.role === 'admin' || g.membersCanEdit} />
-                    ) : (
-                      <UpgradeGate feature="group_workspace" description="Shared lists, notes and documents for this group. Included in Personal Plus and all business plans." />
-                    )}
+                    <GroupWorkspace groupId={g.id} isAdmin={g.role === 'admin'} access={g.myWorkspaceAccess} />
                   </div>
 
                   <div className="mt-3 border-t border-[color:var(--border)] pt-3">
